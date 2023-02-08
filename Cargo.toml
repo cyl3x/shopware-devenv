@@ -1,0 +1,26 @@
+[package]
+name = "shopware-devenv"
+version = "0.1.0"
+authors = ["cyl3x <cyl3x@posteo.de>"]
+edition = "2021"
+repository = "https://git.cyl3x.de/cyl3x/shopware-devenv"
+description = "swdc but for nix/devenv"
+license-file = "LICENSE"
+readme = "README.md"
+keywords = ["shopware", "devenv", "swde", "platform"]
+categories = ["filesystem", "development-tools"]
+
+
+[[bin]]
+name = "swde"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.1.4", features = ["derive", "suggestions"] }
+regex = { version = "1.7.1", default-features = false, features = ["std"] }
+crossterm = "0.26.0"
+nix = "0.26.2"
+serde = "1.0.152"
+serde_derive = "1.0.152"
+serde_json = "1.0.93"
+sha2 = "0.10.6"
