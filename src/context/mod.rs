@@ -1,10 +1,10 @@
 mod custom_context;
 mod platform_context;
 
+use std::path::PathBuf;
+
 pub use custom_context::*;
 pub use platform_context::*;
-
-use std::path::PathBuf;
 
 #[derive(Clone, Debug)]
 pub struct Context {

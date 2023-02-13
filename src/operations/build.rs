@@ -1,4 +1,5 @@
-use crate::{crash, devenv, internal::AppExitCode};
+use crate::internal::AppExitCode;
+use crate::{crash, devenv};
 
 pub fn platform(verbose: bool, demodata: bool, build_test_db: bool) {
     let status = devenv!(verbose, "composer setup").spawn().unwrap().wait();

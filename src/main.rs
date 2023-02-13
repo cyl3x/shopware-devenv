@@ -4,12 +4,12 @@ mod context;
 mod internal;
 mod operations;
 
-use clap::Parser;
-use nix::unistd::Uid;
 use std::env;
 
-use crate::args::{Args, Operation};
-use crate::args::{OperationBuild, OperationWatch};
+use clap::Parser;
+use nix::unistd::Uid;
+
+use crate::args::{Args, Operation, OperationBuild, OperationWatch};
 use crate::context::Context;
 use crate::internal::AppExitCode;
 use crate::operations::{build, check, down, init, log, up, watch};

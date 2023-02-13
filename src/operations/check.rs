@@ -1,6 +1,9 @@
-use std::{path::PathBuf, process::Command};
+use std::path::PathBuf;
+use std::process::Command;
 
-use crate::{context::Context, crash, devenv, internal::AppExitCode, log};
+use crate::context::Context;
+use crate::internal::AppExitCode;
+use crate::{crash, devenv, log};
 
 pub fn main(
     verbose: bool,

@@ -1,12 +1,10 @@
-use std::{fs, path::PathBuf};
+use std::fs;
+use std::path::PathBuf;
 
 use regex::Regex;
 
-use crate::{
-    crash,
-    internal::{AppExitCode, DEVENV_CONFIG},
-    log, sha256,
-};
+use crate::internal::{AppExitCode, DEVENV_CONFIG};
+use crate::{crash, log, sha256};
 
 pub fn main(verbose: bool) {
     let config = fs::read_to_string("./devenv.local.nix");

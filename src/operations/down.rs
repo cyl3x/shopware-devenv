@@ -1,6 +1,8 @@
-use nix::sys::signal::{kill, Signal::SIGINT};
-use nix::unistd::Pid;
 use std::fs;
+
+use nix::sys::signal::kill;
+use nix::sys::signal::Signal::SIGINT;
+use nix::unistd::Pid;
 
 pub fn main(_verbose: bool) {
     let string_pid =

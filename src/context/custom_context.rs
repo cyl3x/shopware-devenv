@@ -1,7 +1,8 @@
-use serde_derive::Deserialize;
 use std::collections::HashMap;
-use std::path::Path;
-use std::{env, fs, path::PathBuf};
+use std::path::{Path, PathBuf};
+use std::{env, fs};
+
+use serde_derive::Deserialize;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum CustomType {

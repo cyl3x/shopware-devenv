@@ -1,0 +1,11 @@
+edition = "2021"
+imports_layout = "Horizontal"
+match_block_trailing_comma = true
+imports_granularity = "Module"
+newline_style = "Unix"
+normalize_comments = true
+wrap_comments = true
+reorder_impl_items = true
+group_imports = "StdExternalCrate"
+use_field_init_shorthand = true
+where_single_line = true

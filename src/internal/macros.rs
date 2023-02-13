@@ -1,7 +1,8 @@
-use crossterm::style::Stylize;
-use sha2::{Digest, Sha256};
 use std::env::vars_os;
 use std::process::{exit, Command};
+
+use crossterm::style::Stylize;
+use sha2::{Digest, Sha256};
 
 use crate::internal::AppExitCode;
 
