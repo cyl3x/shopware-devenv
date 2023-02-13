@@ -1,19 +1,25 @@
 use std::env;
 use std::path::{Path, PathBuf};
 
+use crate::log;
+
 #[derive(Clone, Debug)]
 pub struct PlatformContext {
     pub path: PathBuf,
 }
 
 impl PlatformContext {
-    pub fn check(path: &Path) -> bool {
-        let paths = path.read_dir().unwrap();
+    pub fn new(verbose: bool, path: &Path) -> Option<Self> {
+        let Ok(path_content) = path.read_dir() else { return None; };
 
         let mut has_devenv_file = false;
         let mut has_devenv_dir = false;
 
-        for p in paths.into_iter().filter_map(Result::ok).map(|e| e.path()) {
+        for p in path_content
+            .into_iter()
+            .filter_map(Result::ok)
+            .map(|e| e.path())
+        {
             if p.is_file() && p.ends_with("devenv.nix") {
                 has_devenv_file = true;
             }
@@ -23,17 +29,19 @@ impl PlatformContext {
             }
 
             if has_devenv_dir && has_devenv_file {
-                return true;
+                log!(
+                    verbose,
+                    "Found platform context: {path}",
+                    path = path.display()
+                );
+
+                return Some(Self {
+                    path: path.to_path_buf(),
+                });
             }
         }
 
-        false
-    }
-
-    pub fn new(path: &Path) -> Self {
-        Self {
-            path: path.to_path_buf(),
-        }
+        None
     }
 
     pub fn move_to(&self) {

@@ -36,7 +36,7 @@ macro_rules! crash {
     }
 }
 
-pub fn crash_fn(msg: &str, exit_code: AppExitCode) {
+pub fn crash_fn(msg: &str, exit_code: AppExitCode) -> ! {
     println!("{} {}", ERR_SYMBOL.red(), msg.bold());
     exit(exit_code as i32);
 }

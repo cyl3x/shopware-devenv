@@ -1,4 +1,10 @@
-#![warn(clippy::all, clippy::pedantic, clippy::nursery, clippy::cargo)]
+#![warn(
+    clippy::all,
+    clippy::pedantic,
+    clippy::nursery,
+    clippy::cargo,
+    clippy::unwrap_used
+)]
 mod args;
 mod context;
 mod internal;
@@ -22,18 +28,23 @@ fn main() {
         );
     }
 
-    let context = Context::new(env::current_dir().unwrap());
-    context.platform.move_to();
-
     let args: Args = Args::parse();
 
     let verbose = args.verbose;
-    log!(verbose, "{context:#?}");
+
+    let current_dir = env::current_dir().expect("Insufficient permissions or invalid path");
+    let Some(context) = Context::new(verbose, &current_dir) else {
+        crash!(
+            AppExitCode::InvalidContext,
+            "Current directory has not a valid swde context"
+        );
+    };
+    context.platform.move_to();
 
     match args.subcommand {
         Operation::Up => up::main(verbose),
         Operation::Down => down::main(verbose),
-        Operation::Init => init::main(verbose),
+        Operation::Init => init::main(),
         Operation::Watch { watchable } => match watchable {
             OperationWatch::Admin => watch::admin(verbose),
             OperationWatch::Storefront => watch::storefront(verbose),

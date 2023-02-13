@@ -1,0 +1,59 @@
+version: 19
+jobs:
+- name: Build on push
+  jobExecutor: server-docker-executor
+  steps:
+  - !CheckoutStep
+    name: checkout
+    cloneCredential: !DefaultCredential {}
+    withLfs: false
+    withSubmodules: false
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  - !CommandStep
+    name: build swde
+    runInContainer: true
+    image: joseluisq/rust-linux-darwin-builder:1.67.1
+    interpreter: !DefaultInterpreter
+      commands:
+      - echo "##################"
+      - 'echo "#  x86_64 linux  #"'
+      - echo "##################"
+      - echo ""
+      - cargo build --release --target x86_64-unknown-linux-gnu
+      - ''
+      - echo "##################"
+      - 'echo "#    arm linux   #"'
+      - echo "##################"
+      - echo ""
+      - cargo build --release --target aarch64-unknown-linux-gnu
+      - ''
+      - echo "##################"
+      - 'echo "#  x86_64 darwin #"'
+      - echo "##################"
+      - echo ""
+      - cargo build --release --target x86_64-apple-darwin
+      - ''
+      - echo "##################"
+      - 'echo "#   arm darwin   #"'
+      - echo "##################"
+      - echo ""
+      - cargo build --release --target aarch64-apple-darwin
+    useTTY: false
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  - !PublishArtifactStep
+    name: artifacts
+    artifacts: target/x86_64-unknown-linux-gnu/release/swde target/aarch64-unknown-linux-gnu/release/swde
+      target/aarch64-apple-darwin/release/swde target/x86_64-apple-darwin/release/swde
+    condition: ALWAYS
+  triggers:
+  - !BranchUpdateTrigger
+    branches: master
+    paths: src/ Cargo.toml devenv.local.nix
+    projects: cyl3x
+  retryCondition: never
+  maxRetries: 3
+  retryDelay: 30
+  caches:
+  - key: cache
+    path: '@project_path@/target'
+  timeout: 3600

@@ -27,7 +27,7 @@ pub fn main(
             .into_iter()
             .map(|mut p| {
                 if p.is_symlink() {
-                    p = p.read_link().unwrap();
+                    p = p.read_link().expect("Cannot resolve symlink");
                 }
 
                 if p.is_relative() {
@@ -35,10 +35,10 @@ pub fn main(
                 }
 
                 p.canonicalize()
-                    .unwrap()
+                    .expect("Cannot resolve path")
                     .into_os_string()
                     .into_string()
-                    .unwrap()
+                    .expect("Cannot convert path to string")
             })
             .collect();
 
@@ -50,14 +50,14 @@ pub fn main(
 
     let status_ecs = ecs(verbose, context, &check_path_ecs)
         .spawn()
-        .unwrap()
+        .expect("Cannot start ECS")
         .wait();
 
     log!(verbose, "{} {:?}", "ECS exit Status:", status_ecs);
 
     let status_phpstan = phpstan(verbose, context, &check_path_phpstan)
         .spawn()
-        .unwrap()
+        .expect("Cannot start PHPStan")
         .wait();
 
     log!(verbose, "{} {:?}", "PHPStan exit Status:", status_phpstan);

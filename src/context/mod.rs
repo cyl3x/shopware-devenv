@@ -1,7 +1,7 @@
 mod custom_context;
 mod platform_context;
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 pub use custom_context::*;
 pub use platform_context::*;
@@ -14,29 +14,27 @@ pub struct Context {
 }
 
 impl Context {
-    pub fn new(origin_path: PathBuf) -> Self {
+    pub fn new(verbose: bool, origin_path: &Path) -> Option<Self> {
         let mut custom: Option<CustomContext> = None;
-        let mut platform: Option<PlatformContext> = None;
 
-        let mut curr_dir = origin_path.clone();
+        let mut curr_dir = origin_path.to_owned();
 
         while !curr_dir.ends_with("/") {
-            if let Some(custom_type) = CustomContext::check(&curr_dir) {
-                custom = Some(CustomContext::new(&curr_dir, custom_type));
+            if let Some(custom_context) = CustomContext::new(verbose, &curr_dir) {
+                custom = Some(custom_context);
             }
 
-            if PlatformContext::check(&curr_dir) {
-                platform = Some(PlatformContext::new(&curr_dir));
-                break;
+            if let Some(platform_context) = PlatformContext::new(verbose, &curr_dir) {
+                return Some(Self {
+                    origin: origin_path.to_path_buf(),
+                    platform: platform_context,
+                    custom,
+                });
             }
 
             curr_dir.pop();
         }
 
-        Self {
-            origin: origin_path,
-            platform: platform.expect("Could not find platform context"),
-            custom,
-        }
+        None
     }
 }

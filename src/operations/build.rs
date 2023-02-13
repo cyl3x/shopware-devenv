@@ -2,10 +2,12 @@ use crate::internal::AppExitCode;
 use crate::{crash, devenv};
 
 pub fn platform(verbose: bool, demodata: bool, build_test_db: bool) {
-    let status = devenv!(verbose, "composer setup").spawn().unwrap().wait();
-
-    if status.is_err() || !status.unwrap().success() {
-        crash!(AppExitCode::BuildPlatformError, "Setup failed");
+    if let Err(error) = devenv!(verbose, "composer setup")
+        .spawn()
+        .expect("Cannot spawn cmd, is devenv ok?")
+        .wait()
+    {
+        crash!(AppExitCode::DevenvExec, "Non zero exit for setup: {error}");
     }
 
     if build_test_db {
@@ -13,31 +15,46 @@ pub fn platform(verbose: bool, demodata: bool, build_test_db: bool) {
     }
 
     if demodata {
-        let _result = devenv!(verbose, "bin/console framework:demodata")
+        if let Err(error) = devenv!(verbose, "bin/console framework:demodata")
             .env("APP_ENV", "prod")
             .spawn()
-            .expect("Cannot execute command to generate demodata")
-            .wait();
+            .expect("Cannot spawn cmd, is devenv ok?")
+            .wait()
+        {
+            crash!(
+                AppExitCode::DevenvExec,
+                "Non zero exit from demodata: {error}"
+            );
+        }
     }
 }
 
 pub fn test_db(verbose: bool) {
-    let _result = devenv!(verbose, "composer init:testdb")
+    if let Err(error) = devenv!(verbose, "composer init:testdb")
         .spawn()
-        .unwrap()
-        .wait();
+        .expect("Cannot spawn cmd, is devenv ok?")
+        .wait()
+    {
+        crash!(AppExitCode::DevenvExec, "Non zero exit: {error}");
+    }
 }
 
 pub fn admin(verbose: bool) {
-    let _result = devenv!(verbose, "composer build:js:admin")
+    if let Err(error) = devenv!(verbose, "composer build:js:admin")
         .spawn()
-        .unwrap()
-        .wait();
+        .expect("Cannot spawn cmd, is devenv ok?")
+        .wait()
+    {
+        crash!(AppExitCode::DevenvExec, "Non zero exit: {error}");
+    }
 }
 
 pub fn storefront(verbose: bool) {
-    let _result = devenv!(verbose, "composer build:js:storefront")
+    if let Err(error) = devenv!(verbose, "composer build:js:storefront")
         .spawn()
-        .unwrap()
-        .wait();
+        .expect("Cannot spawn cmd, is devenv ok?")
+        .wait()
+    {
+        crash!(AppExitCode::DevenvExec, "Non zero exit: {error}");
+    }
 }

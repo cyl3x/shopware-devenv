@@ -32,7 +32,7 @@ let vars = {
     env.PORT = lib.mkForce "${vars.port.admin.http}";
     env.IPV4FIRST = lib.mkForce "true";
 
-     services.caddy.config = ''
+    services.caddy.config = ''
         http://${vars.base_url}:${vars.port.platform.http}, https://${vars.base_url}:${vars.port.platform.https} {
              root * public
              php_fastcgi unix/${config.languages.php.fpm.pools.web.socket}

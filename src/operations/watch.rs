@@ -1,29 +1,54 @@
-use crate::devenv;
+use crate::internal::AppExitCode;
+use crate::{crash, devenv};
 
 pub fn admin(verbose: bool) {
-    let _result = devenv!(verbose, "composer watch:admin")
+    if let Err(error) = devenv!(verbose, "composer watch:admin")
         .spawn()
-        .unwrap()
-        .wait();
+        .expect("Cannot spawn cmd, is devenv ok?")
+        .wait()
+    {
+        crash!(
+            AppExitCode::DevenvExec,
+            "Non zero exit from watcher: {error}"
+        );
+    }
 }
 
 pub fn storefront(verbose: bool) {
-    let _result = devenv!(verbose, "composer watch:storefront")
+    if let Err(error) = devenv!(verbose, "composer watch:storefront")
         .spawn()
-        .unwrap()
-        .wait();
+        .expect("Cannot spawn cmd, is devenv ok?")
+        .wait()
+    {
+        crash!(
+            AppExitCode::DevenvExec,
+            "Non zero exit from watcher: {error}"
+        );
+    }
 }
 
 pub fn admin_jest(verbose: bool) {
-    let _result = devenv!(verbose, "composer admin:unit:watch")
+    if let Err(error) = devenv!(verbose, "composer admin:unit:watch")
         .spawn()
-        .unwrap()
-        .wait();
+        .expect("Cannot spawn cmd, is devenv ok?")
+        .wait()
+    {
+        crash!(
+            AppExitCode::DevenvExec,
+            "Non zero exit from watcher: {error}"
+        );
+    }
 }
 
 pub fn storefront_jest(verbose: bool) {
-    let _result = devenv!(verbose, "composer storefront:unit:watch")
+    if let Err(error) = devenv!(verbose, "composer storefront:unit:watch")
         .spawn()
-        .unwrap()
-        .wait();
+        .expect("Cannot spawn cmd, is devenv ok?")
+        .wait()
+    {
+        crash!(
+            AppExitCode::DevenvExec,
+            "Non zero exit from watcher: {error}"
+        );
+    }
 }

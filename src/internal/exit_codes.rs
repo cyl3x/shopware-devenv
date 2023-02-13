@@ -1,13 +1,16 @@
 pub enum AppExitCode {
     RunAsRoot = 1,
     InvalidArgs = 2,
-    BuildPlatformError = 3,
 
     // Devenv
     DevenvStart = 10,
-    DevenvExec = 11,
+    DevenvOnce = 11,
+    DevenvExec = 12,
 
     // Config
     ConfigWrite = 20,
     ConfigBak = 21,
+
+    // Context
+    InvalidContext = 30,
 }

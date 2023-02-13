@@ -4,61 +4,55 @@ use std::path::PathBuf;
 use regex::Regex;
 
 use crate::internal::{AppExitCode, DEVENV_CONFIG};
-use crate::{crash, log, sha256};
+use crate::{crash, sha256};
 
-pub fn main(verbose: bool) {
-    let config = fs::read_to_string("./devenv.local.nix");
-
-    if config.is_err() {
-        create_config(verbose);
+pub fn main() {
+    let Ok(config) = fs::read_to_string("./devenv.local.nix") else {
+        create_config();
         return;
-    }
+    };
 
-    let config = config.unwrap();
+    let config = config;
 
-    let regex = Regex::new(r"^(# sha256<)([a-zA-Z0-9]{64})(>)$").unwrap();
+    let regex = Regex::new(r"^(# sha256<)([a-zA-Z0-9]{64})(>)$").expect("Invalid regex");
     let mut lines = config.lines();
 
     if config.lines().count() < 10 {
-        log!(verbose, "Found personal devenv.local.nix, backing up...");
-        backup_create(verbose);
+        println!("Found personal devenv.local.nix, backing up...");
+        backup_create();
         return;
     }
 
-    let first_line = lines.next().unwrap();
+    let first_line = lines.next().expect("No first line?");
 
     if !regex.is_match(first_line) {
-        log!(verbose, "Found personal devenv.local.nix, backing up...");
-        backup_create(verbose);
+        println!("Found personal devenv.local.nix, backing up...");
+        backup_create();
         return;
     }
 
-    let stored_hash = &regex.captures(first_line).unwrap()[2];
+    let stored_hash = &regex
+        .captures(first_line)
+        .expect("Invalid devenv.local.nix file header")[2];
     let file_hash = sha256!("{}", lines.skip(1).collect::<String>());
     let internal_hash = sha256!("{}", DEVENV_CONFIG);
 
     if internal_hash == stored_hash {
-        log!(
-            verbose,
-            "Found swde devenv.local.nix, but no update is needed"
-        );
+        println!("Found swde devenv.local.nix, but no update is needed");
         return;
     }
 
     if stored_hash != file_hash {
-        log!(
-            verbose,
-            "Found modified swde devenv.local.nix, backing up and updating..."
-        );
-        backup_create(verbose);
+        println!("Found modified swde devenv.local.nix, backing up and updating...");
+        backup_create();
         return;
     }
 
-    log!(verbose, "Found swde devenv.local.nix, updating...");
-    create_config(verbose);
+    println!("Found swde devenv.local.nix, updating...");
+    create_config();
 }
 
-fn create_config(verbose: bool) {
+fn create_config() {
     let hash = sha256!("{}", DEVENV_CONFIG);
     let config = format!("# sha256<{hash}>\n{DEVENV_CONFIG}");
 
@@ -72,10 +66,10 @@ fn create_config(verbose: bool) {
         );
     }
 
-    log!(verbose, "Wrote devenv.local.nix");
+    println!("Wrote devenv.local.nix");
 }
 
-fn backup_create(verbose: bool) {
+fn backup_create() {
     let mut i = 1;
 
     while PathBuf::from(format!("devenv.local.nix.{i}.bak")).is_file() {
@@ -98,12 +92,8 @@ fn backup_create(verbose: bool) {
             error
         );
     } else {
-        log!(
-            verbose,
-            "Backed up devenv.local.nix to devenv.local.nix.{}.bak",
-            i
-        );
+        println!("Backed up devenv.local.nix to devenv.local.nix.{i}.bak");
     }
 
-    create_config(verbose);
+    create_config();
 }

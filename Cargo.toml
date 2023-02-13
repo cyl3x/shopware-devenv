@@ -15,11 +15,16 @@ categories = ["filesystem", "development-tools"]
 name = "swde"
 path = "src/main.rs"
 
+[profile.release]
+incremental = true
+debug = false
+lto = "fat"
+
 [dependencies]
 clap = { version = "4.1.4", features = ["derive", "suggestions"] }
 regex = { version = "1.7.1", default-features = false, features = ["std"] }
+nix = { version = "0.26.2", default-features = false, features = ["user", "process", "signal"] }
 crossterm = "0.26.0"
-nix = "0.26.2"
 serde = "1.0.152"
 serde_derive = "1.0.152"
 serde_json = "1.0.93"

@@ -13,14 +13,14 @@ pub fn main(verbose: bool) {
     let mut child = Command::new("devenv")
         .arg("up")
         .envs(&mut vars_os())
-        .stdout(log.try_clone().unwrap())
+        .stdout(log.try_clone().expect("Cannot log into the same file?"))
         .stderr(log)
         .spawn()
         .expect("Failed to start devenv");
 
     sleep(Duration::from_secs(2));
 
-    if let Ok(None) = child.try_wait() {
+    if matches!(child.try_wait(), Ok(None)) {
         return;
     }
 
