@@ -1,9 +1,10 @@
 use std::path::PathBuf;
 
-use clap::{ArgAction, Parser, Subcommand};
+use clap::{ArgAction, Parser, Subcommand, ValueHint};
+use clap_complete::Shell;
 
 #[derive(Debug, Clone, Parser)]
-#[clap(name = "swde", version = env!("CARGO_PKG_VERSION"), about = env!("CARGO_PKG_DESCRIPTION"))]
+#[clap(bin_name = "swde", name = "swde", version = env!("CARGO_PKG_VERSION"), about = env!("CARGO_PKG_DESCRIPTION"))]
 pub struct Args {
     #[clap(subcommand)]
     pub subcommand: Operation,
@@ -15,6 +16,14 @@ pub struct Args {
 
 #[derive(Debug, Clone, Subcommand)]
 pub enum Operation {
+    /// Generate a SHELL completion script and print to stdout
+    #[clap(name = "completions")]
+    Completions {
+        /// The shell to generate completions for
+        #[clap(name = "shell", action = ArgAction::Set)]
+        shell: Shell,
+    },
+
     /// Init
     #[clap(name = "init")]
     Init,
@@ -44,7 +53,7 @@ pub enum Operation {
     Check {
         /// Path to check
         /// If not set, platform will be checked
-        #[clap(name = "path")]
+        #[clap(name = "paths", value_hint = ValueHint::AnyPath)]
         paths: Option<Vec<PathBuf>>,
 
         #[clap(name = "no-ecs", long)]

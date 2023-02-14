@@ -6,7 +6,7 @@ use regex::Regex;
 
 use crate::internal::AppExitCode;
 use crate::operations::DEVENV_CONFIG;
-use crate::{crash, sha256};
+use crate::{crash, finish, sha256};
 
 pub fn main() {
     config();
@@ -22,6 +22,8 @@ pub fn main() {
             "Non zero exit from devenv: {error}"
         );
     }
+
+    finish!("Init successfully");
 }
 
 fn config() {

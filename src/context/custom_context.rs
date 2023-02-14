@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::{env, fs};
 
-use serde_derive::Deserialize;
+use serde::Deserialize;
 
 use crate::config::Config;
 use crate::log;

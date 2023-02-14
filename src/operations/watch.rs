@@ -1,6 +1,6 @@
 use crate::config::Config;
 use crate::internal::AppExitCode;
-use crate::{crash, devenv};
+use crate::{crash, devenv, finish};
 
 pub fn admin(config: &Config) {
     if let Err(error) = devenv!(config, "composer watch:admin")
@@ -12,6 +12,8 @@ pub fn admin(config: &Config) {
             AppExitCode::DevenvExec,
             "Non zero exit from watcher: {error}"
         );
+    } else {
+        finish!("Watcher stopped");
     }
 }
 
@@ -25,6 +27,8 @@ pub fn storefront(config: &Config) {
             AppExitCode::DevenvExec,
             "Non zero exit from watcher: {error}"
         );
+    } else {
+        finish!("Watcher stopped");
     }
 }
 
@@ -38,6 +42,8 @@ pub fn admin_jest(config: &Config) {
             AppExitCode::DevenvExec,
             "Non zero exit from watcher: {error}"
         );
+    } else {
+        finish!("Watcher stopped");
     }
 }
 
@@ -51,5 +57,7 @@ pub fn storefront_jest(config: &Config) {
             AppExitCode::DevenvExec,
             "Non zero exit from watcher: {error}"
         );
+    } else {
+        finish!("Watcher stopped");
     }
 }

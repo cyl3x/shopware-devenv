@@ -4,8 +4,9 @@ pub enum AppExitCode {
 
     // Devenv
     DevenvStart = 10,
-    DevenvOnce = 11,
-    DevenvExec = 12,
+    DevenvStop = 11,
+    DevenvOnce = 12,
+    DevenvExec = 13,
 
     // Config
     ConfigWrite = 20,

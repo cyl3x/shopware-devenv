@@ -1,6 +1,6 @@
 use crate::config::Config;
 use crate::internal::AppExitCode;
-use crate::{crash, devenv};
+use crate::{crash, devenv, finish};
 
 pub fn platform(config: &Config, demodata: bool, build_test_db: bool) {
     if let Err(error) = devenv!(config, "composer setup")
@@ -41,6 +41,7 @@ pub fn platform(config: &Config, demodata: bool, build_test_db: bool) {
         }
     }
 
+    finish!("Build successfull");
     // TODO - Add additional URL https://platform.dev.localhost:4000
 }
 
@@ -52,6 +53,8 @@ pub fn test_db(config: &Config) {
         .wait()
     {
         crash!(AppExitCode::DevenvExec, "Non zero exit: {error}");
+    } else {
+        finish!("Build successfull");
     }
 }
 
@@ -62,6 +65,8 @@ pub fn admin(config: &Config) {
         .wait()
     {
         crash!(AppExitCode::DevenvExec, "Non zero exit: {error}");
+    } else {
+        finish!("Build successfull");
     }
 }
 
@@ -72,5 +77,7 @@ pub fn storefront(config: &Config) {
         .wait()
     {
         crash!(AppExitCode::DevenvExec, "Non zero exit: {error}");
+    } else {
+        finish!("Build successfull");
     }
 }

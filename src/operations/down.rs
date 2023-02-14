@@ -2,15 +2,16 @@ use std::fs;
 
 use sysinfo::{Pid, ProcessExt, Signal, System, SystemExt};
 
+use super::DEVENV_PID;
 use crate::config::Config;
-use crate::log;
+use crate::internal::AppExitCode;
+use crate::{crash, finish, log};
 
 pub fn main(config: &Config) {
-    // TODO - another instance is running
     let mut sys = System::new();
-    sys.refresh_all();
+    sys.refresh_processes();
 
-    let pid_file = fs::read_to_string(".devenv/state/devenv.pid");
+    let pid_file = fs::read_to_string(DEVENV_PID);
 
     let success: bool = match pid_file {
         Ok(pid_string) => down_by_pid(config, &sys, &pid_string),
@@ -18,9 +19,9 @@ pub fn main(config: &Config) {
     };
 
     if success {
-        println!("devenv stopped");
+        finish!("Devenv service stopped");
     } else {
-        println!("devenv is not running");
+        crash!(AppExitCode::DevenvStop, "Devenv service is not running");
     }
 }
 

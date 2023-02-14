@@ -1,7 +1,7 @@
 use std::fs;
 
 use merge_struct::merge;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 struct Data {

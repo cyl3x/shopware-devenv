@@ -11,9 +11,10 @@ mod context;
 mod internal;
 mod operations;
 
-use std::env;
+use std::{env, io};
 
-use clap::Parser;
+use clap::{CommandFactory, Parser};
+use clap_complete::Generator;
 use nix::unistd::Uid;
 
 use crate::args::{Args, Operation, OperationBuild, OperationWatch};
@@ -72,5 +73,6 @@ fn main() {
             no_phpstan,
         } => check::main(&config, &context, paths, no_ecs, no_phpstan),
         Operation::Log => log::main(),
+        Operation::Completions { shell } => shell.generate(&Args::command(), &mut io::stdout()),
     }
 }

@@ -1,13 +1,14 @@
 use std::env::vars_os;
 use std::process::{exit, Command};
 
-use crossterm::style::Stylize;
+use colored::Colorize;
 use sha2::{Digest, Sha256};
 
 use crate::config::Config;
 use crate::internal::AppExitCode;
 
 const ERR_SYMBOL: &str = "✕";
+const FINISH_SYMBOL: &str = "✓";
 
 #[macro_export]
 macro_rules! sha256 {
@@ -34,6 +35,13 @@ macro_rules! log {
 macro_rules! crash {
     ($exit_code:expr, $($arg:tt)+) => {
         $crate::internal::macros::crash_fn(&format!($($arg)+), $exit_code)
+    }
+}
+
+#[macro_export]
+macro_rules! finish {
+    ($($arg:tt)+) => {
+        $crate::internal::macros::finish_fn(&format!($($arg)+))
     }
 }
 
@@ -65,4 +73,9 @@ pub fn sha256_fn(string: &str) -> String {
     let result = hasher.finalize();
 
     format!("{result:x}")
+}
+
+pub fn finish_fn(msg: &str) -> ! {
+    println!("{} {}", FINISH_SYMBOL.green(), msg.bold());
+    exit(0);
 }
