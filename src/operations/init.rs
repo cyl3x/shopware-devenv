@@ -1,12 +1,30 @@
 use std::fs;
 use std::path::PathBuf;
+use std::process::Command;
 
 use regex::Regex;
 
-use crate::internal::{AppExitCode, DEVENV_CONFIG};
+use crate::internal::AppExitCode;
+use crate::operations::DEVENV_CONFIG;
 use crate::{crash, sha256};
 
 pub fn main() {
+    config();
+
+    if let Err(error) = Command::new("devenv")
+        .arg("ci")
+        .spawn()
+        .expect("Cannot spawn cmd")
+        .wait()
+    {
+        crash!(
+            AppExitCode::DevenvExec,
+            "Non zero exit from devenv: {error}"
+        );
+    }
+}
+
+fn config() {
     let Ok(config) = fs::read_to_string("./devenv.local.nix") else {
         create_config();
         return;

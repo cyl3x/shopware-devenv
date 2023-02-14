@@ -46,6 +46,10 @@ let vars = {
         https://${vars.base_url}:${vars.port.admin.https} {
             reverse_proxy http://localhost:${vars.port.admin.http}
         }
+
+        https://db.localhost {
+            reverse_proxy http://localhost:8090
+        }
     '';
 
     languages.php.package = pkgs.php.buildEnv {

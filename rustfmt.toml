@@ -3,7 +3,7 @@ use_field_init_shorthand = true
 match_block_trailing_comma = true
 newline_style = "Unix"
 
-# nightlx
+# nightly
 # imports_layout = "Horizontal"
 # imports_granularity = "Module"
 # normalize_comments = true

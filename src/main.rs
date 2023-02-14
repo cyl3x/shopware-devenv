@@ -6,6 +6,7 @@
     clippy::unwrap_used
 )]
 mod args;
+mod config;
 mod context;
 mod internal;
 mod operations;
@@ -16,6 +17,7 @@ use clap::Parser;
 use nix::unistd::Uid;
 
 use crate::args::{Args, Operation, OperationBuild, OperationWatch};
+use crate::config::Config;
 use crate::context::Context;
 use crate::internal::AppExitCode;
 use crate::operations::{build, check, down, init, log, up, watch};
@@ -30,10 +32,14 @@ fn main() {
 
     let args: Args = Args::parse();
 
-    let verbose = args.verbose;
+    let mut config = Config::new();
 
-    let current_dir = env::current_dir().expect("Insufficient permissions or invalid path");
-    let Some(context) = Context::new(verbose, &current_dir) else {
+    if !config.verbose {
+        config.verbose = args.verbose;
+    }
+
+    let current_dir = env::current_dir().expect("Insufficient permissions or invalid current path");
+    let Some(context) = Context::new(&config, &current_dir) else {
         crash!(
             AppExitCode::InvalidContext,
             "Current directory has not a valid swde context"
@@ -42,29 +48,29 @@ fn main() {
     context.platform.move_to();
 
     match args.subcommand {
-        Operation::Up => up::main(verbose),
-        Operation::Down => down::main(verbose),
+        Operation::Up => up::main(&config),
+        Operation::Down => down::main(&config),
         Operation::Init => init::main(),
         Operation::Watch { watchable } => match watchable {
-            OperationWatch::Admin => watch::admin(verbose),
-            OperationWatch::Storefront => watch::storefront(verbose),
-            OperationWatch::StorefrontJest => watch::storefront_jest(verbose),
-            OperationWatch::AdminJest => watch::admin_jest(verbose),
+            OperationWatch::Admin => watch::admin(&config),
+            OperationWatch::Storefront => watch::storefront(&config),
+            OperationWatch::StorefrontJest => watch::storefront_jest(&config),
+            OperationWatch::AdminJest => watch::admin_jest(&config),
         },
         Operation::Build { buildable } => match buildable {
-            OperationBuild::Storefront => build::storefront(verbose),
-            OperationBuild::Admin => build::admin(verbose),
+            OperationBuild::Storefront => build::storefront(&config),
+            OperationBuild::Admin => build::admin(&config),
             OperationBuild::Platform {
                 demodata,
                 skip_test_db,
-            } => build::platform(verbose, demodata, !skip_test_db),
-            OperationBuild::TestDB => build::test_db(verbose),
+            } => build::platform(&config, demodata, !skip_test_db),
+            OperationBuild::TestDB => build::test_db(&config),
         },
         Operation::Check {
             paths,
             no_ecs,
             no_phpstan,
-        } => check::main(verbose, &context, paths, no_ecs, no_phpstan),
-        Operation::Log => log::main(verbose),
+        } => check::main(&config, &context, paths, no_ecs, no_phpstan),
+        Operation::Log => log::main(),
     }
 }

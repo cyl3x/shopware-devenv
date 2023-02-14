@@ -4,6 +4,7 @@ use std::process::{exit, Command};
 use crossterm::style::Stylize;
 use sha2::{Digest, Sha256};
 
+use crate::config::Config;
 use crate::internal::AppExitCode;
 
 const ERR_SYMBOL: &str = "✕";
@@ -17,15 +18,15 @@ macro_rules! sha256 {
 
 #[macro_export]
 macro_rules! devenv {
-    ($verbose:expr, $($cmd:tt)+) => {
-        $crate::internal::macros::devenv_fn(&format!($($cmd)+), $verbose)
+    ($config:expr, $($cmd:tt)+) => {
+        $crate::internal::macros::devenv_fn(&format!($($cmd)+), $config)
     }
 }
 
 #[macro_export]
 macro_rules! log {
-    ($verbose:expr, $($arg:tt)+) => {
-        $crate::internal::macros::log_fn(&format!("[{}:{}] {}", file!(), line!(), format!($($arg)+)), $verbose);
+    ($config:expr, $($arg:tt)+) => {
+        $crate::internal::macros::log_fn(&format!("[{}:{}] {}", file!(), line!(), format!($($arg)+)), $config);
     }
 }
 
@@ -41,14 +42,14 @@ pub fn crash_fn(msg: &str, exit_code: AppExitCode) -> ! {
     exit(exit_code as i32);
 }
 
-pub fn log_fn(msg: &str, verbose: bool) {
-    if verbose {
+pub fn log_fn(msg: &str, config: &Config) {
+    if config.verbose {
         eprintln!("[{}] {msg}", "verbose".red());
     }
 }
 
-pub fn devenv_fn(cmd: &str, verbose: bool) -> Command {
-    log!(verbose, "[{}] {}", "devenv".green(), cmd);
+pub fn devenv_fn(cmd: &str, config: &Config) -> Command {
+    log!(config, "[{}] {}", "devenv".green(), cmd);
 
     let mut command = Command::new("devenv");
     command

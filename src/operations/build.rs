@@ -1,8 +1,9 @@
+use crate::config::Config;
 use crate::internal::AppExitCode;
 use crate::{crash, devenv};
 
-pub fn platform(verbose: bool, demodata: bool, build_test_db: bool) {
-    if let Err(error) = devenv!(verbose, "composer setup")
+pub fn platform(config: &Config, demodata: bool, build_test_db: bool) {
+    if let Err(error) = devenv!(config, "composer setup")
         .spawn()
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
@@ -11,11 +12,23 @@ pub fn platform(verbose: bool, demodata: bool, build_test_db: bool) {
     }
 
     if build_test_db {
-        test_db(verbose);
+        test_db(config);
     }
 
     if demodata {
-        if let Err(error) = devenv!(verbose, "bin/console framework:demodata")
+        if let Err(error) = devenv!(config, "bin/console framework:demodata")
+            .env("APP_ENV", "prod")
+            .spawn()
+            .expect("Cannot spawn cmd, is devenv ok?")
+            .wait()
+        {
+            crash!(
+                AppExitCode::DevenvExec,
+                "Non zero exit from demodata: {error}"
+            );
+        }
+
+        if let Err(error) = devenv!(config, "bin/console dal:refresh:index")
             .env("APP_ENV", "prod")
             .spawn()
             .expect("Cannot spawn cmd, is devenv ok?")
@@ -27,10 +40,13 @@ pub fn platform(verbose: bool, demodata: bool, build_test_db: bool) {
             );
         }
     }
+
+    // TODO - Add additional URL https://platform.dev.localhost:4000
 }
 
-pub fn test_db(verbose: bool) {
-    if let Err(error) = devenv!(verbose, "composer init:testdb")
+pub fn test_db(config: &Config) {
+    // TODO-6.4 FORCE_INSTALL=true vendor/bin/phpunit --group=none
+    if let Err(error) = devenv!(config, "composer init:testdb")
         .spawn()
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
@@ -39,8 +55,8 @@ pub fn test_db(verbose: bool) {
     }
 }
 
-pub fn admin(verbose: bool) {
-    if let Err(error) = devenv!(verbose, "composer build:js:admin")
+pub fn admin(config: &Config) {
+    if let Err(error) = devenv!(config, "composer build:js:admin")
         .spawn()
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
@@ -49,8 +65,8 @@ pub fn admin(verbose: bool) {
     }
 }
 
-pub fn storefront(verbose: bool) {
-    if let Err(error) = devenv!(verbose, "composer build:js:storefront")
+pub fn storefront(config: &Config) {
+    if let Err(error) = devenv!(config, "composer build:js:storefront")
         .spawn()
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()

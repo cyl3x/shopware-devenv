@@ -4,10 +4,12 @@ use std::process::Command;
 use std::thread::sleep;
 use std::time::Duration;
 
-use crate::internal::{AppExitCode, DEVENV_LOG};
+use crate::config::Config;
+use crate::internal::AppExitCode;
+use crate::operations::DEVENV_LOG;
 use crate::{crash, log};
 
-pub fn main(verbose: bool) {
+pub fn main(config: &Config) {
     let log = File::create(DEVENV_LOG).expect("Failed to create out log");
 
     let mut child = Command::new("devenv")
@@ -24,9 +26,9 @@ pub fn main(verbose: bool) {
         return;
     }
 
-    log!(verbose, "Devenv has crashed");
+    log!(config, "Devenv has crashed");
 
-    log::main(verbose);
+    log::main();
 
     crash!(
         AppExitCode::DevenvStart,

@@ -4,6 +4,7 @@ use std::{env, fs};
 
 use serde_derive::Deserialize;
 
+use crate::config::Config;
 use crate::log;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -33,7 +34,7 @@ impl CustomContext {
         None
     }
 
-    pub fn new(verbose: bool, path: &Path) -> Option<Self> {
+    pub fn new(config: &Config, path: &Path) -> Option<Self> {
         let Some(custom_type) = Self::get_type(path) else { return None; };
 
         let Some(composer) = Composer::new(path) else { return None; };
@@ -57,7 +58,7 @@ impl CustomContext {
 
             if composer.plugin_type != "shopware-platform-plugin" {
                 log!(
-                    verbose,
+                    config,
                     "Found malformed Plugin: composer.json::type is not 'shopware-platform-plugin': {path}",
                     path = path.display(),
                 );
@@ -67,7 +68,7 @@ impl CustomContext {
         }
 
         log!(
-            verbose,
+            config,
             "Found custom context: {name} ({custom_type:?}) ({length} deps)",
             length = require.len()
         );
