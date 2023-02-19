@@ -4,11 +4,14 @@ use std::process::Command;
 
 use regex::Regex;
 
+use crate::context::Context;
 use crate::internal::AppExitCode;
 use crate::operations::DEVENV_CONFIG;
 use crate::{crash, finish, sha256};
 
 pub fn main() {
+    Context::get().platform.move_to();
+
     config();
 
     if let Err(error) = Command::new("devenv")

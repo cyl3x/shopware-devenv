@@ -1,3 +1,7 @@
+use once_cell::sync::Lazy;
+
+use crate::context::Context;
+
 pub mod build;
 pub mod check;
 pub mod down;
@@ -6,6 +10,13 @@ pub mod log;
 pub mod up;
 pub mod watch;
 
-pub static DEVENV_CONFIG: &str = include_str!("../../devenv.local.nix");
-pub static DEVENV_LOG: &str = "/tmp/devenv.log";
-pub static DEVENV_PID: &str = ".devenv/state/devenv.pid";
+static DEVENV_CONFIG: &str = include_str!("../../devenv.local.nix");
+static DEVENV_LOG: &str = "/tmp/devenv.log";
+static DEVENV_PID: Lazy<String> = Lazy::new(|| {
+    Context::get()
+        .platform
+        .path
+        .join(".devenv/state/devenv.pid")
+        .display()
+        .to_string()
+});

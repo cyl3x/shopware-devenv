@@ -1,7 +1,10 @@
 use std::fs;
 
 use merge_struct::merge;
+use once_cell::sync::OnceCell;
 use serde::{Deserialize, Serialize};
+
+static CONFIG: OnceCell<Config> = OnceCell::new();
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 struct Data {
@@ -14,7 +17,11 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new() -> Self {
+    pub fn get() -> &'static Self {
+        CONFIG.get_or_init(Self::new)
+    }
+
+    fn new() -> Self {
         let mut config = Self { verbose: false };
 
         let content = dirs::config_dir().and_then(|mut cd| {

@@ -6,20 +6,17 @@
     clippy::unwrap_used
 )]
 mod args;
-mod config;
 mod context;
 mod internal;
 mod operations;
 
-use std::{env, io};
+use std::io;
 
 use clap::{CommandFactory, Parser};
-use clap_complete::Generator;
+use internal::Logger;
 use nix::unistd::Uid;
 
 use crate::args::{Args, Operation, OperationBuild, OperationWatch};
-use crate::config::Config;
-use crate::context::Context;
 use crate::internal::AppExitCode;
 use crate::operations::{build, check, down, init, log, up, watch};
 
@@ -32,47 +29,36 @@ fn main() {
     }
 
     let args: Args = Args::parse();
-
-    let mut config = Config::new();
-
-    if !config.verbose {
-        config.verbose = args.verbose;
-    }
-
-    let current_dir = env::current_dir().expect("Insufficient permissions or invalid current path");
-    let Some(context) = Context::new(&config, &current_dir) else {
-        crash!(
-            AppExitCode::InvalidContext,
-            "Current directory has not a valid swde context"
-        );
-    };
-    context.platform.move_to();
+    Logger::init(args.verbose);
 
     match args.subcommand {
-        Operation::Up => up::main(&config),
-        Operation::Down => down::main(&config),
+        Operation::Up => up::main(),
+        Operation::Down => down::main(),
         Operation::Init => init::main(),
         Operation::Watch { watchable } => match watchable {
-            OperationWatch::Admin => watch::admin(&config),
-            OperationWatch::Storefront => watch::storefront(&config),
-            OperationWatch::StorefrontJest => watch::storefront_jest(&config),
-            OperationWatch::AdminJest => watch::admin_jest(&config),
+            OperationWatch::Admin => watch::admin(),
+            OperationWatch::Storefront => watch::storefront(),
+            OperationWatch::StorefrontJest => watch::storefront_jest(),
+            OperationWatch::AdminJest => watch::admin_jest(),
         },
         Operation::Build { buildable } => match buildable {
-            OperationBuild::Storefront => build::storefront(&config),
-            OperationBuild::Admin => build::admin(&config),
+            OperationBuild::Storefront => build::storefront(),
+            OperationBuild::Admin => build::admin(),
             OperationBuild::Platform {
                 demodata,
                 skip_test_db,
-            } => build::platform(&config, demodata, !skip_test_db),
-            OperationBuild::TestDB => build::test_db(&config),
+            } => build::platform(demodata, !skip_test_db),
+            OperationBuild::TestDB => build::test_db(),
+            OperationBuild::Demodata => build::demodata(),
         },
         Operation::Check {
             paths,
             no_ecs,
             no_phpstan,
-        } => check::main(&config, &context, paths, no_ecs, no_phpstan),
+        } => check::main(paths, no_ecs, no_phpstan),
         Operation::Log => log::main(),
-        Operation::Completions { shell } => shell.generate(&Args::command(), &mut io::stdout()),
+        Operation::Completions { shell } => {
+            clap_complete::generate(shell, &mut Args::command(), "swde", &mut io::stdout());
+        },
     }
 }

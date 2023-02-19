@@ -1,9 +1,8 @@
-use crate::config::Config;
 use crate::internal::AppExitCode;
 use crate::{crash, devenv, finish};
 
-pub fn admin(config: &Config) {
-    if let Err(error) = devenv!(config, "composer watch:admin")
+pub fn admin() {
+    if let Err(error) = devenv!("composer watch:admin")
         .spawn()
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
@@ -17,8 +16,8 @@ pub fn admin(config: &Config) {
     }
 }
 
-pub fn storefront(config: &Config) {
-    if let Err(error) = devenv!(config, "composer watch:storefront")
+pub fn storefront() {
+    if let Err(error) = devenv!("composer watch:storefront")
         .spawn()
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
@@ -32,8 +31,8 @@ pub fn storefront(config: &Config) {
     }
 }
 
-pub fn admin_jest(config: &Config) {
-    if let Err(error) = devenv!(config, "composer admin:unit:watch")
+pub fn admin_jest() {
+    if let Err(error) = devenv!("composer admin:unit:watch")
         .spawn()
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
@@ -47,8 +46,8 @@ pub fn admin_jest(config: &Config) {
     }
 }
 
-pub fn storefront_jest(config: &Config) {
-    if let Err(error) = devenv!(config, "composer storefront:unit:watch")
+pub fn storefront_jest() {
+    if let Err(error) = devenv!("composer storefront:unit:watch")
         .spawn()
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()

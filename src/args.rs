@@ -4,7 +4,7 @@ use clap::{ArgAction, Parser, Subcommand, ValueHint};
 use clap_complete::Shell;
 
 #[derive(Debug, Clone, Parser)]
-#[clap(bin_name = "swde", name = "swde", version = env!("CARGO_PKG_VERSION"), about = env!("CARGO_PKG_DESCRIPTION"))]
+#[clap(bin_name = "swde", name = "Shopware Devenv", version = env!("CARGO_PKG_VERSION"), about = env!("CARGO_PKG_DESCRIPTION"))]
 pub struct Args {
     #[clap(subcommand)]
     pub subcommand: Operation,
@@ -17,7 +17,7 @@ pub struct Args {
 #[derive(Debug, Clone, Subcommand)]
 pub enum Operation {
     /// Generate a SHELL completion script and print to stdout
-    #[clap(name = "completions")]
+    #[clap(name = "comp")]
     Completions {
         /// The shell to generate completions for
         #[clap(name = "shell", action = ArgAction::Set)]
@@ -40,7 +40,7 @@ pub enum Operation {
     #[clap(name = "log")]
     Log,
 
-    /// Build storefront/admin
+    /// Build storefront/admin/platform
     #[clap(name = "build")]
     Build {
         /// Can be storefront/admin
@@ -93,18 +93,19 @@ pub enum OperationWatch {
 
 #[derive(Debug, Clone, Subcommand)]
 pub enum OperationBuild {
-    // Rebuild Storefront
+    /// Rebuild Storefront
     #[clap(name = "storefront")]
     Storefront,
 
-    // Rebuild Administration
+    /// Rebuild Administration
     #[clap(name = "admin")]
     Admin,
 
-    // Build test db
+    /// Build test db
     #[clap(name = "test-db")]
     TestDB,
 
+    /// Build platform, use --demodata to generate with demodata
     #[clap(name = "platform")]
     Platform {
         /// Additionally fill database with demodata
@@ -114,4 +115,8 @@ pub enum OperationBuild {
         #[clap(long, name = "skip-test-db")]
         skip_test_db: bool,
     },
+
+    /// Generate demodata
+    #[clap(name = "demodata")]
+    Demodata,
 }

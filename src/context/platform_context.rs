@@ -1,7 +1,6 @@
 use std::env;
 use std::path::{Path, PathBuf};
 
-use crate::config::Config;
 use crate::log;
 
 #[derive(Clone, Debug)]
@@ -10,7 +9,7 @@ pub struct PlatformContext {
 }
 
 impl PlatformContext {
-    pub fn new(config: &Config, path: &Path) -> Option<Self> {
+    pub fn new(path: &Path) -> Option<Self> {
         let Ok(path_content) = path.read_dir() else { return None; };
 
         let mut has_devenv_file = false;
@@ -30,11 +29,7 @@ impl PlatformContext {
             }
 
             if has_devenv_dir && has_devenv_file {
-                log!(
-                    config,
-                    "Found platform context: {path}",
-                    path = path.display()
-                );
+                log!("Found platform context: {path}", path = path.display());
 
                 return Some(Self {
                     path: path.to_path_buf(),

@@ -1,24 +1,19 @@
 use std::path::PathBuf;
 use std::process::Command;
 
-use crate::config::Config;
 use crate::context::Context;
 use crate::internal::AppExitCode;
 use crate::{crash, devenv, log};
 
-pub fn main(
-    config: &Config,
-    context: &Context,
-    arg_paths: Option<Vec<PathBuf>>,
-    no_ecs: bool,
-    no_phpstan: bool,
-) {
+pub fn main(arg_paths: Option<Vec<PathBuf>>, no_ecs: bool, no_phpstan: bool) {
     if no_ecs && no_phpstan {
         crash!(
             AppExitCode::InvalidArgs,
             "There aren't any checks left to run..."
         );
     }
+
+    let context = Context::get();
 
     let mut check_path_ecs: Vec<String> = vec!["src".to_owned(), "tests".to_owned()];
     let mut check_path_phpstan: Vec<String> = vec![];
@@ -43,28 +38,28 @@ pub fn main(
             })
             .collect();
 
-        log!(config, "{} {:?}", "Resolved paths:", absolute_paths);
+        log!("{} {:?}", "Resolved paths:", absolute_paths);
 
         check_path_ecs = absolute_paths.clone();
         check_path_phpstan = absolute_paths;
     }
 
-    let status_ecs = ecs(config, context, &check_path_ecs)
+    let status_ecs = ecs(context, &check_path_ecs)
         .spawn()
         .expect("Cannot start ECS")
         .wait();
 
-    log!(config, "{} {:?}", "ECS exit Status:", status_ecs);
+    log!("{} {:?}", "ECS exit Status:", status_ecs);
 
-    let status_phpstan = phpstan(config, context, &check_path_phpstan)
+    let status_phpstan = phpstan(context, &check_path_phpstan)
         .spawn()
         .expect("Cannot start PHPStan")
         .wait();
 
-    log!(config, "{} {:?}", "PHPStan exit Status:", status_phpstan);
+    log!("{} {:?}", "PHPStan exit Status:", status_phpstan);
 }
 
-fn phpstan(config: &Config, context: &Context, to_check: &[String]) -> Command {
+fn phpstan(context: &Context, to_check: &[String]) -> Command {
     let mut curr_dir = String::from(".");
 
     if let Some(custom_context) = &context.custom {
@@ -72,7 +67,6 @@ fn phpstan(config: &Config, context: &Context, to_check: &[String]) -> Command {
     }
 
     devenv!(
-        config,
         "php src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php; cd {}; {} analyze --memory-limit=2G {}",
         curr_dir,
         context
@@ -83,7 +77,7 @@ fn phpstan(config: &Config, context: &Context, to_check: &[String]) -> Command {
     )
 }
 
-fn ecs(config: &Config, context: &Context, to_check: &[String]) -> Command {
+fn ecs(context: &Context, to_check: &[String]) -> Command {
     let mut curr_dir = String::from(".");
 
     if let Some(custom_context) = &context.custom {
@@ -91,7 +85,6 @@ fn ecs(config: &Config, context: &Context, to_check: &[String]) -> Command {
     }
 
     devenv!(
-        config,
         "cd {}; {} check --fix {}",
         curr_dir,
         context.platform.join("vendor/bin/ecs").display(),

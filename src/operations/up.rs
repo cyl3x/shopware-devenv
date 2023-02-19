@@ -9,12 +9,11 @@ use regex::Regex;
 use spinoff::{spinners, Color, Spinner};
 use sysinfo::{Pid, SystemExt};
 
-use crate::config::Config;
 use crate::internal::AppExitCode;
 use crate::operations::{DEVENV_LOG, DEVENV_PID};
 use crate::{crash, finish};
 
-pub fn main(_config: &Config) {
+pub fn main() {
     if check_running_instances() {
         crash!(
             AppExitCode::DevenvStart,
@@ -55,7 +54,7 @@ pub fn main(_config: &Config) {
 }
 
 fn check_running_instances() -> bool {
-    if let Ok(pid_string) = fs::read_to_string(DEVENV_PID) {
+    if let Ok(pid_string) = fs::read_to_string(DEVENV_PID.clone()) {
         let pid: usize = pid_string
             .lines()
             .next()

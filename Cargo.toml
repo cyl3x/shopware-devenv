@@ -22,13 +22,14 @@ opt-level = 3
 strip = "debuginfo"
 
 [dependencies]
-clap = { version = "4.1.5", features = ["derive", "suggestions"] }
+clap = { version = "4.1.6", features = ["derive", "suggestions"] }
 regex = { version = "1.7.1", default-features = false, features = ["std"] }
 nix = { version = "0.26.2", default-features = false, features = ["user"] }
 spinoff = { version = "0.7.0", default-features = false, features = ["dots"] }
 toml = { version = "0.7.2", default-features = false, features = ["parse"] }
 serde = { version = "1.0.152", default-features = false, features = ["serde_derive"] }
-sysinfo = { version = "0.27.7", default-features = false }
+once_cell = { version = "1.17.1", default-features = false, features = ["std"] }
+sysinfo = { version = "0.28.0", default-features = false }
 sha2 = { version = "0.10.6", default-features = false }
 colored = "2.0.0"
 serde_json = "1.0.93"

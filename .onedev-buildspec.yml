@@ -49,7 +49,7 @@ jobs:
   - !BranchUpdateTrigger
     branches: master
     paths: src/ Cargo.toml devenv.local.nix
-    projects: cyl3x
+    projects: cyl3x/shopware-devenv
   retryCondition: never
   maxRetries: 3
   retryDelay: 30
