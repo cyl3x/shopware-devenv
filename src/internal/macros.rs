@@ -3,12 +3,20 @@ use std::process::{exit, Command};
 
 use colored::Colorize;
 use sha2::{Digest, Sha256};
+use spinoff::{spinners, Color, Spinner};
 
 use crate::context::Context;
 use crate::internal::AppExitCode;
 
 const ERR_SYMBOL: &str = "✕";
 const FINISH_SYMBOL: &str = "✓";
+
+#[macro_export]
+macro_rules! spinner {
+    ($msg:expr) => {
+        $crate::internal::spinner_fn($msg)
+    }
+}
 
 #[macro_export]
 macro_rules! sha256 {
@@ -32,20 +40,20 @@ macro_rules! log {
 }
 
 #[macro_export]
-macro_rules! crash {
+macro_rules! fail {
     ($exit_code:expr, $($arg:tt)+) => {
-        $crate::internal::crash_fn(&format!($($arg)+), $exit_code)
+        $crate::internal::fail_fn(&format!($($arg)+), $exit_code)
     }
 }
 
 #[macro_export]
-macro_rules! finish {
+macro_rules! success {
     ($($arg:tt)+) => {
-        $crate::internal::finish_fn(&format!($($arg)+))
+        $crate::internal::success_fn(&format!($($arg)+))
     }
 }
 
-pub fn crash_fn(msg: &str, exit_code: AppExitCode) -> ! {
+pub fn fail_fn(msg: &str, exit_code: AppExitCode) -> ! {
     println!("{} {}", ERR_SYMBOL.red(), msg.bold());
     exit(exit_code as i32);
 }
@@ -71,7 +79,11 @@ pub fn sha256_fn(string: &str) -> String {
     format!("{result:x}")
 }
 
-pub fn finish_fn(msg: &str) -> ! {
+pub fn success_fn(msg: &str) -> ! {
     println!("{} {}", FINISH_SYMBOL.green(), msg.bold());
     exit(0);
+}
+
+pub fn spinner_fn(msg: &'static str) -> Spinner {
+    Spinner::new(spinners::Dots, msg, Color::Blue)
 }

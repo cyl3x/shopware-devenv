@@ -7,7 +7,7 @@ pub use custom_context::*;
 use once_cell::sync::OnceCell;
 pub use platform_context::*;
 
-use crate::crash;
+use crate::fail;
 use crate::internal::AppExitCode;
 
 static CONTEXT: OnceCell<Context> = OnceCell::new();
@@ -25,9 +25,9 @@ impl Context {
             let current_dir =
                 std::env::current_dir().expect("Insufficient permissions or invalid current path");
             let Some(context) = Self::new(&current_dir) else {
-                crash!(
+                fail!(
                     AppExitCode::InvalidContext,
-                    "Current directory has not a valid context"
+                    "Current directory has no valid context"
                 );
             };
 

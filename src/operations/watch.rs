@@ -1,5 +1,5 @@
 use crate::internal::AppExitCode;
-use crate::{crash, devenv, finish};
+use crate::{devenv, fail, success};
 
 pub fn admin() {
     if let Err(error) = devenv!("composer watch:admin")
@@ -7,12 +7,12 @@ pub fn admin() {
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
     {
-        crash!(
+        fail!(
             AppExitCode::DevenvExec,
             "Non zero exit from watcher: {error}"
         );
     } else {
-        finish!("Watcher stopped");
+        success!("Watcher stopped");
     }
 }
 
@@ -22,12 +22,12 @@ pub fn storefront() {
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
     {
-        crash!(
+        fail!(
             AppExitCode::DevenvExec,
             "Non zero exit from watcher: {error}"
         );
     } else {
-        finish!("Watcher stopped");
+        success!("Watcher stopped");
     }
 }
 
@@ -37,12 +37,12 @@ pub fn admin_jest() {
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
     {
-        crash!(
+        fail!(
             AppExitCode::DevenvExec,
             "Non zero exit from watcher: {error}"
         );
     } else {
-        finish!("Watcher stopped");
+        success!("Watcher stopped");
     }
 }
 
@@ -52,11 +52,11 @@ pub fn storefront_jest() {
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
     {
-        crash!(
+        fail!(
             AppExitCode::DevenvExec,
             "Non zero exit from watcher: {error}"
         );
     } else {
-        finish!("Watcher stopped");
+        success!("Watcher stopped");
     }
 }

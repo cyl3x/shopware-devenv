@@ -4,9 +4,11 @@ use sysinfo::{Pid, ProcessExt, Signal, System, SystemExt};
 
 use super::DEVENV_PID;
 use crate::internal::AppExitCode;
-use crate::{crash, finish, log};
+use crate::{fail, log, success, spinner};
 
 pub fn main() {
+    let spinner = spinner!("Stopping...");
+
     let mut sys = System::new();
     sys.refresh_processes();
 
@@ -17,10 +19,11 @@ pub fn main() {
         Err(_) => down_by_process(&mut sys),
     };
 
+    spinner.clear();
     if success {
-        finish!("Devenv service stopped");
+        success!("Devenv service stopped");
     } else {
-        crash!(AppExitCode::DevenvStop, "Devenv service is not running");
+        fail!(AppExitCode::DevenvStop, "Devenv service is not running");
     }
 }
 
@@ -34,9 +37,14 @@ fn down_by_pid(sys: &System, pid_string: &str) -> bool {
 
     log!("Found pid ({pid}) in pidfile, stopping..");
 
-    sys.process(Pid::from(pid))
-        .and_then(|p| p.kill_with(Signal::Interrupt))
-        .is_some()
+    if let Some(p) = sys.process(Pid::from(pid)) {
+        if p.kill_with(Signal::Interrupt).is_some() {
+            p.wait();
+            return true;
+        }
+    }
+
+    false
 }
 
 fn down_by_process(sys: &mut System) -> bool {
@@ -45,6 +53,7 @@ fn down_by_process(sys: &mut System) -> bool {
     let mut success = false;
     for p in sys.processes_by_name(".honcho-wrapped") {
         if p.kill_with(Signal::Interrupt).is_some() {
+            p.wait();
             success = true;
         }
     }

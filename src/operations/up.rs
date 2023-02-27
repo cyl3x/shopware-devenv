@@ -6,22 +6,24 @@ use std::thread::sleep;
 use std::time::Duration;
 
 use regex::Regex;
-use spinoff::{spinners, Color, Spinner};
 use sysinfo::{Pid, SystemExt};
 
+use crate::context::Context;
 use crate::internal::AppExitCode;
 use crate::operations::{DEVENV_LOG, DEVENV_PID};
-use crate::{crash, finish};
+use crate::{fail, success, spinner};
 
 pub fn main() {
     if check_running_instances() {
-        crash!(
+        fail!(
             AppExitCode::DevenvStart,
             "Devenv service is already running"
         );
     }
 
-    let spinner = Spinner::new(spinners::Dots, "Starting...", Color::Blue);
+    Context::get().platform.move_to();
+
+    let spinner = spinner!("Starting...");
 
     let mut log = OpenOptions::new()
         .write(true)
@@ -43,14 +45,14 @@ pub fn main() {
     spinner.clear();
 
     if success {
-        finish!("Devenv service started");
+        success!("Devenv service started");
     }
 
     let _r = child.wait();
 
     super::log::main();
 
-    crash!(AppExitCode::DevenvStart, "Error while starting devenv.");
+    fail!(AppExitCode::DevenvStart, "Error while starting devenv.");
 }
 
 fn check_running_instances() -> bool {

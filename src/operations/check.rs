@@ -3,11 +3,11 @@ use std::process::Command;
 
 use crate::context::Context;
 use crate::internal::AppExitCode;
-use crate::{crash, devenv, log};
+use crate::{devenv, fail, log};
 
 pub fn main(arg_paths: Option<Vec<PathBuf>>, no_ecs: bool, no_phpstan: bool) {
     if no_ecs && no_phpstan {
-        crash!(
+        fail!(
             AppExitCode::InvalidArgs,
             "There aren't any checks left to run..."
         );
@@ -67,7 +67,7 @@ fn phpstan(context: &Context, to_check: &[String]) -> Command {
     }
 
     devenv!(
-        "php src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php; cd {}; {} analyze --memory-limit=2G {}",
+        "cd {}; {} analyze --memory-limit=2G {}",
         curr_dir,
         context
             .platform

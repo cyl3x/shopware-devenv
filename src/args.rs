@@ -75,30 +75,30 @@ pub enum Operation {
 #[derive(Debug, Clone, Subcommand)]
 pub enum OperationWatch {
     /// Enable hot module reloading for Storefront
-    #[clap(name = "storefront")]
+    #[clap(name = "storefront", alias = "store")]
     Storefront,
 
     /// Hot module reloading for Administration
-    #[clap(name = "admin")]
+    #[clap(name = "admin", alias = "administration")]
     Admin,
 
     /// Launch the interactive jest unit test-suite watcher for Storefront
-    #[clap(name = "storefront-jest")]
+    #[clap(name = "storefront-jest", alias = "store-jest")]
     StorefrontJest,
 
     /// Launch the interactive jest unit test-suite watcher for Administration
-    #[clap(name = "admin-jest")]
+    #[clap(name = "admin-jest", alias = "administration-jest")]
     AdminJest,
 }
 
 #[derive(Debug, Clone, Subcommand)]
 pub enum OperationBuild {
     /// Rebuild Storefront
-    #[clap(name = "storefront")]
+    #[clap(name = "storefront", alias = "store")]
     Storefront,
 
     /// Rebuild Administration
-    #[clap(name = "admin")]
+    #[clap(name = "admin", alias = "administration")]
     Admin,
 
     /// Build test db

@@ -7,10 +7,12 @@ use regex::Regex;
 use crate::context::Context;
 use crate::internal::AppExitCode;
 use crate::operations::DEVENV_CONFIG;
-use crate::{crash, finish, sha256};
+use crate::{fail, sha256, success, spinner};
 
 pub fn main() {
     Context::get().platform.move_to();
+
+    let spinner = spinner!("Initialize...");
 
     config();
 
@@ -20,13 +22,15 @@ pub fn main() {
         .expect("Cannot spawn cmd")
         .wait()
     {
-        crash!(
+        spinner.clear();
+        fail!(
             AppExitCode::DevenvExec,
             "Non zero exit from devenv: {error}"
         );
     }
 
-    finish!("Init successfully");
+    spinner.clear();
+    success!("Init successfully");
 }
 
 fn config() {
@@ -82,7 +86,7 @@ fn create_config() {
     let result = fs::write("devenv.local.nix", config);
 
     if let Err(error) = result {
-        crash!(
+        fail!(
             AppExitCode::ConfigWrite,
             "An error occured while writing to devenv.local.nix: {}",
             error
@@ -99,7 +103,7 @@ fn backup_create() {
         i += 1;
 
         if i > 10 {
-            crash!(
+            fail!(
                 AppExitCode::ConfigBak,
                 "Please clean up your devenv.local.nix.bak files. Who needs more than 10.."
             );
@@ -109,7 +113,7 @@ fn backup_create() {
     let result = fs::rename("devenv.local.nix", format!("devenv.local.nix.{i}.bak"));
 
     if let Err(error) = result {
-        crash!(
+        fail!(
             AppExitCode::ConfigBak,
             "An error occured while backing up your devenv.local.nix: {}",
             error

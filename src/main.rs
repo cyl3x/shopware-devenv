@@ -22,7 +22,7 @@ use crate::operations::{build, check, down, init, log, up, watch};
 
 fn main() {
     if Uid::effective().is_root() {
-        crash!(
+        fail!(
             AppExitCode::RunAsRoot,
             "Running swde as root is not allowed"
         );

@@ -1,5 +1,5 @@
 use crate::internal::AppExitCode;
-use crate::{crash, devenv, finish};
+use crate::{devenv, fail, success};
 
 pub fn platform(gen_demodata: bool, build_test_db: bool) {
     if let Err(error) = devenv!("composer setup")
@@ -7,7 +7,7 @@ pub fn platform(gen_demodata: bool, build_test_db: bool) {
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
     {
-        crash!(AppExitCode::DevenvExec, "Non zero exit for setup: {error}");
+        fail!(AppExitCode::DevenvExec, "Non zero exit for setup: {error}");
     }
 
     if build_test_db {
@@ -18,20 +18,19 @@ pub fn platform(gen_demodata: bool, build_test_db: bool) {
         demodata();
     }
 
-    finish!("Build successfull");
+    success!("Build successfull");
     // TODO - Add additional URL https://platform.dev.localhost:4000
 }
 
 pub fn test_db() {
-    // TODO-6.4 FORCE_INSTALL=true vendor/bin/phpunit --group=none
     if let Err(error) = devenv!("composer init:testdb")
         .spawn()
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
     {
-        crash!(AppExitCode::DevenvExec, "Non zero exit: {error}");
+        fail!(AppExitCode::DevenvExec, "Non zero exit: {error}\nIf you're using platform 6.4 you probably have to do it manually");
     } else {
-        finish!("Build successfull");
+        success!("Build successfull");
     }
 }
 
@@ -41,9 +40,9 @@ pub fn admin() {
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
     {
-        crash!(AppExitCode::DevenvExec, "Non zero exit: {error}");
+        fail!(AppExitCode::DevenvExec, "Non zero exit: {error}");
     } else {
-        finish!("Build successfull");
+        success!("Build successfull");
     }
 }
 
@@ -53,9 +52,9 @@ pub fn storefront() {
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
     {
-        crash!(AppExitCode::DevenvExec, "Non zero exit: {error}");
+        fail!(AppExitCode::DevenvExec, "Non zero exit: {error}");
     } else {
-        finish!("Build successfull");
+        success!("Build successfull");
     }
 }
 
@@ -66,7 +65,7 @@ pub fn demodata() {
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
     {
-        crash!(
+        fail!(
             AppExitCode::DevenvExec,
             "Non zero exit from demodata: {error}"
         );
@@ -78,7 +77,7 @@ pub fn demodata() {
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
     {
-        crash!(
+        fail!(
             AppExitCode::DevenvExec,
             "Non zero exit from demodata: {error}"
         );
