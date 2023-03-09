@@ -49,6 +49,8 @@ fn down_by_pid(sys: &System, pid_string: &str) -> bool {
 
 fn down_by_process(sys: &mut System) -> bool {
     log!("Missing pidfile, try to interrupt..");
+    // TODO - Ask user to proceed if there are multiple processes
+    println!("Cannot find pidfile, trying to stop by process name. This can potentially stop other devenv processes as well.");
 
     let mut success = false;
     for p in sys.processes_by_name(".honcho-wrapped") {

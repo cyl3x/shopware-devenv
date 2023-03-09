@@ -10,12 +10,12 @@ pub fn platform(gen_demodata: bool, build_test_db: bool) {
         fail!(AppExitCode::DevenvExec, "Non zero exit for setup: {error}");
     }
 
-    if build_test_db {
-        test_db();
-    }
-
     if gen_demodata {
         demodata();
+    }
+
+    if build_test_db {
+        test_db();
     }
 
     success!("Build successfull");
