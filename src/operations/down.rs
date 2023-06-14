@@ -7,7 +7,7 @@ use crate::internal::AppExitCode;
 use crate::{fail, log, spinner, success};
 
 pub fn main() {
-    let spinner = spinner!("Stopping...");
+    spinner!("Stopping...");
 
     let mut sys = System::new();
     sys.refresh_processes();
@@ -19,7 +19,6 @@ pub fn main() {
         Err(_) => down_by_process(&mut sys),
     };
 
-    spinner.clear();
     if success {
         success!("Devenv service stopped");
     } else {

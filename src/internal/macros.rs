@@ -2,8 +2,10 @@ use std::env::vars_os;
 use std::process::{exit, Command};
 
 use colored::Colorize;
+use directories::ProjectDirs;
+use once_cell::sync::OnceCell;
 use sha2::{Digest, Sha256};
-use spinoff::{spinners, Color, Spinner};
+use spinoff::Spinner;
 
 use crate::context::Context;
 use crate::internal::AppExitCode;
@@ -11,10 +13,29 @@ use crate::internal::AppExitCode;
 const ERR_SYMBOL: &str = "✕";
 const FINISH_SYMBOL: &str = "✓";
 
+static mut SPINNER: OnceCell<Spinner> = OnceCell::new();
+
+#[macro_export]
+macro_rules! project_dirs {
+    () => {
+        $crate::internal::project_dirs_fn()
+    };
+}
+
 #[macro_export]
 macro_rules! spinner {
-    ($msg:expr) => {
-        $crate::internal::spinner_fn($msg)
+    ($($str:tt)+) => {
+        $crate::internal::spinner_start_fn(format!($($str)+))
+    };
+}
+
+#[macro_export]
+macro_rules! spinner_stop {
+    () => {
+        $crate::internal::spinner_stop_fn(None)
+    };
+    ($($str:tt)+) => {
+        $crate::internal::spinner_stop_fn(Some(&format!($($str)+)))
     };
 }
 
@@ -27,15 +48,9 @@ macro_rules! sha256 {
 
 #[macro_export]
 macro_rules! devenv {
-    ($cmd:expr, $args:expr) => {
-        $crate::internal::devenv_fn($cmd, $args)
-    };
-    ($cmd:expr) => {
-        $crate::internal::devenv_fn($cmd, &[])
-    };
     ($($cmd:tt)+) => {
-        $crate::internal::devenv_fn(&format!($($cmd)+), &[])
-    };
+        $crate::internal::devenv_fn(&format!($($cmd)+))
+    }
 }
 
 #[macro_export]
@@ -60,19 +75,25 @@ macro_rules! success {
 }
 
 pub fn fail_fn(msg: &str, exit_code: AppExitCode) -> ! {
-    println!("{} {}", ERR_SYMBOL.red(), msg.bold());
+    let message = format!("{} {}", ERR_SYMBOL.red(), msg.bold());
+
+    if unsafe { SPINNER.get().is_some() } {
+        spinner_stop!("{message}");
+    } else {
+        println!("{message}");
+    }
+
     exit(exit_code as i32);
 }
 
-pub fn devenv_fn(cmd: &str, args: &[String]) -> Command {
-    log!("[{}] {} {}", "devenv".green(), cmd, args.join(" "));
+pub fn devenv_fn(cmd: &str) -> Command {
+    log!("[{}] {}", "devenv".green(), cmd);
 
     Context::get().platform.move_to();
 
     let mut command = Command::new("devenv");
     command
         .args(["shell", "bash", "-c", cmd])
-        .args(args)
         .envs(&mut vars_os());
 
     command
@@ -87,10 +108,42 @@ pub fn sha256_fn(string: &str) -> String {
 }
 
 pub fn success_fn(msg: &str) -> ! {
-    println!("{} {}", FINISH_SYMBOL.green(), msg.bold());
+    let message = format!("{} {}", FINISH_SYMBOL.green(), msg.bold());
+
+    if unsafe { SPINNER.get().is_some() } {
+        spinner_stop!("{message}");
+    } else {
+        println!("{message}");
+    }
+
     exit(0);
 }
 
-pub fn spinner_fn(msg: &'static str) -> Spinner {
-    Spinner::new(spinners::Dots, msg, Color::Blue)
+pub fn spinner_start_fn(msg: String) {
+    spinner_stop_fn(None);
+
+    unsafe {
+        let _ = SPINNER.set(Spinner::new(
+            spinoff::spinners::Dots,
+            msg,
+            spinoff::Color::Blue,
+        ));
+    }
+}
+
+pub fn spinner_stop_fn(msg: Option<&str>) {
+    unsafe {
+        if let Some(spinner) = SPINNER.take() {
+            if let Some(msg) = msg {
+                spinner.stop_with_message(msg);
+            } else {
+                spinner.stop();
+            }
+        }
+    }
+}
+
+pub fn project_dirs_fn() -> ProjectDirs {
+    ProjectDirs::from("de", "cyl3x", env!("CARGO_PKG_NAME"))
+        .expect("Failed to retrieve paths from os")
 }

@@ -1,6 +1,6 @@
 [package]
 name = "shopware-devenv"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["cyl3x <cyl3x@posteo.de>"]
 edition = "2021"
 repository = "https://git.cyl3x.de/cyl3x/shopware-devenv"
@@ -34,5 +34,5 @@ sha2 = { version = "0.10.6", default-features = false }
 colored = "2.0.0"
 serde_json = "1.0.95"
 merge-struct = "0.1.0"
-dirs = "5.0.0"
+directories = "5.0.0"
 clap_complete = "4.2.0"

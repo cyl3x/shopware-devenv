@@ -42,7 +42,8 @@ let vars = {
     env.PORT = lib.mkForce "${vars.port.admin.http}";
     env.IPV4FIRST = lib.mkForce "true";
 
-    # Mailhog - Does not work
+    # Mailhog - Port changes not working
+    # Simply disable mailhog for your second intance
     # env.MAILER_URL = lib.mkForce "smtp://localhost:${vars.port.mailhog}";
     # services.mailhog.enable = true;
 
@@ -55,7 +56,8 @@ let vars = {
         };
     };
 
-    # Redis - Does not work
+    # Redis - Port changes not working
+    # Simply disable mailhog for your second intance
     # services.redis.enable = true;
     # services.redis.bind = vars.port.redis;
 

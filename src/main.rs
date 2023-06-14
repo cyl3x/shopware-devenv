@@ -16,9 +16,9 @@ use clap::{CommandFactory, Parser};
 use internal::Logger;
 use nix::unistd::Uid;
 
-use crate::args::{Args, Operation, OperationBuild, OperationWatch};
+use crate::args::{Args, Operation, OperationBuild, OperationPlugin, OperationWatch};
 use crate::internal::AppExitCode;
-use crate::operations::{build, check, console, down, init, log, up, watch};
+use crate::operations::{build, check, console, down, init, log, plugin, up, watch};
 
 fn main() {
     if Uid::effective().is_root() {
@@ -60,6 +60,16 @@ fn main() {
         Operation::Log => log::main(),
         Operation::Completions { shell } => {
             clap_complete::generate(shell, &mut Args::command(), "swde", &mut io::stdout());
+        },
+        Operation::Plugin { action } => match action {
+            OperationPlugin::Install {
+                name,
+                no_activation,
+            } => plugin::install(&name, no_activation),
+            OperationPlugin::Uninstall { name } => plugin::uninstall(&name),
+            OperationPlugin::Reinstall { name } => plugin::reinstall(&name),
+            OperationPlugin::Refresh => plugin::refresh(),
+            OperationPlugin::List => plugin::list(),
         },
     }
 }

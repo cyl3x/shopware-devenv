@@ -73,7 +73,8 @@ pub fn storefront() {
 }
 
 pub fn demodata(args: &[String]) {
-    if let Err(error) = devenv!("bin/console framework:demodata", args)
+    if let Err(error) = devenv!("bin/console framework:demodata")
+        .args(args)
         .env("APP_ENV", "prod")
         .spawn()
         .expect("Cannot spawn cmd, is devenv ok?")

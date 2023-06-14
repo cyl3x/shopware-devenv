@@ -11,7 +11,7 @@ use sysinfo::{Pid, SystemExt};
 use crate::context::Context;
 use crate::internal::AppExitCode;
 use crate::operations::{DEVENV_LOG, DEVENV_PID};
-use crate::{fail, spinner, success};
+use crate::{fail, spinner, spinner_stop, success};
 
 pub fn main() {
     if check_running_instances() {
@@ -23,7 +23,7 @@ pub fn main() {
 
     Context::get().platform.move_to();
 
-    let spinner = spinner!("Starting...");
+    spinner!("Starting...");
 
     let mut log = OpenOptions::new()
         .write(true)
@@ -42,7 +42,7 @@ pub fn main() {
         .expect("Failed to start devenv");
 
     let success = check_successfull_start(&mut log);
-    spinner.clear();
+    spinner_stop!();
 
     if success {
         success!("Devenv service started");

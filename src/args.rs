@@ -78,6 +78,14 @@ pub enum Operation {
         #[clap(trailing_var_arg = true)]
         arguments: Vec<String>,
     },
+
+    /// Install / Uninstall / Reinstall plugins
+    #[clap(name = "plugin")]
+    Plugin {
+        /// Can be Install / Uninstall / Reinstall
+        #[clap(subcommand)]
+        action: OperationPlugin,
+    },
 }
 
 #[derive(Debug, Clone, Subcommand)]
@@ -131,4 +139,42 @@ pub enum OperationBuild {
         #[clap(trailing_var_arg = true)]
         arguments: Vec<String>,
     },
+}
+
+#[derive(Debug, Clone, Subcommand)]
+pub enum OperationPlugin {
+    /// Install and activate a plugin
+    #[clap(name = "install", alias = "i")]
+    Install {
+        /// Fuzzy matched plugin name
+        #[clap(name = "plugin-name")]
+        name: String,
+
+        #[clap(name = "no-activation", long, short)]
+        no_activation: bool,
+    },
+
+    /// Uninstall a plugin
+    #[clap(name = "uninstall", alias = "u", alias = "remove")]
+    Uninstall {
+        /// Fuzzy matched plugin name
+        #[clap(name = "plugin-name")]
+        name: String,
+    },
+
+    /// Reinstall a plugin
+    #[clap(name = "reinstall", alias = "r")]
+    Reinstall {
+        /// Fuzzy matched plugin name
+        #[clap(name = "plugin-name")]
+        name: String,
+    },
+
+    /// Refresh plugins
+    #[clap(name = "refresh")]
+    Refresh,
+
+    /// List plugins
+    #[clap(name = "list")]
+    List,
 }

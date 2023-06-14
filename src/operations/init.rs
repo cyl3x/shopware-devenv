@@ -12,7 +12,7 @@ use crate::{fail, sha256, spinner, success};
 pub fn main() {
     Context::get().platform.move_to();
 
-    let spinner = spinner!("Initialize...");
+    spinner!("Initialize...");
 
     config();
 
@@ -22,14 +22,12 @@ pub fn main() {
         .expect("Cannot spawn cmd")
         .wait()
     {
-        spinner.clear();
         fail!(
             AppExitCode::DevenvExec,
             "Non zero exit from devenv: {error}"
         );
     }
 
-    spinner.clear();
     success!("Init successfully");
 }
 

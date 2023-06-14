@@ -4,6 +4,8 @@ use merge_struct::merge;
 use once_cell::sync::OnceCell;
 use serde::{Deserialize, Serialize};
 
+use crate::project_dirs;
+
 static CONFIG: OnceCell<Config> = OnceCell::new();
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
@@ -24,10 +26,8 @@ impl Config {
     fn new() -> Self {
         let mut config = Self { verbose: false };
 
-        let content = dirs::config_dir().and_then(|mut cd| {
-            cd.push("swde/config.toml");
-            fs::read_to_string(cd).ok()
-        });
+        let config_path = project_dirs!().config_dir().join("config.toml");
+        let content = fs::read_to_string(config_path).ok();
 
         if let Some(content) = content {
             let file_config: Self = match toml::from_str::<Data>(&content) {
