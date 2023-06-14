@@ -1,11 +1,12 @@
 use std::env;
 use std::path::{Path, PathBuf};
 
-use crate::log;
+use crate::{log, sha256};
 
 #[derive(Clone, Debug)]
 pub struct PlatformContext {
     pub path: PathBuf,
+    pub path_hash: String,
 }
 
 impl PlatformContext {
@@ -28,11 +29,16 @@ impl PlatformContext {
                 has_devenv_dir = true;
             }
 
+            let path = path
+                .canonicalize()
+                .unwrap_or_else(|_| path.to_path_buf());
+
             if has_devenv_dir && has_devenv_file {
-                log!("Found platform context: {path}", path = path.display());
+                log!("Found platform context: {}", path.display());
 
                 return Some(Self {
-                    path: path.to_path_buf(),
+                    path,
+                    path_hash: sha256!("{}", path.display()),
                 });
             }
         }

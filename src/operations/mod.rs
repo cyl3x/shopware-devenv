@@ -12,7 +12,11 @@ pub mod up;
 pub mod watch;
 
 static DEVENV_CONFIG: &str = include_str!("../../devenv.local.nix");
-static DEVENV_LOG: &str = "/tmp/devenv.log";
+static DEVENV_LOG: Lazy<String> = Lazy::new(|| {
+    format!("/tmp/devenv-{}.log", &Context::get()
+        .platform
+        .path_hash[..8])
+});
 static DEVENV_PID: Lazy<String> = Lazy::new(|| {
     Context::get()
         .platform

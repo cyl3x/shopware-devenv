@@ -30,7 +30,7 @@ pub fn main() {
         .create(true)
         .read(true)
         .truncate(true)
-        .open(DEVENV_LOG)
+        .open(DEVENV_LOG.clone())
         .expect("Failed to create out log");
 
     let mut child = Command::new("devenv")
