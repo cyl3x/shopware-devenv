@@ -4,6 +4,7 @@ use crate::context::Context;
 
 pub mod build;
 pub mod check;
+pub mod console;
 pub mod down;
 pub mod init;
 pub mod log;

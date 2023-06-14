@@ -18,7 +18,7 @@ use nix::unistd::Uid;
 
 use crate::args::{Args, Operation, OperationBuild, OperationWatch};
 use crate::internal::AppExitCode;
-use crate::operations::{build, check, down, init, log, up, watch};
+use crate::operations::{build, check, console, down, init, log, up, watch};
 
 fn main() {
     if Uid::effective().is_root() {
@@ -49,13 +49,18 @@ fn main() {
                 skip_test_db,
             } => build::platform(demodata, !skip_test_db),
             OperationBuild::TestDB => build::test_db(),
-            OperationBuild::Demodata => build::demodata(),
+            OperationBuild::Demodata {
+                arguments,
+            } => build::demodata(&arguments),
         },
         Operation::Check {
             paths,
             no_ecs,
             no_phpstan,
         } => check::main(paths, no_ecs, no_phpstan),
+        Operation::Console {
+            arguments
+        } => console::main(&arguments),
         Operation::Log => log::main(),
         Operation::Completions { shell } => {
             clap_complete::generate(shell, &mut Args::command(), "swde", &mut io::stdout());

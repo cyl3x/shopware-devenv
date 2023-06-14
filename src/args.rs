@@ -70,6 +70,14 @@ pub enum Operation {
         #[clap(subcommand)]
         watchable: OperationWatch,
     },
+
+    /// bin/console from platform
+    #[clap(name = "console")]
+    Console {
+        /// Arguments for bin/console
+        #[clap(trailing_var_arg=true)]
+        arguments: Vec<String>,
+    }
 }
 
 #[derive(Debug, Clone, Subcommand)]
@@ -118,5 +126,9 @@ pub enum OperationBuild {
 
     /// Generate demodata
     #[clap(name = "demodata")]
-    Demodata,
+    Demodata {
+        /// Arguments for demo data generator
+        #[clap(trailing_var_arg=true)]
+        arguments: Vec<String>,
+    },
 }
