@@ -15,7 +15,7 @@ const FINISH_SYMBOL: &str = "✓";
 macro_rules! spinner {
     ($msg:expr) => {
         $crate::internal::spinner_fn($msg)
-    }
+    };
 }
 
 #[macro_export]
@@ -27,9 +27,15 @@ macro_rules! sha256 {
 
 #[macro_export]
 macro_rules! devenv {
+    ($cmd:expr, $args:expr) => {
+        $crate::internal::devenv_fn($cmd, $args)
+    };
+    ($cmd:expr) => {
+        $crate::internal::devenv_fn($cmd, &[])
+    };
     ($($cmd:tt)+) => {
-        $crate::internal::devenv_fn(&format!($($cmd)+))
-    }
+        $crate::internal::devenv_fn(&format!($($cmd)+), &[])
+    };
 }
 
 #[macro_export]
@@ -58,14 +64,15 @@ pub fn fail_fn(msg: &str, exit_code: AppExitCode) -> ! {
     exit(exit_code as i32);
 }
 
-pub fn devenv_fn(cmd: &str) -> Command {
-    log!("[{}] {}", "devenv".green(), cmd);
+pub fn devenv_fn(cmd: &str, args: &[String]) -> Command {
+    log!("[{}] {} {}", "devenv".green(), cmd, args.join(" "));
 
     Context::get().platform.move_to();
 
     let mut command = Command::new("devenv");
     command
         .args(["shell", "bash", "-c", cmd])
+        .args(args)
         .envs(&mut vars_os());
 
     command

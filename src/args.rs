@@ -75,9 +75,9 @@ pub enum Operation {
     #[clap(name = "console")]
     Console {
         /// Arguments for bin/console
-        #[clap(trailing_var_arg=true)]
+        #[clap(trailing_var_arg = true)]
         arguments: Vec<String>,
-    }
+    },
 }
 
 #[derive(Debug, Clone, Subcommand)]
@@ -128,7 +128,7 @@ pub enum OperationBuild {
     #[clap(name = "demodata")]
     Demodata {
         /// Arguments for demo data generator
-        #[clap(trailing_var_arg=true)]
+        #[clap(trailing_var_arg = true)]
         arguments: Vec<String>,
     },
 }

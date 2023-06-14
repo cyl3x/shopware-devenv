@@ -29,15 +29,13 @@ impl PlatformContext {
                 has_devenv_dir = true;
             }
 
-            let path = path
-                .canonicalize()
-                .unwrap_or_else(|_| path.to_path_buf());
+            let path = path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
 
             if has_devenv_dir && has_devenv_file {
                 log!("Found platform context: {}", path.display());
 
                 return Some(Self {
-                    path,
+                    path: path.clone(),
                     path_hash: sha256!("{}", path.display()),
                 });
             }

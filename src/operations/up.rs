@@ -11,7 +11,7 @@ use sysinfo::{Pid, SystemExt};
 use crate::context::Context;
 use crate::internal::AppExitCode;
 use crate::operations::{DEVENV_LOG, DEVENV_PID};
-use crate::{fail, success, spinner};
+use crate::{fail, spinner, success};
 
 pub fn main() {
     if check_running_instances() {

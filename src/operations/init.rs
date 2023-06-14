@@ -7,7 +7,7 @@ use regex::Regex;
 use crate::context::Context;
 use crate::internal::AppExitCode;
 use crate::operations::DEVENV_CONFIG;
-use crate::{fail, sha256, success, spinner};
+use crate::{fail, sha256, spinner, success};
 
 pub fn main() {
     Context::get().platform.move_to();

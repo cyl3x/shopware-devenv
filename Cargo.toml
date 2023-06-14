@@ -1,6 +1,6 @@
 [package]
 name = "shopware-devenv"
-version = "0.2.1"
+version = "0.3.0"
 authors = ["cyl3x <cyl3x@posteo.de>"]
 edition = "2021"
 repository = "https://git.cyl3x.de/cyl3x/shopware-devenv"
@@ -22,17 +22,17 @@ opt-level = 3
 strip = "debuginfo"
 
 [dependencies]
-clap = { version = "4.1.6", features = ["derive", "suggestions"] }
-regex = { version = "1.7.1", default-features = false, features = ["std"] }
+clap = { version = "4.2.1", features = ["derive", "suggestions"] }
+regex = { version = "1.7.3", default-features = false, features = ["std"] }
 nix = { version = "0.26.2", default-features = false, features = ["user"] }
 spinoff = { version = "0.7.0", default-features = false, features = ["dots"] }
-toml = { version = "0.7.2", default-features = false, features = ["parse"] }
-serde = { version = "1.0.152", default-features = false, features = ["serde_derive"] }
+toml = { version = "0.7.3", default-features = false, features = ["parse"] }
+serde = { version = "1.0.159", default-features = false, features = ["serde_derive"] }
 once_cell = { version = "1.17.1", default-features = false, features = ["std"] }
-sysinfo = { version = "0.28.0", default-features = false }
+sysinfo = { version = "0.28.4", default-features = false }
 sha2 = { version = "0.10.6", default-features = false }
 colored = "2.0.0"
-serde_json = "1.0.93"
+serde_json = "1.0.95"
 merge-struct = "0.1.0"
-dirs = "4.0.0"
-clap_complete = "4.1.2"
+dirs = "5.0.0"
+clap_complete = "4.2.0"

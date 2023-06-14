@@ -1,7 +1,17 @@
+use colored::Colorize;
+
 use crate::internal::AppExitCode;
 use crate::{devenv, fail, success};
 
 pub fn platform(gen_demodata: bool, build_test_db: bool) {
+    if let Err(error) = devenv!("composer update")
+        .spawn()
+        .expect("Cannot spawn cmd, is devenv ok?")
+        .wait()
+    {
+        fail!(AppExitCode::DevenvExec, "Non zero exit for update: {error}");
+    }
+
     if let Err(error) = devenv!("composer setup")
         .spawn()
         .expect("Cannot spawn cmd, is devenv ok?")
@@ -11,7 +21,7 @@ pub fn platform(gen_demodata: bool, build_test_db: bool) {
     }
 
     if gen_demodata {
-        demodata();
+        demodata(&[]);
     }
 
     if build_test_db {
@@ -28,7 +38,11 @@ pub fn test_db() {
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
     {
-        fail!(AppExitCode::DevenvExec, "Non zero exit: {error}\nIf you're using platform 6.4 you probably have to do it manually");
+        fail!(
+            AppExitCode::DevenvExec,
+            "Non zero exit: {error}\n{}",
+            "If you're using platform 6.4 you probably have to do it manually".red()
+        );
     } else {
         success!("Build successfull");
     }
@@ -58,8 +72,8 @@ pub fn storefront() {
     }
 }
 
-pub fn demodata() {
-    if let Err(error) = devenv!("bin/console framework:demodata")
+pub fn demodata(args: &[String]) {
+    if let Err(error) = devenv!("bin/console framework:demodata", args)
         .env("APP_ENV", "prod")
         .spawn()
         .expect("Cannot spawn cmd, is devenv ok?")

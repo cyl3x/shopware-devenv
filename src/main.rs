@@ -49,18 +49,14 @@ fn main() {
                 skip_test_db,
             } => build::platform(demodata, !skip_test_db),
             OperationBuild::TestDB => build::test_db(),
-            OperationBuild::Demodata {
-                arguments,
-            } => build::demodata(&arguments),
+            OperationBuild::Demodata { arguments } => build::demodata(&arguments),
         },
         Operation::Check {
             paths,
             no_ecs,
             no_phpstan,
         } => check::main(paths, no_ecs, no_phpstan),
-        Operation::Console {
-            arguments
-        } => console::main(&arguments),
+        Operation::Console { arguments } => console::main(&arguments),
         Operation::Log => log::main(),
         Operation::Completions { shell } => {
             clap_complete::generate(shell, &mut Args::command(), "swde", &mut io::stdout());

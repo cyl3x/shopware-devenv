@@ -1,4 +1,4 @@
-use crate::{AppExitCode, devenv, fail};
+use crate::{devenv, fail, AppExitCode};
 
 pub fn main(args: &[String]) {
     if let Err(error) = devenv!("bin/console", args)

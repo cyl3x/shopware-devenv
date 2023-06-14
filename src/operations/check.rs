@@ -44,19 +44,24 @@ pub fn main(arg_paths: Option<Vec<PathBuf>>, no_ecs: bool, no_phpstan: bool) {
         check_path_phpstan = absolute_paths;
     }
 
-    let status_ecs = ecs(context, &check_path_ecs)
+    if let Err(error) = ecs(context, &check_path_ecs)
         .spawn()
         .expect("Cannot start ECS")
-        .wait();
+        .wait()
+    {
+        fail!(AppExitCode::DevenvExec, "Non zero exit for ECS: {error}");
+    }
 
-    log!("{} {:?}", "ECS exit Status:", status_ecs);
-
-    let status_phpstan = phpstan(context, &check_path_phpstan)
+    if let Err(error) = phpstan(context, &check_path_phpstan)
         .spawn()
         .expect("Cannot start PHPStan")
-        .wait();
-
-    log!("{} {:?}", "PHPStan exit Status:", status_phpstan);
+        .wait()
+    {
+        fail!(
+            AppExitCode::DevenvExec,
+            "Non zero exit for PHPStan: {error}"
+        );
+    }
 }
 
 fn phpstan(context: &Context, to_check: &[String]) -> Command {
@@ -69,10 +74,7 @@ fn phpstan(context: &Context, to_check: &[String]) -> Command {
     devenv!(
         "cd {}; {} analyze --memory-limit=2G {}",
         curr_dir,
-        context
-            .platform
-            .join("vendor/bin/phpstan")
-            .display(),
+        context.platform.join("vendor/bin/phpstan").display(),
         to_check.join(" ")
     )
 }

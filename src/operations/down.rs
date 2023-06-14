@@ -4,7 +4,7 @@ use sysinfo::{Pid, ProcessExt, Signal, System, SystemExt};
 
 use super::DEVENV_PID;
 use crate::internal::AppExitCode;
-use crate::{fail, log, success, spinner};
+use crate::{fail, log, spinner, success};
 
 pub fn main() {
     let spinner = spinner!("Stopping...");
