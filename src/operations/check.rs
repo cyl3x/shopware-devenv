@@ -3,7 +3,7 @@ use std::process::Command;
 
 use crate::context::Context;
 use crate::internal::AppExitCode;
-use crate::{devenv, fail, log};
+use crate::{devenv, fail, log_verbose};
 
 pub fn main(arg_paths: Option<Vec<PathBuf>>, no_ecs: bool, no_phpstan: bool) {
     if no_ecs && no_phpstan {
@@ -21,24 +21,10 @@ pub fn main(arg_paths: Option<Vec<PathBuf>>, no_ecs: bool, no_phpstan: bool) {
     if let Some(paths) = arg_paths {
         let absolute_paths: Vec<String> = paths
             .into_iter()
-            .map(|mut p| {
-                if p.is_symlink() {
-                    p = p.read_link().expect("Cannot resolve symlink");
-                }
-
-                if p.is_relative() {
-                    p = context.origin.join(p);
-                }
-
-                p.canonicalize()
-                    .expect("Cannot resolve path")
-                    .into_os_string()
-                    .into_string()
-                    .expect("Cannot convert path to string")
-            })
+            .filter_map(|p| p.canonicalize().ok().map(|c| c.display().to_string()))
             .collect();
 
-        log!("{} {:?}", "Resolved paths:", absolute_paths);
+        log_verbose!("{} {:?}", "Resolved paths:", absolute_paths);
 
         check_path_ecs = absolute_paths.clone();
         check_path_phpstan = absolute_paths;
@@ -46,7 +32,7 @@ pub fn main(arg_paths: Option<Vec<PathBuf>>, no_ecs: bool, no_phpstan: bool) {
 
     if let Err(error) = ecs(context, &check_path_ecs)
         .spawn()
-        .expect("Cannot start ECS")
+        .unwrap_or_else(|_| fail!(AppExitCode::Runtime, "Failed to start ECS"))
         .wait()
     {
         fail!(AppExitCode::DevenvExec, "Non zero exit for ECS: {error}");
@@ -54,7 +40,7 @@ pub fn main(arg_paths: Option<Vec<PathBuf>>, no_ecs: bool, no_phpstan: bool) {
 
     if let Err(error) = phpstan(context, &check_path_phpstan)
         .spawn()
-        .expect("Cannot start PHPStan")
+        .unwrap_or_else(|_| fail!(AppExitCode::Runtime, "Failed to start PHPStan"))
         .wait()
     {
         fail!(

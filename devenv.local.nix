@@ -23,7 +23,7 @@ let vars = {
             https = toString (4003 + vars.instance * 100);
         };
         mysql = 3306 + vars.instance;
-        redis = toString (6379 + vars.instance);
+        redis = 6379 + vars.instance;
         mailhog = toString (1025 + vars.instance);
     };
 }; in {
@@ -56,17 +56,17 @@ let vars = {
         };
     };
 
-    # Redis - Port changes not working
-    # Simply disable mailhog for your second intance
-    # services.redis.enable = true;
-    # services.redis.bind = vars.port.redis;
+    # Redis
+    services.redis.port = vars.port.redis;
 
     # Caddy
     services.caddy.config = ''
         http://${vars.base_url}:${vars.port.platform.http}, https://${vars.base_url}:${vars.port.platform.https} {
-             root * public
-             php_fastcgi unix/${config.languages.php.fpm.pools.web.socket}
-             file_server
+            root * public
+            php_fastcgi @default unix/${config.languages.php.fpm.pools.web.socket} {
+                trusted_proxies private_ranges
+            }
+            file_server
         }
 
         https://${vars.base_url}:${vars.port.storefront.https} {
@@ -90,7 +90,7 @@ let vars = {
         xdebug.client_host = 127.0.0.1
         ${lib.optionalString config.services.redis.enable ''
         session.save_handler = redis
-        session.save_path = "tcp://127.0.0.1:${vars.port.redis}/0"
+        session.save_path = "tcp://127.0.0.1:${toString vars.port.redis}/0"
         ''}
     '';
 }

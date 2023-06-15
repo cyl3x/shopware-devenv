@@ -1,7 +1,7 @@
 mod custom_context;
 mod platform_context;
 
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 pub use custom_context::*;
 use once_cell::sync::OnceCell;
@@ -22,39 +22,42 @@ pub struct Context {
 impl Context {
     pub fn get() -> &'static Self {
         CONTEXT.get_or_init(|| {
-            let current_dir =
-                std::env::current_dir().expect("Insufficient permissions or invalid current path");
-            let Some(context) = Self::new(&current_dir) else {
+            let Ok(current_dir) = std::env::current_dir() else {
+                fail!(
+                    AppExitCode::InvalidContext,
+                    "Could not get current directory"
+                );
+            };
+
+            Self::new(current_dir).unwrap_or_else(|| {
                 fail!(
                     AppExitCode::InvalidContext,
                     "Current directory has no valid context"
                 );
-            };
-
-            context
+            })
         })
     }
 
-    fn new(origin_path: &Path) -> Option<Self> {
+    fn new(origin: PathBuf) -> Option<Self> {
         let mut custom: Option<CustomContext> = None;
+        let mut origin = origin;
 
-        let mut curr_dir = origin_path.to_owned();
-
-        while !curr_dir.ends_with("/") {
-            if let Some(custom_context) = CustomContext::new(&curr_dir) {
+        // TODO - Does not work always (windows for example, symlinks)
+        while {
+            if let Some(custom_context) = CustomContext::new(&origin) {
                 custom = Some(custom_context);
             }
 
-            if let Some(platform_context) = PlatformContext::new(&curr_dir) {
+            if let Some(platform_context) = PlatformContext::new(&origin) {
                 return Some(Self {
-                    origin: origin_path.to_path_buf(),
+                    origin,
                     platform: platform_context,
                     custom,
                 });
             }
 
-            curr_dir.pop();
-        }
+            origin.pop()
+        } {}
 
         None
     }

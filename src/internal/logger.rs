@@ -10,21 +10,25 @@ pub struct Logger {
 }
 
 impl Logger {
+    /// Initialize the logger with the given verbosity
     pub fn init(arg_verbose: bool) {
         let verbose = arg_verbose || Config::get().verbose;
-        LOGGER
-            .set(Self { verbose })
-            .ok()
-            .expect("Logger already initialised");
+        let _ = LOGGER.set(Self { verbose });
     }
 
+    /// Get a reference to the logger.
+    /// Returns a default Logger if no one as initialized
     pub fn get() -> &'static Self {
-        LOGGER.get().expect("Logger not initialised")
+        LOGGER.get_or_init(|| Self { verbose: false })
     }
 
-    pub fn log(&self, msg: &str, file: &str, line: u32) {
+    pub fn verbose(&self, msg: &str, file: &str, line: u32) {
         if self.verbose {
-            eprintln!("[{}] [{file}:{line}] {msg}", "verbose".red());
+            eprintln!("\r[{}] [{file}:{line}] {msg}", "verbose".red());
         }
+    }
+
+    pub fn info(msg: &str) {
+        eprintln!("\r{} {msg}", "!".bold().yellow());
     }
 }

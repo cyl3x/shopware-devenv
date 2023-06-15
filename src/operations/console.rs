@@ -4,7 +4,7 @@ pub fn main(args: &[String]) {
     if let Err(error) = devenv!("bin/console")
         .args(args)
         .spawn()
-        .expect("Cannot start bin/console")
+        .unwrap_or_else(|_| fail!(AppExitCode::Runtime, "Failed to start bin/console"))
         .wait()
     {
         fail!(AppExitCode::DevenvExec, "Non zero exit: {error}");

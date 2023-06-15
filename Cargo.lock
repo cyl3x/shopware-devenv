@@ -525,26 +525,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "shopware-devenv"
-version = "0.4.0"
-dependencies = [
- "clap",
- "clap_complete",
- "colored",
- "directories",
- "merge-struct",
- "nix",
- "once_cell",
- "regex",
- "serde",
- "serde_json",
- "sha2",
- "spinoff",
- "sysinfo",
- "toml",
-]
-
-[[package]]
 name = "spinoff"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -566,6 +546,26 @@ name = "strsim"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
+
+[[package]]
+name = "swde"
+version = "0.4.0"
+dependencies = [
+ "clap",
+ "clap_complete",
+ "colored",
+ "directories",
+ "merge-struct",
+ "nix",
+ "once_cell",
+ "regex",
+ "serde",
+ "serde_json",
+ "sha2",
+ "spinoff",
+ "sysinfo",
+ "toml",
+]
 
 [[package]]
 name = "syn"

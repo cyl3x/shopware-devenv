@@ -9,9 +9,8 @@ use regex::Regex;
 use sysinfo::{Pid, SystemExt};
 
 use crate::context::Context;
-use crate::internal::AppExitCode;
-use crate::operations::{DEVENV_LOG, DEVENV_PID};
-use crate::{fail, spinner, spinner_stop, success};
+use crate::internal::{AppExitCode, DEVENV_PID, LOG_FILE};
+use crate::{fail, log_verbose, spinner, spinner_stop, success};
 
 pub fn main() {
     if check_running_instances() {
@@ -25,13 +24,14 @@ pub fn main() {
 
     spinner!("Starting...");
 
+    log_verbose!("Open log at {}", LOG_FILE.display());
     let mut log = OpenOptions::new()
         .write(true)
         .create(true)
         .read(true)
         .truncate(true)
-        .open(DEVENV_LOG.clone())
-        .expect("Failed to create out log");
+        .open(&*LOG_FILE)
+        .unwrap_or_else(|_| fail!(AppExitCode::DevenvStart, "Failed to create devenv log file"));
 
     let mut child = Command::new("devenv")
         .arg("up")
@@ -39,7 +39,7 @@ pub fn main() {
         .stderr(log.try_clone().expect("Cannot log into the same file?"))
         .envs(&mut vars_os())
         .spawn()
-        .expect("Failed to start devenv");
+        .unwrap_or_else(|_| fail!(AppExitCode::DevenvStart, "Failed to start devenv"));
 
     let success = check_successfull_start(&mut log);
     spinner_stop!();
@@ -60,9 +60,8 @@ fn check_running_instances() -> bool {
         let pid: usize = pid_string
             .lines()
             .next()
-            .expect("Malformed pidfile")
-            .parse::<usize>()
-            .expect("Malformed pid in pidfile");
+            .and_then(|p| p.parse::<usize>().ok())
+            .unwrap_or_else(|| fail!(AppExitCode::Runtime, "Malformed pid in pidfile"));
 
         let mut sys = sysinfo::System::new();
         sys.refresh_processes();

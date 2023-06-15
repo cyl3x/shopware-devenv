@@ -1,6 +1,9 @@
 pub enum AppExitCode {
     RunAsRoot = 1,
     InvalidArgs = 2,
+    AppDirsCreation = 3,
+
+    Runtime = 9,
 
     // Devenv
     DevenvStart = 10,

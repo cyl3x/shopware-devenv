@@ -4,7 +4,7 @@ use std::{env, fs};
 
 use serde::Deserialize;
 
-use crate::log;
+use crate::{fail, log_info, log_verbose, AppExitCode};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum CustomType {
@@ -44,19 +44,23 @@ impl CustomContext {
             require.extend(require_dev);
         }
 
-        let mut name: String = path
+        let Some(mut name) = path
             .file_name()
             .and_then(std::ffi::OsStr::to_str)
-            .expect("Cannot get custom directory name")
-            .to_owned();
+            .map(std::borrow::ToOwned::to_owned) else {
+                log_info!("Malformed path: {}", path.display());
+                return None;
+            };
 
         if custom_type == CustomType::Plugin {
             if let Some(plugin_class) = composer.extra.and_then(|i| i.plugin_class) {
-                name = plugin_class.split('\\').last().unwrap_or(&name).to_owned();
+                if let Some(plugin_name) = plugin_class.split('\\').last() {
+                    name = plugin_name.to_owned();
+                };
             }
 
             if composer.plugin_type != "shopware-platform-plugin" {
-                log!(
+                log_verbose!(
                     "Found malformed Plugin: composer.json::type is not 'shopware-platform-plugin': {path}",
                     path = path.display(),
                 );
@@ -65,13 +69,13 @@ impl CustomContext {
             }
         }
 
-        log!(
+        log_verbose!(
             "Found custom context: {name} ({custom_type:?}) ({length} deps)",
             length = require.len()
         );
 
         Some(Self {
-            path: path.to_path_buf(),
+            path: path.to_owned(),
             name,
             custom_type,
             require,
@@ -80,7 +84,13 @@ impl CustomContext {
 
     #[allow(dead_code)]
     pub fn move_to(&self) {
-        env::set_current_dir(&self.path).expect("Cannot change context");
+        if env::set_current_dir(&self.path).is_err() {
+            fail!(
+                AppExitCode::Runtime,
+                "Failed to move to custom context: {p}",
+                p = self.path.display()
+            );
+        }
     }
 }
 

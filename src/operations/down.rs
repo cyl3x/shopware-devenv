@@ -2,9 +2,8 @@ use std::fs;
 
 use sysinfo::{Pid, ProcessExt, Signal, System, SystemExt};
 
-use super::DEVENV_PID;
-use crate::internal::AppExitCode;
-use crate::{fail, log, spinner, success};
+use crate::internal::{AppExitCode, DEVENV_PID};
+use crate::{fail, log_verbose, spinner, success};
 
 pub fn main() {
     spinner!("Stopping...");
@@ -12,7 +11,7 @@ pub fn main() {
     let mut sys = System::new();
     sys.refresh_processes();
 
-    let pid_file = fs::read_to_string(DEVENV_PID.clone());
+    let pid_file = fs::read_to_string(&*DEVENV_PID);
 
     let success: bool = match pid_file {
         Ok(pid_string) => down_by_pid(&sys, &pid_string),
@@ -27,14 +26,14 @@ pub fn main() {
 }
 
 fn down_by_pid(sys: &System, pid_string: &str) -> bool {
-    let pid: usize = pid_string
+    let Some(pid) = pid_string
         .lines()
         .next()
-        .expect("Malformed pidfile")
-        .parse::<usize>()
-        .expect("Malformed pid in pidfile");
+        .and_then(|p| p.parse::<usize>().ok()) else {
+            fail!(AppExitCode::Runtime, "Malformed pid or pidfile")
+        };
 
-    log!("Found pid ({pid}) in pidfile, stopping..");
+    log_verbose!("Found pid ({pid}) in pidfile, stopping..");
 
     if let Some(p) = sys.process(Pid::from(pid)) {
         if p.kill_with(Signal::Interrupt).is_some() {
@@ -47,7 +46,7 @@ fn down_by_pid(sys: &System, pid_string: &str) -> bool {
 }
 
 fn down_by_process(sys: &mut System) -> bool {
-    log!("Missing pidfile, try to interrupt..");
+    log_verbose!("Missing pidfile, try to interrupt..");
     // TODO - Ask user to proceed if there are multiple processes
     println!("Cannot find pidfile, trying to stop by process name. This can potentially stop other devenv processes as well.");
 

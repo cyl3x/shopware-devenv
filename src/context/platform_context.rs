@@ -1,7 +1,8 @@
 use std::env;
 use std::path::{Path, PathBuf};
 
-use crate::{log, sha256};
+use crate::internal::AppExitCode;
+use crate::{fail, log_verbose, sha256};
 
 #[derive(Clone, Debug)]
 pub struct PlatformContext {
@@ -32,7 +33,7 @@ impl PlatformContext {
             let path = path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
 
             if has_devenv_dir && has_devenv_file {
-                log!("Found platform context: {}", path.display());
+                log_verbose!("Found platform context: {}", path.display());
 
                 return Some(Self {
                     path: path.clone(),
@@ -45,7 +46,13 @@ impl PlatformContext {
     }
 
     pub fn move_to(&self) {
-        env::set_current_dir(&self.path).expect("Cannot change context");
+        if env::set_current_dir(&self.path).is_err() {
+            fail!(
+                AppExitCode::Runtime,
+                "Failed to move to custom context: {p}",
+                p = self.path.display()
+            );
+        }
     }
 
     pub fn join(&self, path: &str) -> PathBuf {

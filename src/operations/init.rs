@@ -5,8 +5,7 @@ use std::process::Command;
 use regex::Regex;
 
 use crate::context::Context;
-use crate::internal::AppExitCode;
-use crate::operations::DEVENV_CONFIG;
+use crate::internal::{AppExitCode, DEVENV_DEFAULT_CONFIG};
 use crate::{fail, sha256, spinner, success};
 
 pub fn main() {
@@ -19,7 +18,7 @@ pub fn main() {
     if let Err(error) = Command::new("devenv")
         .arg("ci")
         .spawn()
-        .expect("Cannot spawn cmd")
+        .unwrap_or_else(|_| fail!(AppExitCode::Runtime, "Failed t0 initialize devenv"))
         .wait()
     {
         fail!(
@@ -60,7 +59,7 @@ fn config() {
         .captures(first_line)
         .expect("Invalid devenv.local.nix file header")[2];
     let file_hash = sha256!("{}", lines.skip(1).collect::<String>());
-    let internal_hash = sha256!("{}", DEVENV_CONFIG);
+    let internal_hash = sha256!("{}", DEVENV_DEFAULT_CONFIG);
 
     if internal_hash == stored_hash {
         println!("Found swde devenv.local.nix, but no update is needed");
@@ -78,8 +77,8 @@ fn config() {
 }
 
 fn create_config() {
-    let hash = sha256!("{}", DEVENV_CONFIG);
-    let config = format!("# sha256<{hash}>\n{DEVENV_CONFIG}");
+    let hash = sha256!("{}", DEVENV_DEFAULT_CONFIG);
+    let config = format!("# sha256<{hash}>\n{DEVENV_DEFAULT_CONFIG}");
 
     let result = fs::write("devenv.local.nix", config);
 

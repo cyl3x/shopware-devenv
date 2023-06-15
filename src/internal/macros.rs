@@ -54,17 +54,27 @@ macro_rules! devenv {
 }
 
 #[macro_export]
-macro_rules! log {
+macro_rules! log_verbose {
     ($($arg:tt)+) => {
-        $crate::Logger::get().log(&format!($($arg)+), file!(), line!());
+        $crate::Logger::get().verbose(&format!($($arg)+), file!(), line!());
+    }
+}
+
+#[macro_export]
+macro_rules! log_info {
+    ($($arg:tt)+) => {
+        $crate::Logger::info(&format!($($arg)+));
     }
 }
 
 #[macro_export]
 macro_rules! fail {
+    // ($($arg:tt)+) => {
+    //     $crate::internal::fail_fn(&format!($($arg)+), $crate::internal::AppExitCode::Runtime)
+    // };
     ($exit_code:expr, $($arg:tt)+) => {
         $crate::internal::fail_fn(&format!($($arg)+), $exit_code)
-    }
+    };
 }
 
 #[macro_export]
@@ -78,16 +88,16 @@ pub fn fail_fn(msg: &str, exit_code: AppExitCode) -> ! {
     let message = format!("{} {}", ERR_SYMBOL.red(), msg.bold());
 
     if unsafe { SPINNER.get().is_some() } {
-        spinner_stop!("{message}");
+        spinner_stop!("\r{message}");
     } else {
-        println!("{message}");
+        println!("\r{message}");
     }
 
     exit(exit_code as i32);
 }
 
 pub fn devenv_fn(cmd: &str) -> Command {
-    log!("[{}] {}", "devenv".green(), cmd);
+    log_verbose!("[{}] {}", "devenv".green(), cmd);
 
     Context::get().platform.move_to();
 
@@ -111,9 +121,9 @@ pub fn success_fn(msg: &str) -> ! {
     let message = format!("{} {}", FINISH_SYMBOL.green(), msg.bold());
 
     if unsafe { SPINNER.get().is_some() } {
-        spinner_stop!("{message}");
+        spinner_stop!("\r{message}");
     } else {
-        println!("{message}");
+        println!("\r{message}");
     }
 
     exit(0);
@@ -144,6 +154,13 @@ pub fn spinner_stop_fn(msg: Option<&str>) {
 }
 
 pub fn project_dirs_fn() -> ProjectDirs {
-    ProjectDirs::from("de", "cyl3x", env!("CARGO_PKG_NAME"))
-        .expect("Failed to retrieve paths from os")
+    let Some(dirs) = ProjectDirs::from(
+        "de",
+        "cyl3x",
+        env!("CARGO_PKG_NAME")
+    ) else {
+        fail!(AppExitCode::Runtime, "Failed to retrieve paths from os");
+    };
+
+    dirs
 }
