@@ -3,7 +3,7 @@ use std::process::Command;
 
 use crate::context::Context;
 use crate::internal::AppExitCode;
-use crate::{devenv, fail, log_verbose};
+use crate::{direnv, fail, log_verbose};
 
 pub fn main(arg_paths: Option<Vec<PathBuf>>, no_ecs: bool, no_phpstan: bool) {
     if no_ecs && no_phpstan {
@@ -57,12 +57,10 @@ fn phpstan(context: &Context, to_check: &[String]) -> Command {
         curr_dir = custom_context.path.display().to_string();
     }
 
-    devenv!(
-        "cd {}; {} analyze --memory-limit=2G {}",
-        curr_dir,
-        context.platform.join("vendor/bin/phpstan").display(),
-        to_check.join(" ")
-    )
+    let mut command = direnv!["cd", &curr_dir, "&&", &context.platform.join("vendor/bin/ecs").display().to_string(), "analyze", "--memory-limit=2G"];
+    command.args(to_check);
+
+    command
 }
 
 fn ecs(context: &Context, to_check: &[String]) -> Command {
@@ -72,10 +70,8 @@ fn ecs(context: &Context, to_check: &[String]) -> Command {
         curr_dir = custom_context.path.display().to_string();
     }
 
-    devenv!(
-        "cd {}; {} check --fix {}",
-        curr_dir,
-        context.platform.join("vendor/bin/ecs").display(),
-        to_check.join(" ")
-    )
+    let mut command: Command = direnv!["cd", &curr_dir, "&&", &context.platform.join("vendor/bin/ecs").display().to_string()];
+    command.args(to_check);
+
+    command
 }

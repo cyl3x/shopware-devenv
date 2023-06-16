@@ -47,10 +47,13 @@ macro_rules! sha256 {
 }
 
 #[macro_export]
-macro_rules! devenv {
-    ($($cmd:tt)+) => {
-        $crate::internal::devenv_fn(&format!($($cmd)+))
+macro_rules! direnv {
+    ($($cmd:expr),+ $(,)?) => {
+        $crate::internal::direnv_fn(vec![$($cmd),+])
     }
+    // ($($cmd:tt)+) => {
+    //     $crate::internal::direnv_fn(&format!($($cmd)+))
+    // }
 }
 
 #[macro_export]
@@ -96,14 +99,15 @@ pub fn fail_fn(msg: &str, exit_code: AppExitCode) -> ! {
     exit(exit_code as i32);
 }
 
-pub fn devenv_fn(cmd: &str) -> Command {
-    log_verbose!("[{}] {}", "devenv".green(), cmd);
+pub fn direnv_fn(cmd: Vec<&str>) -> Command {
+    log_verbose!("[{}] {}", "direnv".green(), cmd.join(" "));
 
     Context::get().platform.move_to();
 
-    let mut command = Command::new("devenv");
+    let mut command = Command::new("direnv");
     command
-        .args(["shell", "bash", "-c", cmd])
+        .args(["exec", "."])
+        .args(cmd)
         .envs(&mut vars_os());
 
     command

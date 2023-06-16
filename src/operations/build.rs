@@ -1,10 +1,10 @@
 use colored::Colorize;
 
 use crate::internal::AppExitCode;
-use crate::{devenv, fail, success};
+use crate::{direnv, fail, success};
 
 pub fn platform(gen_demodata: bool, build_test_db: bool) {
-    if let Err(error) = devenv!("composer update")
+    if let Err(error) = direnv!["composer", "update"]
         .spawn()
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
@@ -12,7 +12,7 @@ pub fn platform(gen_demodata: bool, build_test_db: bool) {
         fail!(AppExitCode::DevenvExec, "Non zero exit for update: {error}");
     }
 
-    if let Err(error) = devenv!("composer setup")
+    if let Err(error) = direnv!["composer", "setup"]
         .spawn()
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
@@ -33,7 +33,7 @@ pub fn platform(gen_demodata: bool, build_test_db: bool) {
 }
 
 pub fn test_db() {
-    if let Err(error) = devenv!("composer init:testdb")
+    if let Err(error) = direnv!["composer", "init:testdb"]
         .spawn()
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
@@ -49,7 +49,7 @@ pub fn test_db() {
 }
 
 pub fn admin() {
-    if let Err(error) = devenv!("composer build:js:admin")
+    if let Err(error) = direnv!["composer", "build:js:admin"]
         .spawn()
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
@@ -61,7 +61,7 @@ pub fn admin() {
 }
 
 pub fn storefront() {
-    if let Err(error) = devenv!("composer build:js:storefront")
+    if let Err(error) = direnv!["composer", "build:js:storefront"]
         .spawn()
         .expect("Cannot spawn cmd, is devenv ok?")
         .wait()
@@ -73,7 +73,7 @@ pub fn storefront() {
 }
 
 pub fn demodata(args: &[String]) {
-    if let Err(error) = devenv!("bin/console framework:demodata")
+    if let Err(error) = direnv!["bin/console", "framework:demodata"]
         .args(args)
         .env("APP_ENV", "prod")
         .spawn()
@@ -86,7 +86,7 @@ pub fn demodata(args: &[String]) {
         );
     }
 
-    if let Err(error) = devenv!("bin/console dal:refresh:index")
+    if let Err(error) = direnv!["bin/console", "dal:refresh:index"]
         .env("APP_ENV", "prod")
         .spawn()
         .expect("Cannot spawn cmd, is devenv ok?")

@@ -1,7 +1,7 @@
-use crate::{devenv, fail, AppExitCode};
+use crate::{direnv, fail, AppExitCode};
 
 pub fn main(args: &[String]) {
-    if let Err(error) = devenv!("bin/console")
+    if let Err(error) = direnv!["bin/console"]
         .args(args)
         .spawn()
         .unwrap_or_else(|_| fail!(AppExitCode::Runtime, "Failed to start bin/console"))

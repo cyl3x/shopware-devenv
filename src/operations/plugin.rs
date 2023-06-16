@@ -1,10 +1,10 @@
 use colored::Colorize;
 
 use crate::internal::AppExitCode;
-use crate::{devenv, fail, spinner, success};
+use crate::{direnv, fail, spinner, success};
 
 pub fn install(name: &str, no_activation: bool) {
-    let mut cmd = devenv!("bin/console plugin:install -rc {name}");
+    let mut cmd = direnv!["bin/console", "plugin:install", "-rc", name];
 
     if !no_activation {
         cmd.arg("-a");
@@ -18,7 +18,7 @@ pub fn install(name: &str, no_activation: bool) {
 }
 
 pub fn uninstall(name: &str) {
-    let mut cmd = devenv!("bin/console plugin:uninstall -c {name}");
+    let mut cmd = direnv!["bin/console", "plugin:uninstall", "-c", name];
 
     if let Err(error) = cmd.spawn().expect("Cannot start bin/console").wait() {
         fail!(AppExitCode::DevenvExec, "Non zero exit: {error}");
@@ -35,7 +35,7 @@ pub fn reinstall(name: &str) {
 pub fn refresh() {
     spinner!("Refreshing plugins...");
 
-    if let Err(error) = devenv!("bin/console plugin:refresh -sq")
+    if let Err(error) = direnv!["bin/console", "plugin:refresh", "-sq"]
         .spawn()
         .expect("Cannot start bin/console")
         .wait_with_output()
@@ -47,7 +47,7 @@ pub fn refresh() {
 }
 
 pub fn list() {
-    if let Err(error) = devenv!("bin/console plugin:list")
+    if let Err(error) = direnv!["bin/console", "plugin:list"]
         .spawn()
         .expect("Cannot start bin/console")
         .wait()
