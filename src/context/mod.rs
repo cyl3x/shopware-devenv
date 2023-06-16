@@ -8,7 +8,7 @@ use once_cell::sync::OnceCell;
 pub use platform_context::*;
 
 use crate::fail;
-use crate::internal::AppExitCode;
+use crate::internal::ExitCode;
 
 static CONTEXT: OnceCell<Context> = OnceCell::new();
 
@@ -24,14 +24,14 @@ impl Context {
         CONTEXT.get_or_init(|| {
             let Ok(current_dir) = std::env::current_dir() else {
                 fail!(
-                    AppExitCode::InvalidContext,
+                    ExitCode::InvalidContext,
                     "Could not get current directory"
                 );
             };
 
             Self::new(current_dir).unwrap_or_else(|| {
                 fail!(
-                    AppExitCode::InvalidContext,
+                    ExitCode::InvalidContext,
                     "Current directory has no valid context"
                 );
             })

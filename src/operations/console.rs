@@ -1,12 +1,6 @@
-use crate::{direnv, fail, AppExitCode};
+use crate::direnv;
+use crate::internal::AppCommand;
 
 pub fn main(args: &[String]) {
-    if let Err(error) = direnv!["bin/console"]
-        .args(args)
-        .spawn()
-        .unwrap_or_else(|_| fail!(AppExitCode::Runtime, "Failed to start bin/console"))
-        .wait()
-    {
-        fail!(AppExitCode::DevenvExec, "Non zero exit: {error}");
-    }
+    direnv!["bin/console"].args(args).start_await_success();
 }

@@ -1,7 +1,7 @@
 use colored::Colorize;
 use once_cell::sync::OnceCell;
 
-use super::Config;
+use super::config::Config;
 
 static LOGGER: OnceCell<Logger> = OnceCell::new();
 
@@ -30,5 +30,19 @@ impl Logger {
 
     pub fn info(msg: &str) {
         eprintln!("\r{} {msg}", "!".bold().yellow());
+    }
+}
+
+#[macro_export]
+macro_rules! log_verbose {
+    ($($arg:tt)+) => {
+        $crate::Logger::get().verbose(&format!($($arg)+), file!(), line!());
+    }
+}
+
+#[macro_export]
+macro_rules! log_info {
+    ($($arg:tt)+) => {
+        $crate::Logger::info(&format!($($arg)+));
     }
 }

@@ -1,7 +1,7 @@
 use std::env;
 use std::path::{Path, PathBuf};
 
-use crate::internal::AppExitCode;
+use crate::internal::ExitCode;
 use crate::{fail, log_verbose, sha256};
 
 #[derive(Clone, Debug)]
@@ -48,7 +48,7 @@ impl PlatformContext {
     pub fn move_to(&self) {
         if env::set_current_dir(&self.path).is_err() {
             fail!(
-                AppExitCode::Runtime,
+                ExitCode::Runtime,
                 "Failed to move to custom context: {p}",
                 p = self.path.display()
             );
@@ -57,5 +57,9 @@ impl PlatformContext {
 
     pub fn join(&self, path: &str) -> PathBuf {
         self.path.join(path)
+    }
+
+    pub fn join_str(&self, path: &str) -> String {
+        self.join(path).display().to_string()
     }
 }

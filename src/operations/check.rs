@@ -1,14 +1,13 @@
 use std::path::PathBuf;
-use std::process::Command;
 
 use crate::context::Context;
-use crate::internal::AppExitCode;
+use crate::internal::{AppCommand, ExitCode};
 use crate::{direnv, fail, log_verbose};
 
 pub fn main(arg_paths: Option<Vec<PathBuf>>, no_ecs: bool, no_phpstan: bool) {
     if no_ecs && no_phpstan {
         fail!(
-            AppExitCode::InvalidArgs,
+            ExitCode::InvalidArgs,
             "There aren't any checks left to run..."
         );
     }
@@ -30,48 +29,19 @@ pub fn main(arg_paths: Option<Vec<PathBuf>>, no_ecs: bool, no_phpstan: bool) {
         check_path_phpstan = absolute_paths;
     }
 
-    if let Err(error) = ecs(context, &check_path_ecs)
-        .spawn()
-        .unwrap_or_else(|_| fail!(AppExitCode::Runtime, "Failed to start ECS"))
-        .wait()
-    {
-        fail!(AppExitCode::DevenvExec, "Non zero exit for ECS: {error}");
-    }
+    direnv![
+        path = context.custom.clone().map(|c| c.path),
+        &context.platform.join_str("vendor/bin/ecs")
+    ]
+    .args(&check_path_ecs)
+    .start_await_success();
 
-    if let Err(error) = phpstan(context, &check_path_phpstan)
-        .spawn()
-        .unwrap_or_else(|_| fail!(AppExitCode::Runtime, "Failed to start PHPStan"))
-        .wait()
-    {
-        fail!(
-            AppExitCode::DevenvExec,
-            "Non zero exit for PHPStan: {error}"
-        );
-    }
-}
-
-fn phpstan(context: &Context, to_check: &[String]) -> Command {
-    let mut curr_dir = String::from(".");
-
-    if let Some(custom_context) = &context.custom {
-        curr_dir = custom_context.path.display().to_string();
-    }
-
-    let mut command = direnv!["cd", &curr_dir, "&&", &context.platform.join("vendor/bin/ecs").display().to_string(), "analyze", "--memory-limit=2G"];
-    command.args(to_check);
-
-    command
-}
-
-fn ecs(context: &Context, to_check: &[String]) -> Command {
-    let mut curr_dir = String::from(".");
-
-    if let Some(custom_context) = &context.custom {
-        curr_dir = custom_context.path.display().to_string();
-    }
-
-    let mut command: Command = direnv!["cd", &curr_dir, "&&", &context.platform.join("vendor/bin/ecs").display().to_string()];
-    command.args(to_check);
-
-    command
+    direnv![
+        path = context.custom.clone().map(|c| c.path),
+        &context.platform.join_str("vendor/bin/phpstan"),
+        "analyze",
+        "--memory-limit=2G"
+    ]
+    .args(&check_path_phpstan)
+    .start_await_success();
 }

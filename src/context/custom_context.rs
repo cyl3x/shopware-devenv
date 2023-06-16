@@ -4,7 +4,7 @@ use std::{env, fs};
 
 use serde::Deserialize;
 
-use crate::{fail, log_info, log_verbose, AppExitCode};
+use crate::{fail, log_info, log_verbose, ExitCode};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum CustomType {
@@ -86,7 +86,7 @@ impl CustomContext {
     pub fn move_to(&self) {
         if env::set_current_dir(&self.path).is_err() {
             fail!(
-                AppExitCode::Runtime,
+                ExitCode::Runtime,
                 "Failed to move to custom context: {p}",
                 p = self.path.display()
             );

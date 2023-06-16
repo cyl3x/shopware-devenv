@@ -1,24 +1,12 @@
 use colored::Colorize;
 
-use crate::internal::AppExitCode;
+use crate::internal::{AppCommand, ExitCode};
 use crate::{direnv, fail, success};
 
 pub fn platform(gen_demodata: bool, build_test_db: bool) {
-    if let Err(error) = direnv!["composer", "update"]
-        .spawn()
-        .expect("Cannot spawn cmd, is devenv ok?")
-        .wait()
-    {
-        fail!(AppExitCode::DevenvExec, "Non zero exit for update: {error}");
-    }
+    direnv!["composer", "update"].start_await_success();
 
-    if let Err(error) = direnv!["composer", "setup"]
-        .spawn()
-        .expect("Cannot spawn cmd, is devenv ok?")
-        .wait()
-    {
-        fail!(AppExitCode::DevenvExec, "Non zero exit for setup: {error}");
-    }
+    direnv!["composer", "setup"].start_await_success();
 
     if gen_demodata {
         demodata(&[]);
@@ -33,13 +21,9 @@ pub fn platform(gen_demodata: bool, build_test_db: bool) {
 }
 
 pub fn test_db() {
-    if let Err(error) = direnv!["composer", "init:testdb"]
-        .spawn()
-        .expect("Cannot spawn cmd, is devenv ok?")
-        .wait()
-    {
+    if let Err(error) = direnv!["composer", "init:testdb"].start().wait() {
         fail!(
-            AppExitCode::DevenvExec,
+            ExitCode::DevenvExec,
             "Non zero exit: {error}\n{}",
             "If you're using platform 6.4 you probably have to do it manually".red()
         );
@@ -49,52 +33,22 @@ pub fn test_db() {
 }
 
 pub fn admin() {
-    if let Err(error) = direnv!["composer", "build:js:admin"]
-        .spawn()
-        .expect("Cannot spawn cmd, is devenv ok?")
-        .wait()
-    {
-        fail!(AppExitCode::DevenvExec, "Non zero exit: {error}");
-    } else {
-        success!("Build successfull");
-    }
+    direnv!["composer", "build:js:admin"].start_await_success();
+    success!("Build successfull");
 }
 
 pub fn storefront() {
-    if let Err(error) = direnv!["composer", "build:js:storefront"]
-        .spawn()
-        .expect("Cannot spawn cmd, is devenv ok?")
-        .wait()
-    {
-        fail!(AppExitCode::DevenvExec, "Non zero exit: {error}");
-    } else {
-        success!("Build successfull");
-    }
+    direnv!["composer", "build:js:storefront"].start_await_success();
+    success!("Build successfull");
 }
 
 pub fn demodata(args: &[String]) {
-    if let Err(error) = direnv!["bin/console", "framework:demodata"]
+    direnv!["bin/console", "framework:demodata"]
         .args(args)
         .env("APP_ENV", "prod")
-        .spawn()
-        .expect("Cannot spawn cmd, is devenv ok?")
-        .wait()
-    {
-        fail!(
-            AppExitCode::DevenvExec,
-            "Non zero exit from demodata: {error}"
-        );
-    }
+        .start_await_success();
 
-    if let Err(error) = direnv!["bin/console", "dal:refresh:index"]
+    direnv!["bin/console", "dal:refresh:index"]
         .env("APP_ENV", "prod")
-        .spawn()
-        .expect("Cannot spawn cmd, is devenv ok?")
-        .wait()
-    {
-        fail!(
-            AppExitCode::DevenvExec,
-            "Non zero exit from demodata: {error}"
-        );
-    }
+        .start_await_success();
 }

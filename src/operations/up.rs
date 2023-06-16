@@ -1,7 +1,5 @@
-use std::env::vars_os;
 use std::fs::{self, File, OpenOptions};
 use std::io::{Read, Seek, SeekFrom};
-use std::process::Command;
 use std::thread::sleep;
 use std::time::Duration;
 
@@ -9,15 +7,12 @@ use regex::Regex;
 use sysinfo::{Pid, SystemExt};
 
 use crate::context::Context;
-use crate::internal::{AppExitCode, DEVENV_PID, LOG_FILE};
-use crate::{fail, log_verbose, spinner, spinner_stop, success};
+use crate::internal::{AppCommand, ExitCode, DEVENV_PID, LOG_FILE};
+use crate::{devenv, fail, log_verbose, spinner, spinner_stop, success};
 
 pub fn main() {
     if check_running_instances() {
-        fail!(
-            AppExitCode::DevenvStart,
-            "Devenv service is already running"
-        );
+        fail!(ExitCode::DevenvStart, "Devenv service is already running");
     }
 
     Context::get().platform.move_to();
@@ -31,15 +26,12 @@ pub fn main() {
         .read(true)
         .truncate(true)
         .open(&*LOG_FILE)
-        .unwrap_or_else(|_| fail!(AppExitCode::DevenvStart, "Failed to create devenv log file"));
+        .unwrap_or_else(|_| fail!(ExitCode::DevenvStart, "Failed to create devenv log file"));
 
-    let mut child = Command::new("devenv")
-        .arg("up")
+    let mut child = devenv!("up")
         .stdout(log.try_clone().expect("Cannot log into the same file?"))
         .stderr(log.try_clone().expect("Cannot log into the same file?"))
-        .envs(&mut vars_os())
-        .spawn()
-        .unwrap_or_else(|_| fail!(AppExitCode::DevenvStart, "Failed to start devenv"));
+        .start();
 
     let success = check_successfull_start(&mut log);
     spinner_stop!();
@@ -52,7 +44,7 @@ pub fn main() {
 
     super::log::main();
 
-    fail!(AppExitCode::DevenvStart, "Error while starting devenv.");
+    fail!(ExitCode::DevenvStart, "Error while starting devenv.");
 }
 
 fn check_running_instances() -> bool {
@@ -61,7 +53,7 @@ fn check_running_instances() -> bool {
             .lines()
             .next()
             .and_then(|p| p.parse::<usize>().ok())
-            .unwrap_or_else(|| fail!(AppExitCode::Runtime, "Malformed pid in pidfile"));
+            .unwrap_or_else(|| fail!(ExitCode::Runtime, "Malformed pid in pidfile"));
 
         let mut sys = sysinfo::System::new();
         sys.refresh_processes();

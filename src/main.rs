@@ -17,15 +17,12 @@ use internal::Logger;
 use nix::unistd::Uid;
 
 use crate::args::{Args, Operation, OperationBuild, OperationPlugin, OperationWatch};
-use crate::internal::AppExitCode;
+use crate::internal::ExitCode;
 use crate::operations::{build, check, console, down, init, log, plugin, up, watch};
 
 fn main() {
     if Uid::effective().is_root() {
-        fail!(
-            AppExitCode::RunAsRoot,
-            "Running swde as root is not allowed"
-        );
+        fail!(ExitCode::RunAsRoot, "Running swde as root is not allowed");
     }
 
     let args: Args = Args::parse();

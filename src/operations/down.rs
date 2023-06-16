@@ -2,7 +2,7 @@ use std::fs;
 
 use sysinfo::{Pid, ProcessExt, Signal, System, SystemExt};
 
-use crate::internal::{AppExitCode, DEVENV_PID};
+use crate::internal::{ExitCode, DEVENV_PID};
 use crate::{fail, log_verbose, spinner, success};
 
 pub fn main() {
@@ -21,7 +21,7 @@ pub fn main() {
     if success {
         success!("Devenv service stopped");
     } else {
-        fail!(AppExitCode::DevenvStop, "Devenv service is not running");
+        fail!(ExitCode::DevenvStop, "Devenv service is not running");
     }
 }
 
@@ -30,7 +30,7 @@ fn down_by_pid(sys: &System, pid_string: &str) -> bool {
         .lines()
         .next()
         .and_then(|p| p.parse::<usize>().ok()) else {
-            fail!(AppExitCode::Runtime, "Malformed pid or pidfile")
+            fail!(ExitCode::Runtime, "Malformed pid or pidfile")
         };
 
     log_verbose!("Found pid ({pid}) in pidfile, stopping..");

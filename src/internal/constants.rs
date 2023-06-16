@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use once_cell::sync::Lazy;
 
 use crate::context::Context;
-use crate::internal::AppExitCode;
+use crate::internal::ExitCode;
 use crate::{fail, project_dirs};
 
 pub static DEVENV_DEFAULT_CONFIG: &str = include_str!("../../devenv.local.nix");
@@ -16,7 +16,7 @@ pub static CONFIG_FILE: Lazy<PathBuf> = Lazy::new(|| {
         .and_then(|p| fs::create_dir_all(p).ok())
         .unwrap_or_else(|| {
             fail!(
-                AppExitCode::AppDirsCreation,
+                ExitCode::AppDirsCreation,
                 "Failed to create config directory: {}",
                 path.display(),
             )
@@ -35,7 +35,7 @@ pub static LOG_FILE: Lazy<PathBuf> = Lazy::new(|| {
         .and_then(|p| fs::create_dir_all(p).ok())
         .unwrap_or_else(|| {
             fail!(
-                AppExitCode::AppDirsCreation,
+                ExitCode::AppDirsCreation,
                 "Failed to create log directory: {}",
                 path.display(),
             )

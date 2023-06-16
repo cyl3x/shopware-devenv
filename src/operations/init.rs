@@ -1,12 +1,11 @@
 use std::fs;
 use std::path::PathBuf;
-use std::process::Command;
 
 use regex::Regex;
 
 use crate::context::Context;
-use crate::internal::{AppExitCode, DEVENV_DEFAULT_CONFIG};
-use crate::{fail, sha256, spinner, success};
+use crate::internal::{AppCommand, ExitCode, DEVENV_DEFAULT_CONFIG};
+use crate::{devenv, fail, sha256, spinner, success};
 
 pub fn main() {
     Context::get().platform.move_to();
@@ -15,17 +14,7 @@ pub fn main() {
 
     config();
 
-    if let Err(error) = Command::new("devenv")
-        .arg("ci")
-        .spawn()
-        .unwrap_or_else(|_| fail!(AppExitCode::Runtime, "Failed t0 initialize devenv"))
-        .wait()
-    {
-        fail!(
-            AppExitCode::DevenvExec,
-            "Non zero exit from devenv: {error}"
-        );
-    }
+    devenv!["ci"].start_await_success();
 
     success!("Init successfully");
 }
@@ -84,7 +73,7 @@ fn create_config() {
 
     if let Err(error) = result {
         fail!(
-            AppExitCode::ConfigWrite,
+            ExitCode::ConfigWrite,
             "An error occured while writing to devenv.local.nix: {}",
             error
         );
@@ -101,7 +90,7 @@ fn backup_create() {
 
         if i > 10 {
             fail!(
-                AppExitCode::ConfigBak,
+                ExitCode::ConfigBak,
                 "Please clean up your devenv.local.nix.bak files. Who needs more than 10.."
             );
         }
@@ -111,7 +100,7 @@ fn backup_create() {
 
     if let Err(error) = result {
         fail!(
-            AppExitCode::ConfigBak,
+            ExitCode::ConfigBak,
             "An error occured while backing up your devenv.local.nix: {}",
             error
         );
