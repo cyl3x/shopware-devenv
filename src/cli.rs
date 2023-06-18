@@ -28,7 +28,7 @@ pub enum Operation {
         shell: Shell,
     },
 
-    /// Init
+    /// Add the included `devenv.local.nix` and initialize devenv 
     #[clap(name = "init")]
     Init,
 
@@ -83,10 +83,10 @@ pub enum Operation {
         arguments: Vec<String>,
     },
 
-    /// Install / Uninstall / Reinstall plugins
+    /// Install/Activate/Uninstall/Reinstall plugins
     #[clap(name = "plugin")]
     Plugin {
-        /// Can be Install / Uninstall / Reinstall
+        /// Can be Install/Activate/Uninstall/Reinstall
         #[clap(subcommand)]
         action: OperationPlugin,
     },
