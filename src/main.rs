@@ -75,6 +75,7 @@ fn main() {
                 name,
                 no_activation,
             } => plugin::install(&name, no_activation),
+            OperationPlugin::Activate { name } => plugin::activate(&name),
             OperationPlugin::Uninstall { name } => plugin::uninstall(&name),
             OperationPlugin::Reinstall { name } => plugin::reinstall(&name),
             OperationPlugin::Refresh => plugin::refresh(),

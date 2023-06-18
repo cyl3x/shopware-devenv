@@ -14,6 +14,12 @@ pub fn install(name: &str, no_activation: bool) {
     success!("Plugin matching {} installed", name.green());
 }
 
+pub fn activate(name: &str) {
+    direnv!["bin/console", "plugin:activate", name].start_await_success();
+
+    success!("Plugin matching {} installed", name.green());
+}
+
 pub fn uninstall(name: &str) {
     direnv!["bin/console", "plugin:uninstall", "-c", name].start_await_success();
 

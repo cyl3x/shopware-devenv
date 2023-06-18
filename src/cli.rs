@@ -159,6 +159,14 @@ pub enum OperationPlugin {
         no_activation: bool,
     },
 
+    /// Activate an installed plugin
+    #[clap(name = "activate", alias = "a")]
+    Activate {
+        /// Fuzzy matched plugin name
+        #[clap(name = "plugin-name")]
+        name: String,
+    },
+
     /// Uninstall a plugin
     #[clap(name = "uninstall", alias = "u", alias = "remove")]
     Uninstall {

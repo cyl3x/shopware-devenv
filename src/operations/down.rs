@@ -5,7 +5,6 @@ use sysinfo::{Pid, ProcessExt, Signal, System, SystemExt};
 use crate::{fail, spinner, success, ExitCode, DEVENV_PID};
 
 pub fn main() {
-    log::error!("sjfnj");
     spinner!("Stopping...");
 
     let mut sys = System::new();
