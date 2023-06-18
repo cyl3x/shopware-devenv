@@ -4,8 +4,7 @@ use std::path::PathBuf;
 use regex::Regex;
 
 use crate::context::Context;
-use crate::internal::{AppCommand, ExitCode, DEVENV_DEFAULT_CONFIG};
-use crate::{devenv, fail, sha256, spinner, success};
+use crate::{devenv, fail, sha256, spinner, success, AppCommand, ExitCode, DEVENV_DEFAULT_CONFIG};
 
 pub fn main() {
     Context::get().platform.move_to();
@@ -36,7 +35,9 @@ fn config() {
         return;
     }
 
-    let first_line = lines.next().expect("No first line?");
+    let first_line = lines
+        .next()
+        .unwrap_or_else(|| fail!(ExitCode::ConfigRead, "Malformed devenv.local.nix file"));
 
     if !regex.is_match(first_line) {
         println!("Found personal devenv.local.nix, backing up...");
@@ -46,7 +47,7 @@ fn config() {
 
     let stored_hash = &regex
         .captures(first_line)
-        .expect("Invalid devenv.local.nix file header")[2];
+        .unwrap_or_else(|| fail!(ExitCode::ConfigRead, "Malformed devenv.local.nix file"))[2];
     let file_hash = sha256!("{}", lines.skip(1).collect::<String>());
     let internal_hash = sha256!("{}", DEVENV_DEFAULT_CONFIG);
 

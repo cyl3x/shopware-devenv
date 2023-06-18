@@ -1,7 +1,6 @@
 use colored::Colorize;
 
-use crate::internal::{AppCommand, ExitCode};
-use crate::{direnv, fail, success};
+use crate::{direnv, fail, success, AppCommand, ExitCode};
 
 pub fn platform(gen_demodata: bool, build_test_db: bool) {
     direnv!["composer", "update"].start_await_success();

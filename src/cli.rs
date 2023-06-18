@@ -2,16 +2,20 @@ use std::path::PathBuf;
 
 use clap::{ArgAction, Parser, Subcommand, ValueHint};
 use clap_complete::Shell;
+use clap_verbosity_flag::{Verbosity, WarnLevel};
+use colored::Colorize;
+
+use crate::utils::SPINNER;
 
 #[derive(Debug, Clone, Parser)]
-#[clap(bin_name = "swde", name = "Shopware Devenv", version = env!("CARGO_PKG_VERSION"), about = env!("CARGO_PKG_DESCRIPTION"))]
-pub struct Args {
+#[clap(bin_name = env!("CARGO_PKG_NAME"), name = "Shopware Devenv", version = env!("CARGO_PKG_VERSION"), about = env!("CARGO_PKG_DESCRIPTION"))]
+pub struct Cli {
     #[clap(subcommand)]
     pub subcommand: Operation,
 
     /// Sets the level of verbosity
-    #[clap(long, short, global(true), action = ArgAction::SetTrue)]
-    pub verbose: bool,
+    #[command(flatten)]
+    pub verbose: Verbosity<WarnLevel>,
 }
 
 #[derive(Debug, Clone, Subcommand)]
@@ -150,6 +154,7 @@ pub enum OperationPlugin {
         #[clap(name = "plugin-name")]
         name: String,
 
+        /// Do not activate plugin after installation
         #[clap(name = "no-activation", long, short)]
         no_activation: bool,
     },
@@ -177,4 +182,64 @@ pub enum OperationPlugin {
     /// List plugins
     #[clap(name = "list")]
     List,
+}
+
+pub enum ExitCode {
+    RunAsRoot = 1,
+    InvalidArgs = 2,
+    AppDirsCreation = 3,
+
+    Runtime = 9,
+
+    // Devenv
+    DevenvStart = 10,
+    DevenvStop = 11,
+    DevenvOnce = 12,
+    DevenvExec = 13,
+
+    // Config
+    ConfigRead = 20,
+    ConfigWrite = 21,
+    ConfigBak = 22,
+
+    // Context
+    InvalidContext = 30,
+}
+
+#[macro_export]
+macro_rules! fail {
+    ($exit_code:expr, $($arg:tt)+) => {
+        $crate::cli::_macro_fail(&format!($($arg)+), $exit_code)
+    };
+}
+
+#[macro_export]
+macro_rules! success {
+    ($($arg:tt)+) => {
+        $crate::cli::_macro_success(&format!($($arg)+))
+    }
+}
+
+pub fn _macro_success(msg: &str) -> ! {
+    let message = format!("{} {}", "✓".green(), msg.bold());
+
+    if unsafe { SPINNER.get().is_some() } {
+        crate::spinner_stop!("\r{message}");
+    } else {
+        println!("\r{message}");
+    }
+
+    std::process::exit(0);
+}
+
+pub fn _macro_fail(msg: &str, exit_code: ExitCode) -> ! {
+    let message = format!("{} {}", "✕".red(), msg.bold());
+
+    if unsafe { SPINNER.get().is_some() } {
+        crate::spinner_stop!("\r{message}");
+    } else {
+        println!("\r{message}");
+    }
+
+    std::process::exit(exit_code as i32);
 }

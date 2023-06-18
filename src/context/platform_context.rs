@@ -1,8 +1,7 @@
 use std::env;
 use std::path::{Path, PathBuf};
 
-use crate::internal::ExitCode;
-use crate::{fail, log_verbose, sha256};
+use crate::{fail, sha256, ExitCode};
 
 #[derive(Clone, Debug)]
 pub struct PlatformContext {
@@ -33,7 +32,7 @@ impl PlatformContext {
             let path = path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
 
             if has_devenv_dir && has_devenv_file {
-                log_verbose!("Found platform context: {}", path.display());
+                log::info!("Found platform context: {}", path.display());
 
                 return Some(Self {
                     path: path.clone(),
@@ -45,6 +44,7 @@ impl PlatformContext {
         None
     }
 
+    /// Moves the current working directory to the platform context path.
     pub fn move_to(&self) {
         if env::set_current_dir(&self.path).is_err() {
             fail!(
@@ -55,10 +55,12 @@ impl PlatformContext {
         }
     }
 
+    /// Joins a path to the platform context path.
     pub fn join(&self, path: &str) -> PathBuf {
         self.path.join(path)
     }
 
+    /// Joins a path to the platform context path and returns it as a string.
     pub fn join_str(&self, path: &str) -> String {
         self.join(path).display().to_string()
     }

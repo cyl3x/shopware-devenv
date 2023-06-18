@@ -1,7 +1,6 @@
 use std::fs;
 
-use crate::fail;
-use crate::internal::{ExitCode, LOG_FILE};
+use crate::{fail, ExitCode, LOG_FILE};
 
 pub fn main() {
     let Ok(out) = fs::read_to_string(&*LOG_FILE) else {

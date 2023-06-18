@@ -7,8 +7,7 @@ pub use custom_context::*;
 use once_cell::sync::OnceCell;
 pub use platform_context::*;
 
-use crate::fail;
-use crate::internal::ExitCode;
+use crate::{fail, ExitCode};
 
 static CONTEXT: OnceCell<Context> = OnceCell::new();
 
@@ -44,6 +43,8 @@ impl Context {
 
         // TODO - Does not work always (windows for example, symlinks)
         while {
+            log::debug!("Checking directory for context: {}", origin.display());
+
             if let Some(custom_context) = CustomContext::new(&origin) {
                 custom = Some(custom_context);
             }

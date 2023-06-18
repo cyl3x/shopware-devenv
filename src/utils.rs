@@ -1,31 +1,41 @@
+use directories::ProjectDirs;
 use once_cell::sync::OnceCell;
 use sha2::{Digest, Sha256};
 use spinoff::Spinner;
+
+use crate::{fail, ExitCode};
 
 pub static mut SPINNER: OnceCell<Spinner> = OnceCell::new();
 
 #[macro_export]
 macro_rules! spinner {
     ($($str:tt)+) => {
-        $crate::internal::_macro_spinner_start(format!($($str)+))
+        $crate::utils::_macro_spinner_start(format!($($str)+))
     };
 }
 
 #[macro_export]
 macro_rules! spinner_stop {
     () => {
-        $crate::internal::_macro_spinner_stop(None)
+        $crate::utils::_macro_spinner_stop(None)
     };
     ($($str:tt)+) => {
-        $crate::internal::_macro_spinner_stop(Some(&format!($($str)+)))
+        $crate::utils::_macro_spinner_stop(Some(&format!($($str)+)))
     };
 }
 
 #[macro_export]
 macro_rules! sha256 {
     ($($str:tt)+) => {
-        $crate::internal::_macro_sha256(&format!($($str)+))
+        $crate::utils::_macro_sha256(&format!($($str)+))
     }
+}
+
+#[macro_export]
+macro_rules! project_dirs {
+    () => {
+        $crate::utils::_macros_project_dirs()
+    };
 }
 
 pub fn _macro_sha256(string: &str) -> String {
@@ -58,4 +68,16 @@ pub fn _macro_spinner_stop(msg: Option<&str>) {
             }
         }
     }
+}
+
+pub fn _macros_project_dirs() -> ProjectDirs {
+    let Some(dirs) = ProjectDirs::from(
+        "de",
+        "cyl3x",
+        env!("CARGO_PKG_NAME")
+    ) else {
+        fail!(ExitCode::Runtime, "Failed to retrieve paths from os");
+    };
+
+    dirs
 }

@@ -2,16 +2,14 @@ use std::env::vars_os;
 use std::path::PathBuf;
 use std::process::{Child, Command};
 
-use colored::Colorize;
-
-use super::app::ExitCode;
+use crate::cli::ExitCode;
 use crate::context::Context;
-use crate::{fail, log_verbose};
+use crate::fail;
 
 pub trait AppCommand {
     fn start(&mut self) -> Child;
     fn start_await_success(&mut self);
-    fn log_verbose(&self);
+    fn log(&self);
 }
 
 pub trait Direnv {
@@ -30,7 +28,11 @@ impl Direnv for Command {
             .to_string();
 
         let mut command: Self = Self::new("direnv");
-        command.args(["exec", &path]).args(cmd).envs(&mut vars_os());
+        command
+            .envs(&mut vars_os())
+            .env("DIRENV_LOG_FORMAT", "")
+            .args(["exec", &path])
+            .args(cmd);
 
         command
     }
@@ -38,12 +40,10 @@ impl Direnv for Command {
 
 impl Devenv for Command {
     fn new(cmd: Vec<&str>) -> Self {
-        log_verbose!("[{}] {}", "devenv".green(), cmd.join(" "));
-
         Context::get().platform.move_to();
 
         let mut command: Self = Self::new("devenv");
-        command.args(cmd).envs(&mut vars_os());
+        command.envs(&mut vars_os()).args(cmd);
 
         command
     }
@@ -53,7 +53,7 @@ impl AppCommand for Command {
     /// Executes the command as a child process, returning a handle to it.
     /// Terminates app on error (e.g. direnv not found)
     fn start(&mut self) -> Child {
-        self.log_verbose();
+        self.log();
 
         self.spawn().unwrap_or_else(|_| {
             fail!(
@@ -71,33 +71,42 @@ impl AppCommand for Command {
         }
     }
 
-    fn log_verbose(&self) {
+    /// Logs the command
+    fn log(&self) {
         let args = self
             .get_args()
             .filter_map(|a| a.to_str().map(std::borrow::ToOwned::to_owned))
             .collect::<Vec<String>>();
 
-        log_verbose!(
+        log::debug!(
             "[{}] {}",
-            self.get_program().to_str().unwrap_or("").green(),
-            args.join(" ")
+            self.get_program().to_str().unwrap_or("command"),
+            args.join(" "),
         );
     }
 }
 
+/// Creates a new direnv command.
+/// Use `start` or `start_await_success` to execute the command.
+/// 
+/// Use to execute a command in the devenv environment.
 #[macro_export]
 macro_rules! direnv {
     (path = $path:expr, $($cmd:expr),+ $(,)?) => {
-        <std::process::Command as $crate::internal::Direnv>::new($path, vec![$($cmd),+])
+        <std::process::Command as $crate::devenv::Direnv>::new($path, vec![$($cmd),+])
     };
     ($($cmd:expr),+ $(,)?) => {
-        <std::process::Command as $crate::internal::Direnv>::new(None, vec![$($cmd),+])
+        <std::process::Command as $crate::devenv::Direnv>::new(None, vec![$($cmd),+])
     };
 }
 
+/// Creates a new devenv command.
+/// Use `start` or `start_await_success` to execute the command.
+/// 
+/// Don't use to execute something in devenv shell/environment.
 #[macro_export]
 macro_rules! devenv {
     ($($cmd:expr),+ $(,)?) => {
-        <std::process::Command as $crate::internal::Devenv>::new(vec![$($cmd),+])
+        <std::process::Command as $crate::devenv::Devenv>::new(vec![$($cmd),+])
     };
 }

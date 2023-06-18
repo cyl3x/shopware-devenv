@@ -2,10 +2,10 @@ use std::fs;
 
 use sysinfo::{Pid, ProcessExt, Signal, System, SystemExt};
 
-use crate::internal::{ExitCode, DEVENV_PID};
-use crate::{fail, log_verbose, spinner, success};
+use crate::{fail, spinner, success, ExitCode, DEVENV_PID};
 
 pub fn main() {
+    log::error!("sjfnj");
     spinner!("Stopping...");
 
     let mut sys = System::new();
@@ -33,7 +33,7 @@ fn down_by_pid(sys: &System, pid_string: &str) -> bool {
             fail!(ExitCode::Runtime, "Malformed pid or pidfile")
         };
 
-    log_verbose!("Found pid ({pid}) in pidfile, stopping..");
+    log::info!("Found pid ({pid}) in pidfile, stopping..");
 
     if let Some(p) = sys.process(Pid::from(pid)) {
         if p.kill_with(Signal::Interrupt).is_some() {
@@ -46,7 +46,7 @@ fn down_by_pid(sys: &System, pid_string: &str) -> bool {
 }
 
 fn down_by_process(sys: &mut System) -> bool {
-    log_verbose!("Missing pidfile, try to interrupt..");
+    log::info!("Missing pidfile, try to interrupt..");
     // TODO - Ask user to proceed if there are multiple processes
     println!("Cannot find pidfile, trying to stop by process name. This can potentially stop other devenv processes as well.");
 

@@ -1,7 +1,6 @@
 use colored::Colorize;
 
-use crate::internal::AppCommand;
-use crate::{direnv, spinner, success};
+use crate::{direnv, spinner, success, AppCommand};
 
 pub fn install(name: &str, no_activation: bool) {
     let mut cmd = direnv!["bin/console", "plugin:install", "-rc", name];
@@ -16,9 +15,7 @@ pub fn install(name: &str, no_activation: bool) {
 }
 
 pub fn uninstall(name: &str) {
-    let mut cmd = direnv!["bin/console", "plugin:uninstall", "-c", name];
-
-    cmd.start_await_success();
+    direnv!["bin/console", "plugin:uninstall", "-c", name].start_await_success();
 
     success!("Plugin matching {} uninstalled", name.green());
 }

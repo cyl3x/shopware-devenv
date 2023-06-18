@@ -1,5 +1,4 @@
-use crate::internal::{AppCommand, ExitCode};
-use crate::{direnv, fail, success};
+use crate::{AppCommand, ExitCode, direnv, fail, success};
 
 pub fn admin() {
     if let Err(error) = direnv!["composer", "watch:admin"].start().wait() {

@@ -4,7 +4,7 @@ use std::{env, fs};
 
 use serde::Deserialize;
 
-use crate::{fail, log_info, log_verbose, ExitCode};
+use crate::{fail, ExitCode};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum CustomType {
@@ -48,7 +48,7 @@ impl CustomContext {
             .file_name()
             .and_then(std::ffi::OsStr::to_str)
             .map(std::borrow::ToOwned::to_owned) else {
-                log_info!("Malformed path: {}", path.display());
+                log::warn!("Malformed path: {}", path.display());
                 return None;
             };
 
@@ -60,18 +60,18 @@ impl CustomContext {
             }
 
             if composer.plugin_type != "shopware-platform-plugin" {
-                log_verbose!(
-                    "Found malformed Plugin: composer.json::type is not 'shopware-platform-plugin': {path}",
-                    path = path.display(),
+                log::warn!(
+                    "Found malformed Plugin: composer.json::type is not 'shopware-platform-plugin': {}",
+                    path.display(),
                 );
 
                 return None;
             }
         }
 
-        log_verbose!(
-            "Found custom context: {name} ({custom_type:?}) ({length} deps)",
-            length = require.len()
+        log::info!(
+            "Found custom context: {name} ({custom_type:?}) ({} deps)",
+            require.len()
         );
 
         Some(Self {
@@ -82,14 +82,11 @@ impl CustomContext {
         })
     }
 
+    /// Moves the current working directory to the custom context path.
     #[allow(dead_code)]
     pub fn move_to(&self) {
-        if env::set_current_dir(&self.path).is_err() {
-            fail!(
-                ExitCode::Runtime,
-                "Failed to move to custom context: {p}",
-                p = self.path.display()
-            );
+        if let Err(error) = env::set_current_dir(&self.path) {
+            fail!(ExitCode::Runtime, "Failed to move to custom context: {error}");
         }
     }
 }

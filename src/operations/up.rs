@@ -6,9 +6,10 @@ use std::time::Duration;
 use regex::Regex;
 use sysinfo::{Pid, SystemExt};
 
-use crate::context::Context;
-use crate::internal::{AppCommand, ExitCode, DEVENV_PID, LOG_FILE};
-use crate::{devenv, fail, log_verbose, spinner, spinner_stop, success};
+use crate::{
+    devenv, fail, spinner, spinner_stop, success, AppCommand, Context, ExitCode, DEVENV_PID,
+    LOG_FILE,
+};
 
 pub fn main() {
     if check_running_instances() {
@@ -19,7 +20,7 @@ pub fn main() {
 
     spinner!("Starting...");
 
-    log_verbose!("Open log at {}", LOG_FILE.display());
+    log::info!("Open log at {}", LOG_FILE.display());
     let mut log = OpenOptions::new()
         .write(true)
         .create(true)
@@ -28,6 +29,8 @@ pub fn main() {
         .open(&*LOG_FILE)
         .unwrap_or_else(|_| fail!(ExitCode::DevenvStart, "Failed to create devenv log file"));
 
+
+    log::debug!("Open log at {}", LOG_FILE.display());
     let mut child = devenv!("up")
         .stdout(log.try_clone().expect("Cannot log into the same file?"))
         .stderr(log.try_clone().expect("Cannot log into the same file?"))

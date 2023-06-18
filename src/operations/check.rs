@@ -1,8 +1,7 @@
 use std::path::PathBuf;
 
 use crate::context::Context;
-use crate::internal::{AppCommand, ExitCode};
-use crate::{direnv, fail, log_verbose};
+use crate::{direnv, fail, AppCommand, ExitCode};
 
 pub fn main(arg_paths: Option<Vec<PathBuf>>, no_ecs: bool, no_phpstan: bool) {
     if no_ecs && no_phpstan {
@@ -23,7 +22,7 @@ pub fn main(arg_paths: Option<Vec<PathBuf>>, no_ecs: bool, no_phpstan: bool) {
             .filter_map(|p| p.canonicalize().ok().map(|c| c.display().to_string()))
             .collect();
 
-        log_verbose!("{} {:?}", "Resolved paths:", absolute_paths);
+        log::info!("Resolved paths: {:?}", absolute_paths);
 
         check_path_ecs = absolute_paths.clone();
         check_path_phpstan = absolute_paths;
