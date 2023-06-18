@@ -23,7 +23,7 @@ use crate::cli::{Cli, Operation, OperationBuild, OperationPlugin, OperationWatch
 pub use crate::constants::*;
 pub use crate::context::Context;
 pub use crate::devenv::AppCommand;
-use crate::operations::{build, check, console, down, init, plugin, up, watch};
+use crate::operations::{build, check, console, down, init, plugin, up, update, watch};
 
 extern crate log;
 
@@ -81,5 +81,6 @@ fn main() {
             OperationPlugin::Refresh => plugin::refresh(),
             OperationPlugin::List => plugin::list(),
         },
+        Operation::Update => update::main(),
     }
 }

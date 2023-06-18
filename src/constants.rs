@@ -5,7 +5,7 @@ use once_cell::sync::Lazy;
 
 use crate::{Context, ExitCode, fail, project_dirs};
 
-pub static DEVENV_DEFAULT_CONFIG: &str = include_str!("../../devenv.local.nix");
+pub static DEVENV_DEFAULT_CONFIG: &str = include_str!("../devenv.local.nix");
 
 pub static LOG_FILE: Lazy<PathBuf> = Lazy::new(|| {
     let path = project_dirs!().cache_dir().join(format!(

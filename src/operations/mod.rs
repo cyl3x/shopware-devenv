@@ -6,4 +6,5 @@ pub mod init;
 pub mod log;
 pub mod plugin;
 pub mod up;
+pub mod update;
 pub mod watch;

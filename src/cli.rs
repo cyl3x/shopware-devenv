@@ -90,6 +90,10 @@ pub enum Operation {
         #[clap(subcommand)]
         action: OperationPlugin,
     },
+
+    /// Update platform and garbage collect devenv
+    #[clap(name = "update")]
+    Update,
 }
 
 #[derive(Debug, Clone, Subcommand)]
