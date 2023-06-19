@@ -37,7 +37,14 @@ pub fn admin() {
 }
 
 pub fn storefront() {
-    direnv!["composer", "build:js:storefront"].start_await_success();
+    log::info!("Dump theme configuration");
+    direnv!["bin/console", "theme:dump", "--quiet"].start_await_success();
+
+    log::info!("Compile theme");
+    direnv!["bin/console", "theme:compile", "--quiet"].start_await_success();
+
+    log::info!("Building storefront");
+    direnv!["composer", "build:js:storefront", "--quiet"].start_await_success();
     success!("Build successfull");
 }
 
