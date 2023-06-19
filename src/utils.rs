@@ -81,3 +81,8 @@ pub fn _macros_project_dirs() -> ProjectDirs {
 
     dirs
 }
+
+pub fn uid() -> u32 {
+    unsafe { libc::geteuid() }
+}
+

@@ -16,19 +16,18 @@ mod utils;
 use std::io;
 
 use clap::{CommandFactory, Parser};
-use nix::unistd::Uid;
 
 pub use crate::cli::ExitCode;
 use crate::cli::{Cli, Operation, OperationBuild, OperationPlugin, OperationWatch};
 pub use crate::constants::*;
 pub use crate::context::Context;
 pub use crate::devenv::AppCommand;
-use crate::operations::{build, check, console, down, init, plugin, up, update, watch};
+use crate::operations::{build, check, console, down, dump_server, config, plugin, up, update, watch};
 
 extern crate log;
 
 fn main() {
-    if Uid::effective().is_root() {
+    if utils::uid() == 0 {
         fail!(ExitCode::RunAsRoot, "Running swde as root is not allowed");
     }
 
@@ -38,7 +37,7 @@ fn main() {
     match cli.subcommand {
         Operation::Up => up::main(),
         Operation::Down => down::main(),
-        Operation::Init => init::main(),
+        Operation::Config => config::main(),
         Operation::Watch { watchable } => match watchable {
             OperationWatch::Admin => watch::admin(),
             OperationWatch::Storefront => watch::storefront(),
@@ -82,5 +81,6 @@ fn main() {
             OperationPlugin::List => plugin::list(),
         },
         Operation::Update => update::main(),
+        Operation::DumpServer { port } => dump_server::main(port),
     }
 }

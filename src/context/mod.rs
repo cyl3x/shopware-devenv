@@ -41,7 +41,6 @@ impl Context {
         let mut custom: Option<CustomContext> = None;
         let mut origin = origin;
 
-        // TODO - Does not work always (windows for example, symlinks)
         while {
             log::debug!("Checking directory for context: {}", origin.display());
 

@@ -1,4 +1,5 @@
 use std::fs;
+use std::process::Command;
 
 use sysinfo::{Pid, ProcessExt, Signal, System, SystemExt};
 
@@ -12,10 +13,7 @@ pub fn main() {
 
     let pid_file = fs::read_to_string(&*DEVENV_PID);
 
-    let success: bool = match pid_file {
-        Ok(pid_string) => down_by_pid(&sys, &pid_string),
-        Err(_) => down_by_process(&mut sys),
-    };
+    let success: bool = pid_file.map_or_else(|_| down_by_process(), |pid_string| down_by_pid(&sys, &pid_string));
 
     if success {
         success!("Devenv service stopped");
@@ -44,18 +42,14 @@ fn down_by_pid(sys: &System, pid_string: &str) -> bool {
     false
 }
 
-fn down_by_process(sys: &mut System) -> bool {
+fn down_by_process() -> bool {
     log::info!("Missing pidfile, try to interrupt..");
     // TODO - Ask user to proceed if there are multiple processes
     println!("Cannot find pidfile, trying to stop by process name. This can potentially stop other devenv processes as well.");
 
-    let mut success = false;
-    for p in sys.processes_by_name(".honcho-wrapped") {
-        if p.kill_with(Signal::Interrupt).is_some() {
-            p.wait();
-            success = true;
-        }
-    }
-
-    success
+    Command::new("bash")
+        .args(["-c", r#""kill $(ps -ax | grep /nix/store  | awk '{print $1}')""#])
+        .spawn()
+        .and_then(|mut c| c.wait())
+        .is_ok()
 }

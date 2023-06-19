@@ -28,9 +28,9 @@ pub enum Operation {
         shell: Shell,
     },
 
-    /// Add the included `devenv.local.nix` and initialize devenv 
-    #[clap(name = "init")]
-    Init,
+    /// Update to the included `devenv.local.nix`
+    #[clap(name = "config")]
+    Config,
 
     /// Start devenv in background
     #[clap(name = "up")]
@@ -94,6 +94,14 @@ pub enum Operation {
     /// Update platform and garbage collect devenv
     #[clap(name = "update")]
     Update,
+
+    /// Start the symfony dump server
+    #[clap(name = "dump-server")]
+    DumpServer {
+        /// Server port (1024-65535)
+        #[clap(name = "port", long, short, value_parser=port_check)]
+        port: Option<u16>,
+    },
 }
 
 #[derive(Debug, Clone, Subcommand)]
@@ -194,6 +202,16 @@ pub enum OperationPlugin {
     /// List plugins
     #[clap(name = "list")]
     List,
+}
+
+fn port_check(s: &str) -> Result<u16, String> {
+    let port = s.parse::<u16>().map_err(|_| "Port must be a number between 1024 and 65535")?;
+
+    if !(1024..=65535).contains(&port) {
+        return Err("Port must be a number between 1024 and 65535".to_string());
+    }
+
+    Ok(port)
 }
 
 pub enum ExitCode {
