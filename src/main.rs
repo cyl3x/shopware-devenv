@@ -5,34 +5,38 @@
     clippy::cargo,
     clippy::unwrap_used
 )]
+mod app;
 mod cli;
 mod constants;
 mod context;
-mod devenv;
-mod logger;
 mod operations;
 mod utils;
 
+use std::env;
 use std::io;
 
 use clap::{CommandFactory, Parser};
 
-pub use crate::cli::ExitCode;
 use crate::cli::{Cli, Operation, OperationBuild, OperationPlugin, OperationWatch};
 pub use crate::constants::*;
 pub use crate::context::Context;
-pub use crate::devenv::AppCommand;
-use crate::operations::{build, check, console, down, dump_server, config, plugin, up, update, watch};
-
-extern crate log;
+pub use crate::app::Command;
+use crate::operations::{
+    build, check, config, console, down, dump_server, plugin, up, update, watch,
+};
+pub use crate::utils::OrFail;
 
 fn main() {
     if utils::uid() == 0 {
-        fail!(ExitCode::RunAsRoot, "Running swde as root is not allowed");
+        fail!("Running swde as root is not allowed");
+    }
+
+    if let Some(verbose) = env::var("SWDE_VERBOSE").ok().and_then(|v| v.parse::<bool>().ok()) {
+        VERBOSE.set(verbose).ok(); // Result only indicates if the value was set
     }
 
     let cli: Cli = Cli::parse();
-    logger::init(cli.verbose.log_level_filter());
+    VERBOSE.get_or_init(|| cli.verbose);
 
     match cli.subcommand {
         Operation::Up => up::main(),

@@ -1,9 +1,9 @@
 pub mod build;
 pub mod check;
+pub mod config;
 pub mod console;
 pub mod down;
 pub mod dump_server;
-pub mod config;
 pub mod log;
 pub mod plugin;
 pub mod up;

@@ -4,7 +4,7 @@ use std::{env, fs};
 
 use serde::Deserialize;
 
-use crate::{fail, ExitCode};
+use crate::{fail, verbose, warn};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum CustomType {
@@ -12,6 +12,7 @@ pub enum CustomType {
     Plugin,
 }
 
+/// `CustomContext` is the context created for `custom/apps` & `custom/plugins`.
 #[derive(Clone, Debug)]
 pub struct CustomContext {
     pub path: PathBuf,
@@ -35,7 +36,6 @@ impl CustomContext {
 
     pub fn new(path: &Path) -> Option<Self> {
         let Some(custom_type) = Self::get_type(path) else { return None; };
-
         let Some(composer) = Composer::new(path) else { return None; };
 
         let mut require = composer.require;
@@ -48,19 +48,19 @@ impl CustomContext {
             .file_name()
             .and_then(std::ffi::OsStr::to_str)
             .map(std::borrow::ToOwned::to_owned) else {
-                log::warn!("Malformed path: {}", path.display());
+                warn!("Malformed path: {}", path.display());
                 return None;
             };
 
         if custom_type == CustomType::Plugin {
-            if let Some(plugin_class) = composer.extra.and_then(|i| i.plugin_class) {
-                if let Some(plugin_name) = plugin_class.split('\\').last() {
-                    name = plugin_name.to_owned();
-                };
+            if let Some(p_class) = composer.extra.and_then(|i| i.plugin_class) {
+                if let Some(p_name) = p_class.split('\\').last() {
+                    name = p_name.to_string();
+                }
             }
 
             if composer.plugin_type != "shopware-platform-plugin" {
-                log::warn!(
+                warn!(
                     "Found malformed Plugin: composer.json::type is not 'shopware-platform-plugin': {}",
                     path.display(),
                 );
@@ -69,7 +69,7 @@ impl CustomContext {
             }
         }
 
-        log::info!(
+        verbose!(
             "Found custom context: {name} ({custom_type:?}) ({} deps)",
             require.len()
         );
@@ -84,13 +84,14 @@ impl CustomContext {
 
     /// Moves the current working directory to the custom context path.
     #[allow(dead_code)]
-    pub fn move_to(&self) {
+    pub fn move_cwd(&self) {
         if let Err(error) = env::set_current_dir(&self.path) {
-            fail!(ExitCode::Runtime, "Failed to move to custom context: {error}");
+            fail!("Failed to move to custom context: {error}");
         }
     }
 }
 
+/// Minimal `composer.json` structure
 #[derive(Clone, Deserialize, Debug)]
 struct Composer {
     pub extra: Option<ComposerExtra>,
@@ -112,12 +113,8 @@ struct ComposerExtra {
 
 impl Composer {
     pub fn new(custom_path: &Path) -> Option<Self> {
-        let file_result = fs::read_to_string(custom_path.join("composer.json"));
-
-        if let Ok(file) = file_result {
-            return serde_json::from_str(&file).ok();
-        }
-
-        None
+        fs::read_to_string(custom_path.join("composer.json"))
+            .ok()
+            .and_then(|file| serde_json::from_str(&file).ok())
     }
 }

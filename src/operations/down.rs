@@ -1,40 +1,37 @@
 use std::fs;
-use std::process::Command;
 
 use sysinfo::{Pid, ProcessExt, Signal, System, SystemExt};
 
-use crate::{fail, spinner, success, ExitCode, DEVENV_PID};
+use crate::{fail, success, topic, y_or_n, OrFail, DEVENV_PID};
 
 pub fn main() {
-    spinner!("Stopping...");
+    topic!("Stopping...");
 
     let mut sys = System::new();
     sys.refresh_processes();
 
-    let pid_file = fs::read_to_string(&*DEVENV_PID);
-
-    let success: bool = pid_file.map_or_else(|_| down_by_process(), |pid_string| down_by_pid(&sys, &pid_string));
+    let success: bool = fs::read_to_string(&*DEVENV_PID)
+        .map_or_else(|_| down_by_process(&sys), |pid| down_by_pid(&sys, &pid));
 
     if success {
         success!("Devenv service stopped");
-    } else {
-        fail!(ExitCode::DevenvStop, "Devenv service is not running");
     }
+
+    fail!("Devenv service is not running");
 }
 
 fn down_by_pid(sys: &System, pid_string: &str) -> bool {
-    let Some(pid) = pid_string
+    let pid = pid_string
         .lines()
         .next()
-        .and_then(|p| p.parse::<usize>().ok()) else {
-            fail!(ExitCode::Runtime, "Malformed pid or pidfile")
-        };
+        .and_then(|p| p.parse::<usize>().ok())
+        .or_fail("Malformed pid or pidfile");
 
-    log::info!("Found pid ({pid}) in pidfile, stopping..");
+    topic!("Found pid ({pid}) in pidfile, stopping...");
 
-    if let Some(p) = sys.process(Pid::from(pid)) {
-        if p.kill_with(Signal::Interrupt).is_some() {
-            p.wait();
+    if let Some(process) = sys.process(Pid::from(pid)) {
+        if process.kill_with(Signal::Interrupt).unwrap_or_default() {
+            process.wait();
             return true;
         }
     }
@@ -42,14 +39,23 @@ fn down_by_pid(sys: &System, pid_string: &str) -> bool {
     false
 }
 
-fn down_by_process() -> bool {
-    log::info!("Missing pidfile, try to interrupt..");
-    // TODO - Ask user to proceed if there are multiple processes
-    println!("Cannot find pidfile, trying to stop by process name. This can potentially stop other devenv processes as well.");
+fn down_by_process(sys: &System) -> bool {
+    topic!("Missing pidfile, choose...");
+    println!("Pidfile was not found, but you can kill all nix processes to stop devenv");
 
-    Command::new("bash")
-        .args(["-c", r#""kill $(ps -ax | grep /nix/store  | awk '{print $1}')""#])
-        .spawn()
-        .and_then(|mut c| c.wait())
-        .is_ok()
+    if !y_or_n!("Kill all nix processes?") {
+        fail!("Failed to stop devenv");
+    }
+
+    sys.processes().values().filter(|process| {
+        if !process.exe().starts_with("/nix/store") {
+            return false;
+        }
+
+        println!("Killing {}...", process.exe().to_string_lossy());
+
+        process.kill_with(Signal::Interrupt).unwrap_or_default()
+    }).for_each(sysinfo::ProcessExt::wait);
+
+    true
 }

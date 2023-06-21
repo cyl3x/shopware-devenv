@@ -1,5 +1,5 @@
-use crate::{direnv, AppCommand};
+use crate::{direnv, Command};
 
 pub fn main(args: &[String]) {
-    direnv!["bin/console"].args(args).start_await_success();
+    direnv!["bin/console"].args(args).await_success();
 }

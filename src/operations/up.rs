@@ -6,38 +6,32 @@ use std::time::Duration;
 use regex::Regex;
 use sysinfo::{Pid, SystemExt};
 
-use crate::{
-    devenv, fail, spinner, spinner_stop, success, AppCommand, Context, ExitCode, DEVENV_PID,
-    LOG_FILE,
-};
+use crate::{devenv, fail, success, topic, Command, OrFail, Context, DEVENV_PID, LOG_FILE};
 
 pub fn main() {
     if check_running_instances() {
-        fail!(ExitCode::DevenvStart, "Devenv service is already running");
+        fail!("Devenv service is already running");
     }
 
-    Context::get().platform.move_to();
+    Context::get().platform.move_cwd();
 
-    spinner!("Starting...");
-
-    log::info!("Open log at {}", LOG_FILE.display());
+    println!("Creating logfile at {}...", LOG_FILE.display());
     let mut log = OpenOptions::new()
         .write(true)
         .create(true)
         .read(true)
         .truncate(true)
         .open(&*LOG_FILE)
-        .unwrap_or_else(|_| fail!(ExitCode::DevenvStart, "Failed to create devenv log file"));
+        .or_fail("Failed to create devenv log file");
 
-
-    log::debug!("Open log at {}", LOG_FILE.display());
+    topic!("Starting...");
     let mut child = devenv!("up")
         .stdout(log.try_clone().expect("Cannot log into the same file?"))
         .stderr(log.try_clone().expect("Cannot log into the same file?"))
         .start();
 
+    topic!("Waiting for successful start...");
     let success = check_successfull_start(&mut log);
-    spinner_stop!();
 
     if success {
         success!("Devenv service started");
@@ -47,7 +41,7 @@ pub fn main() {
 
     super::log::main();
 
-    fail!(ExitCode::DevenvStart, "Error while starting devenv.");
+    fail!("Error while starting devenv.");
 }
 
 fn check_running_instances() -> bool {
@@ -56,7 +50,7 @@ fn check_running_instances() -> bool {
             .lines()
             .next()
             .and_then(|p| p.parse::<usize>().ok())
-            .unwrap_or_else(|| fail!(ExitCode::Runtime, "Malformed pid in pidfile"));
+            .or_fail("Malformed pid in pidfile");
 
         let mut sys = sysinfo::System::new();
         sys.refresh_processes();
@@ -68,8 +62,8 @@ fn check_running_instances() -> bool {
 }
 
 fn check_successfull_start(file: &mut File) -> bool {
-    let error_condition =
-        Regex::new(r"(.*:.*system.*\|.*sending SIGTERM to)|(^error:$)").expect("Invalid Regex");
+    let error_condition = Regex::new(r"(.*:.*system.*\|.*sending SIGTERM to)|(^error:$)")
+        .or_fail("Runtime: Invalid Regex");
     let mut contents = vec![];
     let mut text: String;
     let mut pos: usize = 0;
@@ -78,8 +72,11 @@ fn check_successfull_start(file: &mut File) -> bool {
     for _ in 0..20 {
         contents.truncate(0);
 
-        file.seek(SeekFrom::Start(pos as u64)).expect("Cannot seek");
-        pos += file.read_to_end(&mut contents).expect("Cannot read");
+        file.seek(SeekFrom::Start(pos as u64))
+            .or_fail("Runtime: Cannot seek");
+        pos += file
+            .read_to_end(&mut contents)
+            .or_fail("Runtime: Cannot read");
         text = String::from_utf8_lossy(&contents).to_string();
 
         if text.is_empty() {

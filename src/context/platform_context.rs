@@ -1,8 +1,9 @@
 use std::env;
 use std::path::{Path, PathBuf};
 
-use crate::{fail, sha256, ExitCode};
+use crate::{fail, sha256, verbose};
 
+/// `PlatformContext` is the context created for the main platform directory.
 #[derive(Clone, Debug)]
 pub struct PlatformContext {
     pub path: PathBuf,
@@ -29,13 +30,11 @@ impl PlatformContext {
                 has_devenv_dir = true;
             }
 
-            let path = path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
-
             if has_devenv_dir && has_devenv_file {
-                log::info!("Found platform context: {}", path.display());
+                verbose!("Found platform context: {}", path.display());
 
                 return Some(Self {
-                    path: path.clone(),
+                    path: path.to_path_buf(),
                     path_hash: sha256!("{}", path.display()),
                 });
             }
@@ -45,13 +44,9 @@ impl PlatformContext {
     }
 
     /// Moves the current working directory to the platform context path.
-    pub fn move_to(&self) {
-        if env::set_current_dir(&self.path).is_err() {
-            fail!(
-                ExitCode::Runtime,
-                "Failed to move to custom context: {p}",
-                p = self.path.display()
-            );
+    pub fn move_cwd(&self) {
+        if let Err(error) = env::set_current_dir(&self.path) {
+            fail!("Failed to move to custom context: {error}");
         }
     }
 

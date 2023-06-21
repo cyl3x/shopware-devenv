@@ -22,9 +22,13 @@ let vars = {
             http = toString (3003 + vars.instance * 100);
             https = toString (4003 + vars.instance * 100);
         };
+        mailhog = {
+            smtp = toString (1025 + vars.instance);
+            http = toString (3004 + vars.instance);
+            https = toString (4004 + vars.instance);
+        };
         mysql = 3306 + vars.instance;
         redis = 6379 + vars.instance;
-        mailhog = toString (1025 + vars.instance);
     };
 }; in {
     # Environment vars
@@ -42,10 +46,11 @@ let vars = {
     env.PORT = lib.mkForce "${vars.port.admin.http}";
     env.IPV4FIRST = lib.mkForce "true";
 
-    # Mailhog - Port changes not working
-    # Simply disable mailhog for your second intance
-    # env.MAILER_URL = lib.mkForce "smtp://localhost:${vars.port.mailhog}";
-    # services.mailhog.enable = true;
+    # Mailhog
+    env.MAILER_DSN = lib.mkForce "smtp://127.0.0.1:${vars.port.mailhog.smtp}";
+    env.MH_SMTP_BIND_ADDR = "127.0.0.1:${vars.port.mailhog.smtp}";
+    env.MH_API_BIND_ADDR = "127.0.0.1:${vars.port.mailhog.http}";
+    env.MH_UI_BIND_ADDR = "127.0.0.1:${vars.port.mailhog.http}";
 
     # MySQL
     # services.mysql.package = pkgs.mariadb; # Use MariaDB instead of MySQL
@@ -70,15 +75,19 @@ let vars = {
         }
 
         https://${vars.base_url}:${vars.port.storefront.https} {
-            reverse_proxy http://localhost:${vars.port.storefront.http}
+            reverse_proxy http://127.0.0.1:${vars.port.storefront.http}
         }
 
         https://${vars.base_url}:${vars.port.admin.https} {
-            reverse_proxy http://localhost:${vars.port.admin.http}
+            reverse_proxy http://127.0.0.1:${vars.port.admin.http}
         }
 
         https://${vars.base_url}:${vars.port.adminer.https} {
             reverse_proxy http://${vars.base_url}:${vars.port.adminer.http}
+        }
+
+        https://${vars.base_url}:${vars.port.mailhog.https} {
+            reverse_proxy http://127.0.0.1:${vars.port.mailhog.http}
         }
     '';
 

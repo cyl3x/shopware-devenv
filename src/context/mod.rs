@@ -7,7 +7,7 @@ pub use custom_context::*;
 use once_cell::sync::OnceCell;
 pub use platform_context::*;
 
-use crate::{fail, ExitCode};
+use crate::{verbose, OrFail};
 
 static CONTEXT: OnceCell<Context> = OnceCell::new();
 
@@ -21,36 +21,26 @@ pub struct Context {
 impl Context {
     pub fn get() -> &'static Self {
         CONTEXT.get_or_init(|| {
-            let Ok(current_dir) = std::env::current_dir() else {
-                fail!(
-                    ExitCode::InvalidContext,
-                    "Could not get current directory"
-                );
-            };
+            let mut current_dir =
+                std::env::current_dir().or_fail("Could not get current directory");
 
-            Self::new(current_dir).unwrap_or_else(|| {
-                fail!(
-                    ExitCode::InvalidContext,
-                    "Current directory has no valid context"
-                );
-            })
+            Self::new(&mut current_dir).or_fail("Current directory has no valid context")
         })
     }
 
-    fn new(origin: PathBuf) -> Option<Self> {
+    fn new(origin: &mut PathBuf) -> Option<Self> {
         let mut custom: Option<CustomContext> = None;
-        let mut origin = origin;
 
         while {
-            log::debug!("Checking directory for context: {}", origin.display());
+            verbose!("Checking directory for context: {}", origin.display());
 
-            if let Some(custom_context) = CustomContext::new(&origin) {
+            if let Some(custom_context) = CustomContext::new(origin) {
                 custom = Some(custom_context);
             }
 
-            if let Some(platform_context) = PlatformContext::new(&origin) {
+            if let Some(platform_context) = PlatformContext::new(origin) {
                 return Some(Self {
-                    origin,
+                    origin: origin.clone(),
                     platform: platform_context,
                     custom,
                 });
