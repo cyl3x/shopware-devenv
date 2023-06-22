@@ -1,4 +1,4 @@
-version: 19
+version: 22
 jobs:
 - name: Build on push
   jobExecutor: server-docker-executor
@@ -56,4 +56,17 @@ jobs:
   caches:
   - key: cache
     path: '@project_path@/target'
+  timeout: 3600
+- name: Sync on push
+  jobExecutor: server-docker-executor
+  steps:
+  - !PushRepository
+    name: push to github
+    remoteUrl: https://github.com/cyl3x/shopware-devenv
+    passwordSecret: github-access-key
+    force: false
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  retryCondition: never
+  maxRetries: 3
+  retryDelay: 30
   timeout: 3600
