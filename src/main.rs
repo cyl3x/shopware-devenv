@@ -22,7 +22,7 @@ pub use crate::constants::*;
 pub use crate::context::Context;
 pub use crate::app::Command;
 use crate::operations::{
-    build, check, config, console, down, dump_server, plugin, up, update, watch,
+    build, config, console, down, dump_server, plugin, up, update, watch,
 };
 pub use crate::utils::OrFail;
 
@@ -58,11 +58,6 @@ fn main() {
             OperationBuild::TestDB => build::test_db(),
             OperationBuild::Demodata { arguments } => build::demodata(&arguments),
         },
-        Operation::Check {
-            paths,
-            no_ecs,
-            no_phpstan,
-        } => check::main(paths, no_ecs, no_phpstan),
         Operation::Console { arguments } => console::main(&arguments),
         Operation::Log => operations::log::main(),
         Operation::Completions { shell } => {

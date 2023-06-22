@@ -23,7 +23,6 @@ Commands:
   down         Stop devenv in background
   log          Show devenv logs
   build        Build storefront/admin/platform
-  check        Check code for ci issues
   watch        Watch storefront/admin/unit/jest
   console      bin/console from platform
   plugin       Install/Activate/Uninstall/Reinstall plugins

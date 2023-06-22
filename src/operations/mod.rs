@@ -1,5 +1,4 @@
 pub mod build;
-pub mod check;
 pub mod config;
 pub mod console;
 pub mod down;

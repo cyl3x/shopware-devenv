@@ -1,6 +1,4 @@
-use std::path::PathBuf;
-
-use clap::{ArgAction, Parser, Subcommand, ValueHint};
+use clap::{ArgAction, Parser, Subcommand};
 use clap_complete::Shell;
 
 #[derive(Debug, Clone, Parser)]
@@ -46,21 +44,6 @@ pub enum Operation {
         /// Can be storefront/admin
         #[clap(subcommand)]
         buildable: OperationBuild,
-    },
-
-    /// Check code for ci issues
-    #[clap(name = "check")]
-    Check {
-        /// Path to check
-        /// If not set, platform will be checked
-        #[clap(name = "paths", value_hint = ValueHint::AnyPath)]
-        paths: Option<Vec<PathBuf>>,
-
-        #[clap(name = "no-ecs", long)]
-        no_ecs: bool,
-
-        #[clap(name = "no-phpstan", long)]
-        no_phpstan: bool,
     },
 
     /// Watch storefront/admin/unit/jest
