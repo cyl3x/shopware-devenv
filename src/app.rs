@@ -86,11 +86,12 @@ pub trait Command {
 impl Command for process::Command {
     /// Creates a new command for direnv.
     ///
-    /// Be aware that this command will be executed in the current directory
+    /// Be aware that this command will be executed in the platform directory
     fn new_direnv(cmd: Vec<&str>) -> Self {
         let mut command: Self = Self::new("direnv");
         command
             .envs(&mut vars_os())
+            .current_dir(Context::get().platform.path.clone())
             .env("DIRENV_LOG_FORMAT", "")
             .args(["exec", &Context::get().platform.join_str("")])
             .args(cmd);

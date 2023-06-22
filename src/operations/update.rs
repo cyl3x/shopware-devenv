@@ -12,11 +12,11 @@ pub fn main() {
     let output = direnv_git!["branch", "--show-current"].await_output();
 
     if let Ok(branch) = String::from_utf8(output.stdout).map(|s| s.trim().to_string()) {
-        topic!("Skipping branch update, brach is '{branch}'...");
-
         if branch == "trunk" {
             topic!("Updating platform brach 'trunk'...");
             direnv_git!["pull"].await_success();
+        } else {
+            topic!("Skipping branch update, brach is '{branch}'...");
         }
     }
 

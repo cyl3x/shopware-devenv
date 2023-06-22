@@ -68,10 +68,10 @@ let vars = {
     services.caddy.config = ''
         http://${vars.base_url}:${vars.port.platform.http}, https://${vars.base_url}:${vars.port.platform.https} {
             root * public
-            php_fastcgi @default unix/${config.languages.php.fpm.pools.web.socket} {
+            file_server
+            php_fastcgi unix/${config.languages.php.fpm.pools.web.socket} {
                 trusted_proxies private_ranges
             }
-            file_server
         }
 
         https://${vars.base_url}:${vars.port.storefront.https} {

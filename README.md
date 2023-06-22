@@ -1,5 +1,5 @@
 # shopware-devenv
-A little wrapper around the Shopware devenv environment.
+A little wrapper around the Shopware devenv environment that gets out of your way.
 
 This will help you to daemonize devenv and allow you to run certain commands from anywhere in the project.
 
@@ -18,7 +18,7 @@ Usage: swde [OPTIONS] <COMMAND>
 
 Commands:
   comp         Generate a SHELL completion script and print to stdout
-  config       Update to the included `devenv.local.nix`
+  config       Update to the included devenv.local.nix
   up           Start devenv in background
   down         Stop devenv in background
   log          Show devenv logs
@@ -32,12 +32,12 @@ Commands:
   help         Print this message or the help of the given subcommand(s)
 
 Options:
-  -v, --verbose  Set the verbosity
+  -v, --verbose  Set the verbosity. Can also be set with SWDE_VERBOSE=1
   -h, --help     Print help
   -V, --version  Print version
 ```
 
-There's also an environment variable `SWDE_VERBOSE` to toggle the verbosity.
-
 ## devenv.local.nix
-The binary includes a `devenv.local.nix` which will help you to manage multiple concurrent devenv setups. Simply execute `swde init`
+By simply executing `swde config` a `devenv.local.nix` will be dumped (Your old one will be backed up).
+
+The config will help you to manage multiple concurrent devenv setups.

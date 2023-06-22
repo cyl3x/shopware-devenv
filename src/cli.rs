@@ -9,7 +9,7 @@ pub struct Cli {
     #[clap(subcommand)]
     pub subcommand: Operation,
 
-    /// Set the verbosity
+    /// Set the verbosity. Can also be set with SWDE_VERBOSE=1
     #[clap(long, short, global(true), action = ArgAction::SetTrue)]
     pub verbose: bool,
 }
@@ -24,7 +24,7 @@ pub enum Operation {
         shell: Shell,
     },
 
-    /// Update to the included `devenv.local.nix`
+    /// Update to the included devenv.local.nix
     #[clap(name = "config")]
     Config,
 

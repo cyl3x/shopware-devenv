@@ -1,6 +1,6 @@
 [package]
 name = "swde"
-version = "0.5.0"
+version = "0.5.1"
 authors = ["cyl3x <cyl3x@posteo.de>"]
 edition = "2021"
 repository = "https://git.cyl3x.de/cyl3x/shopware-devenv"
