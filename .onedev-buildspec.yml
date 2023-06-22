@@ -40,10 +40,23 @@ jobs:
       - cargo build --release --target aarch64-apple-darwin
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  - !CommandStep
+    name: zip releases
+    runInContainer: true
+    image: alpine:latest
+    interpreter: !DefaultInterpreter
+      commands:
+      - apk add --no-cache zip
+      - mkdir release
+      - zip release/apple-darwin-aarch64.zip -j target/aarch64-apple-darwin/release/swde
+      - zip release/apple-darwin-x86_64.zip -j target/x86_64-apple-darwin/release/swde
+      - zip release/linux-aarch64.zip -j target/aarch64-unknown-linux-gnu/release/swde
+      - zip release/linux-x86_64.zip -j target/x86_64-unknown-linux-gnu/release/swde
+    useTTY: false
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !PublishArtifactStep
     name: artifacts
-    artifacts: target/x86_64-unknown-linux-gnu/release/swde target/aarch64-unknown-linux-gnu/release/swde
-      target/aarch64-apple-darwin/release/swde target/x86_64-apple-darwin/release/swde
+    artifacts: release/*
     condition: ALWAYS
   triggers:
   - !BranchUpdateTrigger
@@ -57,7 +70,7 @@ jobs:
   - key: cache
     path: '@project_path@/target'
   timeout: 3600
-- name: Sync on push
+- name: Sync to github
   jobExecutor: server-docker-executor
   steps:
   - !PushRepository
