@@ -4,6 +4,11 @@ A little wrapper around the Shopware devenv environment that gets out of your wa
 This will help you to daemonize devenv and allow you to run certain commands from anywhere in the project.
 
 ## How to install
+### Archlinux
+- `wget https://raw.githubusercontent.com/cyl3x/shopware-devenv/master/PKGBUILD`
+- `makepkg -si`
+
+### Generic
 1. Setup `devenv` with `direnv` ([Shopware docs](https://developer.shopware.com/docs/guides/installation/devenv))
 2. Download the pre-compiled binary and put it in:
    - Linux: `~/.local/bin` or `/usr/local/bin`
