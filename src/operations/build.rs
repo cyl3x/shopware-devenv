@@ -48,7 +48,7 @@ pub fn storefront() {
     direnv!["bin/console", "theme:compile", "--quiet"].await_success();
 
     topic!("Building storefront...");
-    direnv!["composer", "build:js:storefront", "--quiet"].await_success();
+    direnv!["composer", "build:js:storefront"].await_success();
     success!("Building successfull...");
 }
 
