@@ -36,6 +36,7 @@ let vars = {
     env.APP_URL = lib.mkForce "http://${vars.base_url}:${vars.port.platform.http}";
     env.CYPRESS_baseUrl = lib.mkForce "http://${vars.base_url}:${vars.port.platform.http}";
     env.NODE_TLS_REJECT_UNAUTHORIZED = lib.mkForce 1;
+    env.MAILER_DSN = lib.mkForce "smtp://127.0.0.1:${vars.port.mailhog.smtp}";
 
     # Storefront
     env.PROXY_URL = lib.mkForce "https://${vars.base_url}:${vars.port.storefront.https}";
@@ -47,10 +48,11 @@ let vars = {
     env.IPV4FIRST = lib.mkForce "true";
 
     # Mailhog
-    env.MAILER_DSN = lib.mkForce "smtp://127.0.0.1:${vars.port.mailhog.smtp}";
-    env.MH_SMTP_BIND_ADDR = "127.0.0.1:${vars.port.mailhog.smtp}";
-    env.MH_API_BIND_ADDR = "127.0.0.1:${vars.port.mailhog.http}";
-    env.MH_UI_BIND_ADDR = "127.0.0.1:${vars.port.mailhog.http}";
+    services.mailhog = {
+        smtpListenAddress = "127.0.0.1:${vars.port.mailhog.smtp}";
+        apiListenAddress = "127.0.0.1:${vars.port.mailhog.http}";
+        uiListenAddress = "127.0.0.1:${vars.port.mailhog.http}";
+    };
 
     # MySQL
     # services.mysql.package = pkgs.mariadb; # Use MariaDB instead of MySQL
