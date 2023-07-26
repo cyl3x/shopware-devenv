@@ -68,6 +68,10 @@ let vars = {
 
     # Caddy
     services.caddy.config = ''
+        {
+            auto_https off
+        }
+
         http://${vars.base_url}:${vars.port.platform.http}, https://${vars.base_url}:${vars.port.platform.https} {
             root * public
             file_server
