@@ -27,19 +27,19 @@ pub enum Operation {
     Config,
 
     /// Start devenv in background
-    #[clap(name = "up")]
+    #[clap(name = "up", alias = "u")]
     Up,
 
     /// Stop devenv in background
-    #[clap(name = "down")]
+    #[clap(name = "down", alias = "d")]
     Down,
 
     /// Show devenv logs
-    #[clap(name = "log")]
+    #[clap(name = "log", alias = "l")]
     Log,
 
     /// Build storefront/admin/platform
-    #[clap(name = "build")]
+    #[clap(name = "build", alias = "b")]
     Build {
         /// Can be storefront/admin
         #[clap(subcommand)]
@@ -47,7 +47,7 @@ pub enum Operation {
     },
 
     /// Watch storefront/admin/unit/jest
-    #[clap(name = "watch")]
+    #[clap(name = "watch", alias = "w")]
     Watch {
         /// Can be storefront/admin/unit/jest
         #[clap(subcommand)]
@@ -55,7 +55,7 @@ pub enum Operation {
     },
 
     /// bin/console from platform
-    #[clap(name = "console")]
+    #[clap(name = "console", alias = "c")]
     Console {
         /// Arguments for bin/console
         #[clap(trailing_var_arg = true)]
@@ -63,7 +63,7 @@ pub enum Operation {
     },
 
     /// Install/Activate/Uninstall/Reinstall plugins
-    #[clap(name = "plugin")]
+    #[clap(name = "plugin", alias = "p")]
     Plugin {
         /// Can be Install/Activate/Uninstall/Reinstall
         #[clap(subcommand)]
@@ -75,7 +75,7 @@ pub enum Operation {
     Update,
 
     /// Start the symfony dump server
-    #[clap(name = "dump-server")]
+    #[clap(name = "dump-server", alias = "ds")]
     DumpServer {
         /// Server port (1024-65535)
         #[clap(name = "port", long, short, value_parser=port_check)]
@@ -86,38 +86,38 @@ pub enum Operation {
 #[derive(Debug, Clone, Subcommand)]
 pub enum OperationWatch {
     /// Enable hot module reloading for Storefront
-    #[clap(name = "storefront", alias = "store")]
+    #[clap(name = "storefront", alias = "store", alias = "s")]
     Storefront,
 
     /// Hot module reloading for Administration
-    #[clap(name = "admin", alias = "administration")]
+    #[clap(name = "admin", alias = "administration", alias = "a")]
     Admin,
 
     /// Launch the interactive jest unit test-suite watcher for Storefront
-    #[clap(name = "storefront-jest", alias = "store-jest")]
+    #[clap(name = "storefront-jest", alias = "store-jest", alias = "sj")]
     StorefrontJest,
 
     /// Launch the interactive jest unit test-suite watcher for Administration
-    #[clap(name = "admin-jest", alias = "administration-jest")]
+    #[clap(name = "admin-jest", alias = "administration-jest", alias = "aj")]
     AdminJest,
 }
 
 #[derive(Debug, Clone, Subcommand)]
 pub enum OperationBuild {
     /// Rebuild Storefront
-    #[clap(name = "storefront", alias = "store")]
+    #[clap(name = "storefront", alias = "store", alias = "s")]
     Storefront,
 
     /// Rebuild Administration
-    #[clap(name = "admin", alias = "administration")]
+    #[clap(name = "admin", alias = "administration", alias = "a")]
     Admin,
 
     /// Build test db
-    #[clap(name = "test-db")]
+    #[clap(name = "test-db", alias = "t-db")]
     TestDB,
 
     /// Build platform, use --demodata to generate with demodata
-    #[clap(name = "platform")]
+    #[clap(name = "platform", alias = "p")]
     Platform {
         /// Additionally fill database with demodata
         #[clap(long)]
@@ -128,7 +128,7 @@ pub enum OperationBuild {
     },
 
     /// Generate demodata
-    #[clap(name = "demodata")]
+    #[clap(name = "demodata", alias = "dd")]
     Demodata {
         /// Arguments for demo data generator
         #[clap(trailing_var_arg = true)]
