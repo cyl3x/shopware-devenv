@@ -1,7 +1,7 @@
 use std::env;
 use std::path::{Path, PathBuf};
 
-use crate::{fail, sha256, verbose};
+use crate::{sha256, verbose, OrFail};
 
 /// `PlatformContext` is the context created for the main platform directory.
 #[derive(Clone, Debug)]
@@ -45,9 +45,7 @@ impl PlatformContext {
 
     /// Moves the current working directory to the platform context path.
     pub fn move_cwd(&self) {
-        if let Err(error) = env::set_current_dir(&self.path) {
-            fail!("Failed to move to custom context: {error}");
-        }
+        env::set_current_dir(&self.path).or_panic("Could not move to platform context".into());
     }
 
     /// Joins a path to the platform context path.

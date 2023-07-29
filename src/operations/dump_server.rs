@@ -6,15 +6,16 @@ use std::hash::{Hash, Hasher};
 use dotenv_parser::parse_dotenv;
 use rand::{Rng, SeedableRng};
 
-use crate::{direnv, success, topic, verbose, Command, OrFail, Context};
+use crate::{direnv, topic, verbose, Command, Context, OrFail};
 
-pub fn main(port: Option<u16>) {
-    Context::get().platform.move_cwd();
+pub fn main(port: Option<u16>) -> anyhow::Result<String> {
+    let context = Context::get()?;
+    context.platform.move_cwd();
 
-    let mut envs: BTreeMap<String, String> = read_env_local().unwrap_or_default();
+    let mut envs: BTreeMap<String, String> = read_env_local()?;
 
     topic!("Generating dumper url...");
-    let port = port.unwrap_or_else(|| 9912_u16 + seed_rand(&Context::get().platform.path_hash));
+    let port = port.unwrap_or_else(|| 9912_u16 + seed_rand(&context.platform.path_hash));
     envs.insert(
         "VAR_DUMPER_FORMAT".into(),
         format!("tcp://127.0.0.1:{port}"),
@@ -22,7 +23,7 @@ pub fn main(port: Option<u16>) {
     println!("Dumper url: 'tcp://127.0.0.1:{port}'");
 
     topic!("Writing VAR_DUMPER_FORMAT to .env.local...");
-    write_env_local(&envs);
+    write_env_local(&envs)?;
 
     topic!("Starting VarDumper server...");
     // TODO - Ctr+C doesn't work, main app is terminated
@@ -30,34 +31,36 @@ pub fn main(port: Option<u16>) {
         "./vendor/bin/var-dump-server",
         &format!("--host=127.0.0.1:{port}")
     ]
-    .await_success();
+    .await_success()?;
 
     topic!("Removing VAR_DUMPER_FORMAT from .env.local...");
-    write_env_local(&read_env_local().unwrap_or_default());
+    write_env_local(&read_env_local().unwrap_or_default())?;
 
-    success!("VarDumper server stopped and envs cleaned up");
+    Ok("VarDumper server stopped and envs cleaned up".into())
 }
 
-fn read_env_local() -> Option<BTreeMap<String, String>> {
+fn read_env_local() -> anyhow::Result<BTreeMap<String, String>> {
     let Ok(env_local) = fs::read_to_string(".env.local") else {
         verbose!("No .env.local was found");
-        return None;
+        return Ok(BTreeMap::new());
     };
 
     verbose!("Found .env.local to read");
-    let mut envs = parse_dotenv(&env_local).or_fail("Failed to parse .env.local");
+    let mut envs = parse_dotenv(&env_local).map_err(|e| anyhow::anyhow!(e))?;
 
     envs.remove("VAR_DUMPER_FORMAT");
 
-    Some(envs)
+    Ok(envs)
 }
 
-fn write_env_local(envs: &BTreeMap<String, String>) {
+fn write_env_local(envs: &BTreeMap<String, String>) -> anyhow::Result<()> {
     let file = envs
         .iter()
         .fold(String::new(), |acc, (k, v)| format!("{acc}{k}={v}\n"));
 
-    fs::write(".env.local", file).or_fail("Failed to write .env.local");
+    fs::write(".env.local", file).or_error("Failed to write .env.local")?;
+
+    Ok(())
 }
 
 fn seed_rand(seed: &str) -> u16 {

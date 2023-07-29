@@ -12,33 +12,40 @@ mod context;
 mod operations;
 mod utils;
 
-use std::env;
-use std::io;
+use std::{env, io};
 
 use clap::{CommandFactory, Parser};
 
+pub use crate::app::Command;
 use crate::cli::{Cli, Operation, OperationBuild, OperationPlugin, OperationWatch};
 pub use crate::constants::*;
 pub use crate::context::Context;
-pub use crate::app::Command;
-use crate::operations::{
-    build, config, console, down, dump_server, plugin, up, update, watch,
-};
+use crate::operations::{build, config, console, down, dump_server, plugin, up, update, watch};
 pub use crate::utils::OrFail;
 
 fn main() {
+    color_eyre::install().or_panic("Failed to init color_eyre".into());
+
     if utils::uid() == 0 {
         fail!("Running swde as root is not allowed");
     }
 
-    if let Some(verbose) = env::var("SWDE_VERBOSE").ok().and_then(|v| v.parse::<bool>().ok()) {
-        VERBOSE.set(verbose).ok(); // Result only indicates if the value was set
-    }
+    env::var("SWDE_VERBOSE")
+        .ok()
+        .and_then(|v| {
+            v.parse::<bool>().ok().or_else(|| {
+                warn!("SWDE_VERBOSE => {v} doesn't match one of [false, true, 0, 1]");
+                None
+            })
+        })
+        .and_then(
+            |v| VERBOSE.set(v).ok(), /* Result only indicates if the value was set */
+        );
 
     let cli: Cli = Cli::parse();
     VERBOSE.get_or_init(|| cli.verbose);
 
-    match cli.subcommand {
+    let result: Result<String, anyhow::Error> = match cli.subcommand {
         Operation::Up => up::main(),
         Operation::Down => down::main(),
         Operation::Config => config::main(),
@@ -67,8 +74,11 @@ fn main() {
                 env!("CARGO_PKG_NAME"),
                 &mut io::stdout(),
             );
+
+            Ok(String::new())
         },
         Operation::Plugin { action } => match action {
+            OperationPlugin::Refresh => plugin::refresh(),
             OperationPlugin::Install {
                 name,
                 no_activation,
@@ -76,10 +86,11 @@ fn main() {
             OperationPlugin::Activate { name } => plugin::activate(&name),
             OperationPlugin::Uninstall { name } => plugin::uninstall(&name),
             OperationPlugin::Reinstall { name } => plugin::reinstall(&name),
-            OperationPlugin::Refresh => plugin::refresh(),
             OperationPlugin::List => plugin::list(),
         },
         Operation::Update => update::main(),
         Operation::DumpServer { port } => dump_server::main(port),
-    }
+    };
+
+    result.map_or_else(|error| fail!("{error}"), |msg| success!("{msg}"));
 }

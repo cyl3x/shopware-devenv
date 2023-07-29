@@ -1,11 +1,15 @@
 use std::fs;
 
-use crate::{topic, OrFail, LOG_FILE};
+use crate::{topic, Context, OrFail};
 
-pub fn main() {
-    topic!("Opening logfile at {}...", LOG_FILE.display());
-    println!(
-        "{}",
-        fs::read_to_string(&*LOG_FILE).or_fail("Devenv has not been started yet")
-    );
+pub fn main() -> anyhow::Result<String> {
+    let log_file = Context::get()?.log_file();
+
+    topic!("Opening logfile at {}...", log_file.display());
+
+    let log = fs::read_to_string(log_file).or_error("Devenv has not been started yet")?;
+
+    println!("{log}");
+
+    Ok(String::new())
 }

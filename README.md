@@ -41,6 +41,17 @@ Options:
   -V, --version  Print version
 ```
 
+## Features
+- Daemonize `devenv up` - no need for keep this in foreground
+- Update your `devenv.local.nix` trough `swde config`
+- Symfony dump server support
+- Easily install plugins
+- Update 
+- Execute commands everywhere inside the project
+  - e.g. `bin/console`
+  - e.g. `composer`, limited to the wrappers like `build` and `watch`
+- Shell completions
+
 ## devenv.local.nix
 By simply executing `swde config` a `devenv.local.nix` will be dumped (Your old one will be backed up).
 

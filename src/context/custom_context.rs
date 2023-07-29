@@ -4,7 +4,7 @@ use std::{env, fs};
 
 use serde::Deserialize;
 
-use crate::{fail, verbose, warn};
+use crate::{verbose, warn, OrFail};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum CustomType {
@@ -85,9 +85,7 @@ impl CustomContext {
     /// Moves the current working directory to the custom context path.
     #[allow(dead_code)]
     pub fn move_cwd(&self) {
-        if let Err(error) = env::set_current_dir(&self.path) {
-            fail!("Failed to move to custom context: {error}");
-        }
+        env::set_current_dir(&self.path).or_panic("Could not move to platform context".into());
     }
 }
 

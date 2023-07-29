@@ -1,15 +1,10 @@
-
+use std::env::vars_os;
+use std::process;
+use std::process::{exit, Child, ExitStatus, Output};
 
 use colored::Colorize;
 
-use std::process::exit;
-use std::env::vars_os;
-use std::process;
-use std::process::{Child, ExitStatus, Output};
-
-use crate::{fail, verbose, OrFail, Context};
-
-use crate::VERBOSE;
+use crate::{verbose, Context, OrFail, VERBOSE};
 
 #[macro_export]
 macro_rules! fail {
@@ -47,7 +42,9 @@ macro_rules! verbose {
 }
 
 pub fn _macro_success(msg: &str) -> ! {
-    println!("{} {}", "✓".green(), msg.bold());
+    if !msg.is_empty() {
+        println!("{} {}", "✓".green(), msg.bold());
+    }
 
     exit(0);
 }
@@ -63,7 +60,7 @@ pub fn _macro_topic(msg: &str) {
 }
 
 pub fn _macro_warn(msg: &str) {
-    println!("{} {}", "!".yellow(), msg.bold());
+    println!("{} {}", "!".yellow(), msg.yellow());
 }
 
 pub fn _macro_verbose(msg: &str) {
@@ -73,79 +70,103 @@ pub fn _macro_verbose(msg: &str) {
 }
 
 pub trait Command {
-    fn new_direnv(cmd: Vec<&str>) -> Self;
-    fn new_devenv(cmd: Vec<&str>) -> Self;
-    fn start(&mut self) -> Child;
-    fn r#await(&mut self) -> ExitStatus;
-    fn await_output(&mut self) -> Output;
-    fn await_success(&mut self);
-    fn log(&self);
-    fn to_string(&self) -> String;
-}
-
-impl Command for process::Command {
     /// Creates a new command for direnv.
     ///
     /// Be aware that this command will be executed in the platform directory
-    fn new_direnv(cmd: Vec<&str>) -> Self {
-        let mut command: Self = Self::new("direnv");
-        command
-            .envs(&mut vars_os())
-            .current_dir(Context::get().platform.path.clone())
-            .env("DIRENV_LOG_FORMAT", "")
-            .args(["exec", &Context::get().platform.join_str("")])
-            .args(cmd);
-
-        command
-    }
+    ///
+    /// # Errors
+    /// Returns the context error if the context is invalid
+    fn new_direnv(cmd: Vec<&str>) -> anyhow::Result<Self>
+    where
+        Self: std::marker::Sized;
 
     /// Creates a new command for devenv.
     ///
     /// Be aware that this command will be executed in the platform directory
-    fn new_devenv(cmd: Vec<&str>) -> Self {
-        let mut command: Self = Self::new("devenv");
-        command
-            .envs(&mut vars_os())
-            .current_dir(Context::get().platform.path.clone())
-            .args(cmd);
-
-        command
-    }
+    ///
+    /// # Errors
+    /// Returns the context error if the context is invalid
+    fn new_devenv(cmd: Vec<&str>) -> anyhow::Result<Self>
+    where
+        Self: std::marker::Sized;
 
     /// Executes the command as a child process, returning a handle to it.
     ///
     /// Terminates app on error (e.g. direnv not found)
-    fn start(&mut self) -> Child {
-        self.log();
-
-        self.spawn()
-            .or_fail("Runtime: Cannot spawn cmd, is devenv/direnv ok?")
-    }
+    fn start(&mut self) -> Child;
 
     /// Executes the command as a child process and await the exit.
-    fn r#await(&mut self) -> ExitStatus {
-        self.start().wait().or_fail("Runtime: cannot wait for cmd")
-    }
+    fn r#await(&mut self) -> ExitStatus;
 
     /// Executes the command as a child process, waiting for it to finish and
     /// collecting all of its output.
     ///
     /// Terminates app on error (e.g. non-zero exit code)
-    fn await_output(&mut self) -> Output {
-        self.output()
-            .or_fail("Runtime: Cannot spawn cmd, is devenv/direnv ok?")
-    }
+    fn await_output(&mut self) -> Output;
 
     /// Executes the command as a child process and wait for exit.
     ///
     /// Terminates app on error (e.g. non-zero exit code)
-    fn await_success(&mut self) {
-        if !self.r#await().success() {
-            fail!("Non zero exit while running '{}'", self.to_string());
-        }
-    }
+    ///
+    /// # Errors
+    /// Fails if the exit code is non-zero
+    fn await_success(&mut self) -> anyhow::Result<()>;
 
     /// Logs the command
+    fn log(&self);
+
+    /// Converts the command into a string.
+    /// Strips out `direnv exec .`...
+    fn to_string(&self) -> String;
+}
+
+impl Command for process::Command {
+    fn new_direnv(cmd: Vec<&str>) -> anyhow::Result<Self> {
+        let mut command: Self = Self::new("direnv");
+        command
+            .envs(&mut vars_os())
+            .current_dir(Context::get()?.platform.path.clone())
+            .env("DIRENV_LOG_FORMAT", "")
+            .args(["exec", &Context::get()?.platform.join_str("")])
+            .args(cmd);
+
+        Ok(command)
+    }
+
+    fn new_devenv(cmd: Vec<&str>) -> anyhow::Result<Self> {
+        let mut command: Self = Self::new("devenv");
+        command
+            .envs(&mut vars_os())
+            .current_dir(Context::get()?.platform.path.clone())
+            .args(cmd);
+
+        Ok(command)
+    }
+
+    fn start(&mut self) -> Child {
+        self.log();
+
+        self.spawn().or_panic("Cannot spawn process".into())
+    }
+
+    fn r#await(&mut self) -> ExitStatus {
+        self.start()
+            .wait()
+            .or_panic("Cannot wait for process to finish".into())
+    }
+
+    fn await_output(&mut self) -> Output {
+        self.output().or_panic("Cannot spawn process".into())
+    }
+
+    fn await_success(&mut self) -> anyhow::Result<()> {
+        if !self.r#await().success() {
+            anyhow::bail!("Non zero exit while running '{}'", self.to_string());
+        }
+
+        Ok(())
+    }
+
     fn log(&self) {
         let args = self
             .get_args()
@@ -159,8 +180,6 @@ impl Command for process::Command {
         );
     }
 
-    /// Converts the command into a string.
-    /// Strips out `direnv exec .`...
     fn to_string(&self) -> String {
         let mut command = vec![];
         if self.get_program().to_str() == Some("direnv") {
@@ -180,7 +199,7 @@ impl Command for process::Command {
 #[macro_export]
 macro_rules! direnv {
     ($($cmd:expr),+ $(,)?) => {
-        <std::process::Command as $crate::app::Command>::new_direnv(vec![$($cmd),+])
+        <std::process::Command as $crate::app::Command>::new_direnv(vec![$($cmd),+])?
     };
 }
 
@@ -191,7 +210,7 @@ macro_rules! direnv {
 #[macro_export]
 macro_rules! devenv {
     ($($cmd:expr),+ $(,)?) => {
-        <std::process::Command as $crate::app::Command>::new_devenv(vec![$($cmd),+])
+        <std::process::Command as $crate::app::Command>::new_devenv(vec![$($cmd),+])?
     };
 }
 
@@ -200,16 +219,15 @@ macro_rules! devenv {
 #[macro_export]
 macro_rules! direnv_git {
     ($($cmd:expr),+ $(,)?) => {
-        $crate::app::_macro_direnv_git(vec![$($cmd),+])
+        $crate::app::_macro_direnv_git(vec![$($cmd),+])?
     };
 }
 
-
 /// Creates a new git command inside direnv env.
 /// Use `start`, `await` or `await_success` to execute the command.
-pub fn _macro_direnv_git(cmd: Vec<&str>) -> impl Command {
-    let mut command = direnv!("git");
+pub fn _macro_direnv_git(cmd: Vec<&str>) -> anyhow::Result<impl Command> {
+    let mut command = direnv!["git"];
     command.args(cmd).env("GIT_TERMINAL_PROMPT", "0");
 
-    command
+    Ok(command)
 }

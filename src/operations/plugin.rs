@@ -1,8 +1,8 @@
 use colored::Colorize;
 
-use crate::{direnv, success, topic, Command};
+use crate::{direnv, topic, Command};
 
-pub fn install(name: &str, no_activation: bool) {
+pub fn install(name: &str, no_activation: bool) -> anyhow::Result<String> {
     topic!("Installing plugin matching {}...", name.green());
 
     let mut cmd = direnv!["bin/console", "plugin:install", "-rc", name];
@@ -11,40 +11,44 @@ pub fn install(name: &str, no_activation: bool) {
         cmd.arg("-a");
     }
 
-    cmd.await_success();
+    cmd.await_success()?;
 
-    success!("Plugin matching {name} installed");
+    Ok(format!("Plugin matching {name} installed"))
 }
 
-pub fn activate(name: &str) {
+pub fn activate(name: &str) -> anyhow::Result<String> {
     topic!("Activating plugin matching {}...", name.green());
 
-    direnv!["bin/console", "plugin:activate", name].await_success();
+    direnv!["bin/console", "plugin:activate", name].await_success()?;
 
-    success!("Plugin matching {name} activated");
+    Ok(format!("Plugin matching {name} activated"))
 }
 
-pub fn uninstall(name: &str) {
+pub fn uninstall(name: &str) -> anyhow::Result<String> {
     topic!("Uninstalling plugin matching {}...", name.green());
 
-    direnv!["bin/console", "plugin:uninstall", "-c", name].await_success();
+    direnv!["bin/console", "plugin:uninstall", "-c", name].await_success()?;
 
-    success!("Plugin matching {name} uninstalled");
+    Ok(format!("Plugin matching {name} uninstalled"))
 }
 
-pub fn reinstall(name: &str) {
-    uninstall(name);
-    install(name, false);
+pub fn reinstall(name: &str) -> anyhow::Result<String> {
+    uninstall(name)?;
+    install(name, false)?;
+
+    Ok(format!("Plugin matching {name} reinstalled"))
 }
 
-pub fn refresh() {
+pub fn refresh() -> anyhow::Result<String> {
     topic!("Refreshing plugins...");
 
-    direnv!["bin/console", "plugin:refresh"].await_success();
+    direnv!["bin/console", "plugin:refresh"].await_success()?;
 
-    success!("Plugins refreshed");
+    Ok("Plugins refreshed".into())
 }
 
-pub fn list() {
-    direnv!["bin/console", "plugin:list"].await_success();
+pub fn list() -> anyhow::Result<String> {
+    direnv!["bin/console", "plugin:list"].await_success()?;
+
+    Ok(String::new())
 }

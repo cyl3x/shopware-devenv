@@ -1,21 +1,25 @@
-use crate::{direnv, success, Command};
+use crate::{direnv, Command};
 
-pub fn admin() {
-    direnv!["composer", "watch:admin"].await_success();
-    success!("Watcher stopped");
+pub fn admin() -> anyhow::Result<String> {
+    direnv!["composer", "watch:admin"]
+        .await_success()
+        .map(|_| "Watcher stopped".into())
 }
 
-pub fn storefront() {
-    direnv!["composer", "watch:storefront"].await_success();
-    success!("Watcher stopped");
+pub fn storefront() -> anyhow::Result<String> {
+    direnv!["composer", "watch:storefront"]
+        .await_success()
+        .map(|_| "Watcher stopped".into())
 }
 
-pub fn admin_jest() {
-    direnv!["composer", "admin:unit:watch"].await_success();
-    success!("Watcher stopped");
+pub fn admin_jest() -> anyhow::Result<String> {
+    direnv!["composer", "admin:unit:watch"]
+        .await_success()
+        .map(|_| "Watcher stopped".into())
 }
 
-pub fn storefront_jest() {
-    direnv!["composer", "storefront:unit:watch"].await_success();
-    success!("Watcher stopped");
+pub fn storefront_jest() -> anyhow::Result<String> {
+    direnv!["composer", "storefront:unit:watch"]
+        .await_success()
+        .map(|_| "Watcher stopped".into())
 }

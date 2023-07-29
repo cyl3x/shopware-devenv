@@ -1,4 +1,4 @@
-use std::fs::{self, File, OpenOptions};
+use std::fs::{File, OpenOptions};
 use std::io::{Read, Seek, SeekFrom};
 use std::thread::sleep;
 use std::time::Duration;
@@ -6,77 +6,72 @@ use std::time::Duration;
 use regex::Regex;
 use sysinfo::{Pid, SystemExt};
 
-use crate::{devenv, fail, success, topic, Command, OrFail, Context, DEVENV_PID, LOG_FILE};
+use crate::{devenv, topic, Command, Context};
 
-pub fn main() {
-    if check_running_instances() {
-        fail!("Devenv service is already running");
-    }
+pub fn main() -> anyhow::Result<String> {
+    topic!("Starting...");
 
-    Context::get().platform.move_cwd();
+    check_running_instances()?;
 
-    println!("Creating logfile at {}...", LOG_FILE.display());
+    Context::get()?.platform.move_cwd();
+
+    let log_file = Context::get()?.log_file();
+
+    println!("Creating logfile at {}...", log_file.display());
     let mut log = OpenOptions::new()
         .write(true)
         .create(true)
         .read(true)
         .truncate(true)
-        .open(&*LOG_FILE)
-        .or_fail("Failed to create devenv log file");
+        .open(log_file)?;
 
-    topic!("Starting...");
-    let mut child = devenv!("up")
-        .stdout(log.try_clone().expect("Cannot log into the same file?"))
-        .stderr(log.try_clone().expect("Cannot log into the same file?"))
+    topic!("Starting devenv process...");
+    let mut child = devenv!["up"]
+        .stdout(log.try_clone()?)
+        .stderr(log.try_clone()?)
         .start();
 
     topic!("Waiting for successful start...");
-    let success = check_successfull_start(&mut log);
+    let success = check_successfull_start(&mut log)?;
 
-    if success {
-        success!("Devenv service started");
+    if !success {
+        let _ = child.wait();
+
+        super::log::main()?;
+
+        anyhow::bail!("Starting devenv resulted in an error.");
     }
 
-    let _r = child.wait();
-
-    super::log::main();
-
-    fail!("Error while starting devenv.");
+    Ok("Devenv process started".into())
 }
 
-fn check_running_instances() -> bool {
-    if let Ok(pid_string) = fs::read_to_string(DEVENV_PID.clone()) {
-        let pid: usize = pid_string
-            .lines()
-            .next()
-            .and_then(|p| p.parse::<usize>().ok())
-            .or_fail("Malformed pid in pidfile");
+fn check_running_instances() -> anyhow::Result<bool> {
+    let Ok(pid) = Context::get()?.devenv_pid() else {
+        return Ok(false);
+    };
 
-        let mut sys = sysinfo::System::new();
-        sys.refresh_processes();
+    let mut sys = sysinfo::System::new();
+    sys.refresh_processes();
 
-        return sys.process(Pid::from(pid)).is_some();
+    if sys.process(Pid::from(pid)).is_some() {
+        anyhow::bail!("Devenv service is already running")
     }
 
-    false
+    Ok(true)
 }
 
-fn check_successfull_start(file: &mut File) -> bool {
-    let error_condition = Regex::new(r"(.*:.*system.*\|.*sending SIGTERM to)|(^error:$)")
-        .or_fail("Runtime: Invalid Regex");
+fn check_successfull_start(file: &mut File) -> anyhow::Result<bool> {
+    let error_condition = Regex::new(r"(.*:.*system.*\|.*sending SIGTERM to)|(^error:$)")?;
     let mut contents = vec![];
     let mut text: String;
     let mut pos: usize = 0;
     let mut unchanged: usize = 0;
 
-    for _ in 0..20 {
+    for _ in 0..40 {
         contents.truncate(0);
 
-        file.seek(SeekFrom::Start(pos as u64))
-            .or_fail("Runtime: Cannot seek");
-        pos += file
-            .read_to_end(&mut contents)
-            .or_fail("Runtime: Cannot read");
+        file.seek(SeekFrom::Start(pos as u64))?;
+        pos += file.read_to_end(&mut contents)?;
         text = String::from_utf8_lossy(&contents).to_string();
 
         if text.is_empty() {
@@ -84,19 +79,19 @@ fn check_successfull_start(file: &mut File) -> bool {
                 unchanged += 1;
             }
 
-            if unchanged > 4 {
+            if unchanged > 8 {
                 break;
             }
         } else {
             unchanged = 0;
 
             if text.lines().any(|l| error_condition.is_match(l)) {
-                return false;
+                return Ok(false);
             };
         }
 
-        sleep(Duration::from_millis(500));
+        sleep(Duration::from_millis(250));
     }
 
-    true
+    Ok(true)
 }

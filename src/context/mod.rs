@@ -1,6 +1,7 @@
 mod custom_context;
 mod platform_context;
 
+use std::fs;
 use std::path::PathBuf;
 
 pub use custom_context::*;
@@ -19,16 +20,22 @@ pub struct Context {
 }
 
 impl Context {
-    pub fn get() -> &'static Self {
-        CONTEXT.get_or_init(|| {
+    /// Init and returns the current context of the platform project.
+    ///
+    /// # Errors
+    /// Fails if no valid context is found.
+    pub fn get() -> anyhow::Result<&'static Self> {
+        CONTEXT.get_or_try_init(|| {
             let mut current_dir =
-                std::env::current_dir().or_fail("Could not get current directory");
+                std::env::current_dir().or_panic("Could not get current directory".into());
 
-            Self::new(&mut current_dir).or_fail("Current directory has no valid context")
+            let context = Self::new(&mut current_dir)?;
+
+            Ok(context)
         })
     }
 
-    fn new(origin: &mut PathBuf) -> Option<Self> {
+    fn new(origin: &mut PathBuf) -> anyhow::Result<Self> {
         let mut custom: Option<CustomContext> = None;
 
         while {
@@ -39,7 +46,7 @@ impl Context {
             }
 
             if let Some(platform_context) = PlatformContext::new(origin) {
-                return Some(Self {
+                return Ok(Self {
                     origin: origin.clone(),
                     platform: platform_context,
                     custom,
@@ -49,6 +56,42 @@ impl Context {
             origin.pop()
         } {}
 
-        None
+        anyhow::bail!("No valid context found")
+    }
+
+    /// Returns the pid of the devenv process.
+    ///
+    /// # Errors
+    /// Fails if there is no pidfile
+    /// Fails if the pid inside file is malformed (not <usize>).
+    pub fn devenv_pid(&self) -> anyhow::Result<usize> {
+        let path = self.platform.path.join(".devenv/state/devenv.pid");
+
+        let pid_string = fs::read_to_string(path).or_error("No pidfile found")?;
+
+        let pid = pid_string
+            .lines()
+            .next()
+            .and_then(|p| p.parse::<usize>().ok())
+            .or_error("Malformed pid in pidfile")?;
+
+        Ok(pid)
+    }
+
+    /// Returns the path to the logfile.
+    #[must_use]
+    pub fn log_file(&self) -> PathBuf {
+        let path = self.platform.path.join(format!(
+            "var/log/devenv-{}.log",
+            &self.platform.path_hash[..8]
+        ));
+
+        let parent = path.parent().or_panic("No parent directory found".into());
+        fs::create_dir_all(parent).or_panic(Some(&format!(
+            "Failed to create log directory: {}",
+            path.display()
+        )));
+
+        path
     }
 }
