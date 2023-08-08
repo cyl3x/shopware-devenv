@@ -39,7 +39,7 @@ fn main() {
             })
         })
         .and_then(
-            |v| VERBOSE.set(v).ok(), /* Result only indicates if the value was set */
+            |v| VERBOSE.set(v).ok(),
         );
 
     let cli: Cli = Cli::parse();

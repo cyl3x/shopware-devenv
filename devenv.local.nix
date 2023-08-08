@@ -2,110 +2,176 @@
 
 let vars = {
     # increment to avoid port conflicts for parallel instances
-    # e.g. trunk -> 0, 6.4 -> 1 - this will result in ports 31xx, 41xx
-    instance = 0;
-    base_url = "platform.dev.localhost";
+    # e.g. trunk -> 0, 6.4 -> 1 - this will result in ports 2000, 3000
+    instance = 1;
+    base_url = "dev.localhost";
+    base_port = 2000 + vars.instance * 1000;
     port = {
         platform = {
-            http = toString (3000 + vars.instance * 100);
-            https = toString (4000 + vars.instance * 100);
+            http = toString (vars.base_port + 80);
+            https = toString (vars.base_port);
         };
-        storefront = {
-            http = toString (3001 + vars.instance * 100);
-            https = toString (4001 + vars.instance * 100);
-        };
-        admin = {
-            http = toString (3002 + vars.instance * 100);
-            https = toString (4002 + vars.instance * 100);
-        };
-        adminer = {
-            http = toString (3003 + vars.instance * 100);
-            https = toString (4003 + vars.instance * 100);
-        };
-        mailhog = {
-            smtp = toString (1025 + vars.instance);
-            http = toString (3004 + vars.instance);
-            https = toString (4004 + vars.instance);
-        };
-        mysql = 3306 + vars.instance;
-        redis = 6379 + vars.instance;
+        admin_watcher = toString (vars.base_port + 1);
+        store_watcher = toString (vars.base_port + 2);
+        adminer = toString (vars.base_port + 3);
+        store_asset = toString (vars.base_port + 4);
+        redis = vars.base_port + 5;
+        mysql = vars.base_port + 6;
+        mailpit = toString (vars.base_port + 7);
+        mailpit_smtp = toString (1025 + vars.instance);
     };
 }; in {
     # Environment vars
     env.DATABASE_URL = lib.mkForce "mysql://shopware:shopware@127.0.0.1:${toString vars.port.mysql}/shopware?sslmode=disable&charset=utf8mb4";
-    env.APP_URL = lib.mkForce "http://${vars.base_url}:${vars.port.platform.http}";
-    env.CYPRESS_baseUrl = lib.mkForce "http://${vars.base_url}:${vars.port.platform.http}";
-    env.NODE_TLS_REJECT_UNAUTHORIZED = lib.mkForce 1;
-    env.MAILER_DSN = lib.mkForce "smtp://127.0.0.1:${vars.port.mailhog.smtp}";
+    env.APP_URL = lib.mkForce "https://${vars.base_url}:${vars.port.platform.https}";
+    env.CYPRESS_baseUrl = lib.mkForce "https://${vars.base_url}:${vars.port.platform.https}";
+    env.MAILER_DSN = lib.mkForce "smtp://127.0.0.1:${vars.port.mailpit_smtp}";
 
     # Storefront
-    env.PROXY_URL = lib.mkForce "https://${vars.base_url}:${vars.port.storefront.https}";
-    env.STOREFRONT_PROXY_PORT = lib.mkForce "${vars.port.storefront.http}";
+    env.PROXY_URL = lib.mkForce "https://store.${vars.base_url}:${vars.port.platform.https}";
+    env.STOREFRONT_PROXY_PORT = lib.mkForce "${vars.port.store_watcher}";
+    env.STOREFRONT_ASSETS_PORT = lib.mkForce "${vars.port.store_asset}";
 
     # ADMIN
     env.HOST = lib.mkForce "${vars.base_url}";
-    env.PORT = lib.mkForce "${vars.port.admin.http}";
+    env.PORT = lib.mkForce "${vars.port.admin_watcher}";
     env.IPV4FIRST = lib.mkForce "true";
 
-    # Mailhog
+    # Mailhog - legacy, replaced by mailpit
     services.mailhog = {
-        smtpListenAddress = "127.0.0.1:${vars.port.mailhog.smtp}";
-        apiListenAddress = "127.0.0.1:${vars.port.mailhog.http}";
-        uiListenAddress = "127.0.0.1:${vars.port.mailhog.http}";
+        smtpListenAddress = "127.0.0.1:${vars.port.mailpit_smtp}";
+        apiListenAddress = "localhost:${vars.port.mailpit}";
+        uiListenAddress = "localhost:${vars.port.mailpit}";
+    };
+
+    # Mailpit
+    services.mailpit = {
+        smtpListenAddress = "127.0.0.1:${vars.port.mailpit_smtp}";
+        uiListenAddress = "127.0.0.1:${vars.port.mailpit}";
     };
 
     # MySQL
     # services.mysql.package = pkgs.mariadb; # Use MariaDB instead of MySQL
-    services.adminer.listen = "${vars.base_url}:${vars.port.adminer.http}";
-    services.mysql.settings = {
-        mysqld = {
-            port = vars.port.mysql;
-        };
-    };
+    services.adminer.listen = "localhost:${vars.port.adminer}";
+    services.mysql.settings.mysqld.port = vars.port.mysql;
 
     # Redis
     services.redis.port = vars.port.redis;
 
     # Caddy
     services.caddy.config = ''
-        {
-            auto_https off
-        }
+        https://${vars.base_url}:${vars.port.platform.https}, http://${vars.base_url}:${vars.port.platform.http} {
+            @default {
+              not path /theme/* /media/* /thumbnail/* /bundles/* /css/* /fonts/* /js/* /sitemap/*
+            }
 
-        http://${vars.base_url}:${vars.port.platform.http}, https://${vars.base_url}:${vars.port.platform.https} {
             root * public
-            file_server
-            php_fastcgi unix/${config.languages.php.fpm.pools.web.socket} {
+            php_fastcgi @default unix/${config.languages.php.fpm.pools.web.socket} {
                 trusted_proxies private_ranges
             }
+            file_server
         }
 
-        https://${vars.base_url}:${vars.port.storefront.https} {
-            reverse_proxy http://127.0.0.1:${vars.port.storefront.http}
+        https://store.${vars.base_url}:${vars.port.platform.https}, http://store.${vars.base_url}:${vars.port.platform.http} {
+            reverse_proxy http://localhost:${vars.port.store_watcher}
         }
 
-        https://${vars.base_url}:${vars.port.admin.https} {
-            reverse_proxy http://127.0.0.1:${vars.port.admin.http}
+        https://admin.${vars.base_url}:${vars.port.platform.https}, http://admin.${vars.base_url}:${vars.port.platform.http} {
+            reverse_proxy http://localhost:${vars.port.admin_watcher}
         }
 
-        https://${vars.base_url}:${vars.port.adminer.https} {
-            reverse_proxy http://${vars.base_url}:${vars.port.adminer.http}
+        https://adminer.${vars.base_url}:${vars.port.platform.https}, http://adminer.${vars.base_url}:${vars.port.platform.http} {
+            reverse_proxy http://localhost:${vars.port.adminer}
         }
 
-        https://${vars.base_url}:${vars.port.mailhog.https} {
-            reverse_proxy http://127.0.0.1:${vars.port.mailhog.http}
+        https://mail.${vars.base_url}:${vars.port.platform.https}, http://mail.${vars.base_url}:${vars.port.platform.http} {
+            reverse_proxy http://localhost:${vars.port.mailpit}
         }
     '';
 
     # PHP
     languages.php.extensions = [ "xdebug" ];
-    languages.php.ini = ''
+    languages.php.ini = lib.mkForce ''
         xdebug.mode = debug
         xdebug.discover_client_host = 1
-        xdebug.client_host = 127.0.0.1
+        xdebug.client_host = localhost
+        memory_limit = 2G
+        realpath_cache_ttl = 3600
+        session.gc_probability = 0
         ${lib.optionalString config.services.redis.enable ''
         session.save_handler = redis
-        session.save_path = "tcp://127.0.0.1:${toString vars.port.redis}/0"
+        session.save_path = "tcp://localhost:${toString vars.port.redis}/0"
         ''}
+        display_errors = On
+        error_reporting = E_ALL
+        assert.active = 0
+        opcache.memory_consumption = 256M
+        opcache.interned_strings_buffer = 20
+        zend.assertions = 0
+        short_open_tag = 0
+        zend.detect_unicode = 0
+        realpath_cache_ttl = 3600
+    '';
+
+    scripts.fix-caddy-cap.exec = ''
+        sudo su -c 'find /nix -type f ! -size 0 -executable -name "caddy" -exec setcap CAP_NET_BIND_SERVICE=+eip "{}" \;'
+    '';
+
+    env.STOREFRONT_PROXY_PATCH = ''
+    diff --git a/src/Storefront/Resources/app/storefront/build/proxy-server-hot/index.js b/src/Storefront/Resources/app/storefront/build/proxy-server-hot/index.js
+    index 5f3182a6c8..977509fdee 100644
+    --- a/src/Storefront/Resources/app/storefront/build/proxy-server-hot/index.js
+    +++ b/src/Storefront/Resources/app/storefront/build/proxy-server-hot/index.js
+    @@ -4,7 +4,10 @@
+    * is activated or not.
+    */
+    
+    -const { createServer, request } = require('http');
+    +// --- THIS CODE IS NOT INDENTED TO BE COMMITTED -- USE unfix-storefront-proxy TO REVERT THIS --- //
+    +const { createServer } = require('http');
+    +const { request, Agent } = require('https');
+    +// --- THIS CODE IS NOT INDENTED TO BE COMMITTED -- USE unfix-storefront-proxy TO REVERT THIS --- //
+    const { spawn } = require('child_process');
+    
+    module.exports = function createProxyServer({ schema, appPort, originalHost, proxyHost, proxyPort, uri }) {
+    @@ -37,6 +40,14 @@ module.exports = function createProxyServer({ schema, appPort, originalHost, pro
+                        'hot-reload-mode': true,
+                        'accept-encoding': 'identity',
+                    },
+    +// --- THIS CODE IS NOT INDENTED TO BE COMMITTED -- USE unfix-storefront-proxy TO REVERT THIS --- //
+    +                agent: new Agent({
+    +                    ciphers: 'TLS_AES_128_GCM_SHA256',
+    +                    minVersion: 'TLSv1.3',
+    +                    maxVersion: 'TLSv1.3',
+    +                }),
+    +                rejectUnauthorized: false,
+    +// --- THIS CODE IS NOT INDENTED TO BE COMMITTED -- USE unfix-storefront-proxy TO REVERT THIS --- //
+                };
+    
+                // Assets
+    @@ -76,7 +87,9 @@ module.exports = function createProxyServer({ schema, appPort, originalHost, pro
+        }).listen(proxyPort);
+    
+        // open the browser with the proxy url
+    -    openBrowserWithUrl(fullProxyUrl);
+    +// --- THIS CODE IS NOT INDENTED TO BE COMMITTED -- USE unfix-storefront-proxy TO REVERT THIS --- //
+    +    openBrowserWithUrl(process.env.PROXY_URL ?? fullProxyUrl);
+    +// --- THIS CODE IS NOT INDENTED TO BE COMMITTED -- USE unfix-storefront-proxy TO REVERT THIS --- //
+    
+        return Promise.resolve({ server, proxyUrl: fullProxyUrl });
+    };
+
+    '';
+
+    scripts.fix-storefront-proxy.exec = ''
+        cd $(git rev-parse --show-toplevel)
+        printenv STOREFRONT_PROXY_PATCH | git apply --reject -q -
+        rm -f src/Storefront/Resources/app/storefront/build/proxy-server-hot/index.js.rej
+    '';
+
+    scripts.unfix-storefront-proxy.exec = ''
+        cd $(git rev-parse --show-toplevel)
+        printenv STOREFRONT_PROXY_PATCH | git apply -R --reject -q -
+        rm -f src/Storefront/Resources/app/storefront/build/proxy-server-hot/index.js.rej
     '';
 }

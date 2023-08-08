@@ -7,6 +7,10 @@ pub fn admin() -> anyhow::Result<String> {
 }
 
 pub fn storefront() -> anyhow::Result<String> {
+    let _ = direnv!["fix-storefront-proxy"]
+        .spawn()
+        .and_then(|mut s| s.wait());
+    
     direnv!["composer", "watch:storefront"]
         .await_success()
         .map(|_| "Watcher stopped".into())

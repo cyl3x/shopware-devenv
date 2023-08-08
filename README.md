@@ -5,6 +5,7 @@ This will help you to daemonize devenv and allow you to run certain commands fro
 
 ## How to install
 ### Archlinux
+- `mkdir /tmp/swde; cd /tmp/swde`
 - `wget https://raw.githubusercontent.com/cyl3x/shopware-devenv/master/PKGBUILD`
 - `makepkg -si`
 
@@ -14,6 +15,8 @@ This will help you to daemonize devenv and allow you to run certain commands fro
    - Linux: `~/.local/bin` or `/usr/local/bin`
    - MacOs: `/usr/local/bin`
    - Windows: Currently unsupported
+
+Do not forget to run `swde config` inside your platform project directory
 
 ## How to use
 ```
@@ -41,16 +44,23 @@ Options:
   -V, --version  Print version
 ```
 
+### Storefront proxy
+The current configuration of `devenv.local.nix` favours https over http.  
+Since the storefront proxy can't proxy https and has no override capabilities, a patch was needed.
+
+The patch is available via `fix-storefront-proxy` and can be reverted with `unfix-storefront-proxy` and must be run once before `composer watch:storefront`.
+
 ## Features
 - Daemonize `devenv up` - no need for keep this in foreground
 - Update your `devenv.local.nix` trough `swde config`
 - Symfony dump server support
 - Easily install plugins
-- Update 
+- Storefront proxy patch for https
 - Execute commands everywhere inside the project
   - e.g. `bin/console`
   - e.g. `composer`, limited to the wrappers like `build` and `watch`
 - Shell completions
+- All tools on one domain
 
 ## devenv.local.nix
 By simply executing `swde config` a `devenv.local.nix` will be dumped (Your old one will be backed up).
