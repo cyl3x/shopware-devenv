@@ -3,11 +3,24 @@ A little wrapper around the Shopware devenv environment that gets out of your wa
 
 This will help you to daemonize devenv and allow you to run certain commands from anywhere in the project.
 
+## Features
+- Daemonize `devenv up` - no need for keep this in foreground
+- [`devenv.local.nix`](#devenvlocalnix) for a better DX (e.g. All tools on one domain & full https)
+- Update your `devenv.local.nix` trough `swde config`
+- Execute commands everywhere inside the project
+  - e.g. `bin/console`
+  - e.g. `composer`, limited to the wrappers like `build` and `watch`
+- Shell completions
+- Symfony dump server support
+- Easily install plugins
+- Storefront proxy patch for https
+
 ## How to install
 ### Archlinux
-- `mkdir /tmp/swde; cd /tmp/swde`
-- `wget https://raw.githubusercontent.com/cyl3x/shopware-devenv/master/PKGBUILD`
-- `makepkg -si`
+1. `mkdir /tmp/swde; cd /tmp/swde`
+2. `wget https://raw.githubusercontent.com/cyl3x/shopware-devenv/master/PKGBUILD`
+3. `makepkg -si`
+4. `sudo tee -a /etc/hosts <<<"127.0.0.1 dev.localhost"`
 
 ### Generic
 1. Setup `devenv` with `direnv` ([Shopware docs](https://developer.shopware.com/docs/guides/installation/devenv))
@@ -15,6 +28,7 @@ This will help you to daemonize devenv and allow you to run certain commands fro
    - Linux: `~/.local/bin` or `/usr/local/bin`
    - MacOs: `/usr/local/bin`
    - Windows: Currently unsupported
+3. `sudo tee -a /etc/hosts <<<"127.0.0.1 dev.localhost"`
 
 Do not forget to run `swde config` inside your platform project directory
 
@@ -50,19 +64,16 @@ Since the storefront proxy can't proxy https and has no override capabilities, a
 
 The patch is available via `fix-storefront-proxy` and can be reverted with `unfix-storefront-proxy` and must be run once before `composer watch:storefront`.
 
-## Features
-- Daemonize `devenv up` - no need for keep this in foreground
-- Update your `devenv.local.nix` trough `swde config`
-- Symfony dump server support
-- Easily install plugins
-- Storefront proxy patch for https
-- Execute commands everywhere inside the project
-  - e.g. `bin/console`
-  - e.g. `composer`, limited to the wrappers like `build` and `watch`
-- Shell completions
-- All tools on one domain
-
 ## devenv.local.nix
 By simply executing `swde config` a `devenv.local.nix` will be dumped (Your old one will be backed up).
 
 The config will help you to manage multiple concurrent devenv setups.
+
+### Available services
+- https://dev.localhost:2000 - Base shopware
+- https://admin.dev.localhost:2000 - Administration watcher
+- https://store.dev.localhost:2000 - Storefront watcher
+- https://mail.dev.localhost:2000 - Mailhog/Mailpit for mails
+- https://adminer.dev.localhost:2000 - Adminer for database
+
+Multiple instances use the same URL schema, but their port is incremented by a thousand.
