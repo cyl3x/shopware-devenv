@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use regex::Regex;
 
 use crate::context::Context;
-use crate::{devenv, sha256, topic, Command, OrFail, DEVENV_DEFAULT_CONFIG};
+use crate::{devenv, sha256, topic, Command, DEVENV_DEFAULT_CONFIG};
 
 pub fn main() -> anyhow::Result<String> {
     Context::get()?.platform.move_cwd();
@@ -21,30 +21,21 @@ fn update_config(config: &str) -> anyhow::Result<()> {
     let regex = Regex::new(r"^(# sha256<)([a-zA-Z0-9]{64})(>)$").expect("Invalid regex");
     let mut lines = config.lines();
 
-    if config.lines().count() < 10 {
+    let first_line = lines.next().unwrap_or_default();
+    let Some(stored_file_hash) = regex.captures(first_line) else {
         topic!("Found personal devenv.local.nix, backing up...");
         return backup_create();
-    }
+    };
 
-    let first_line = lines.next().or_error("Malformed devenv.local.nix file")?;
-
-    if !regex.is_match(first_line) {
-        topic!("Found personal devenv.local.nix, backing up...");
-        return backup_create();
-    }
-
-    let stored_hash = &regex
-        .captures(first_line)
-        .or_error("Malformed devenv.local.nix file")?[2];
     let file_hash = sha256!("{}", lines.skip(1).collect::<String>());
     let internal_hash = sha256!("{}", DEVENV_DEFAULT_CONFIG);
 
-    if internal_hash == stored_hash {
-        topic!("Found swde devenv.local.nix, but no update is needed");
+    if stored_file_hash[2] == internal_hash {
+        topic!("Found swde devenv.local.nix and no update is needed");
         return Ok(());
     }
 
-    if stored_hash != file_hash {
+    if stored_file_hash[2] != file_hash {
         topic!("Found modified swde devenv.local.nix, backing up and updating...");
         return backup_create();
     }
@@ -72,9 +63,9 @@ fn backup_create() -> anyhow::Result<()> {
     while PathBuf::from(format!("devenv.local.nix.{i}.bak")).is_file() {
         i += 1;
 
-        if i > 10 {
+        if i > 5 {
             anyhow::bail!(
-                "Please clean up your devenv.local.nix.bak files. Who needs more than 10.."
+                "Please clean up your devenv.local.nix.bak files.\n  Who needs more than 5.."
             );
         }
     }
