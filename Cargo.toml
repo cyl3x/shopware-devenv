@@ -1,6 +1,6 @@
 [package]
 name = "swde"
-version = "0.6.2-dev"
+version = "0.7.0"
 authors = ["cyl3x <cyl3x@posteo.de>"]
 edition = "2021"
 repository = "https://git.cyl3x.de/cyl3x/shopware-devenv"
@@ -26,7 +26,7 @@ clap = { version = "4.2.1", features = ["derive", "suggestions"] }
 regex = { version = "1.7.3", default-features = false, features = ["std"] }
 serde = { version = "1.0.159", default-features = false, features = ["serde_derive"] }
 once_cell = { version = "1.17.1", default-features = false, features = ["std"] }
-sysinfo = { version = "0.28.4", default-features = false }
+sysinfo = { version = "0.29.7", default-features = false }
 sha2 = { version = "0.10.6", default-features = false }
 libc = { version = "0.2.146", default-features = false }
 colored = "2.0.0"
