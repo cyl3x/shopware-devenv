@@ -77,8 +77,7 @@ pub trait Command {
     /// # Errors
     /// Returns the context error if the context is invalid
     fn new_direnv(cmd: Vec<&str>) -> anyhow::Result<Self>
-    where
-        Self: std::marker::Sized;
+    where Self: std::marker::Sized;
 
     /// Creates a new command for devenv.
     ///
@@ -87,8 +86,7 @@ pub trait Command {
     /// # Errors
     /// Returns the context error if the context is invalid
     fn new_devenv(cmd: Vec<&str>) -> anyhow::Result<Self>
-    where
-        Self: std::marker::Sized;
+    where Self: std::marker::Sized;
 
     /// Executes the command as a child process, returning a handle to it.
     ///

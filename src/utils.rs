@@ -48,14 +48,14 @@ pub fn uid() -> u32 {
 
 pub trait OrFail<T> {
     /// # Errors
-    /// Convert a Result or Option to an `anyhow::Result`<T> with a custom error message
+    /// Convert a Result or Option to an `anyhow::Result`<T> with a custom error
+    /// message
     fn or_error(self, msg: &str) -> anyhow::Result<T>;
     fn or_panic(self, msg: Option<&str>) -> T;
 }
 
 impl<T, E> OrFail<T> for Result<T, E>
-where
-    E: std::fmt::Debug,
+where E: std::fmt::Debug
 {
     fn or_error(self, msg: &str) -> anyhow::Result<T> {
         self.map_err(|e| anyhow::anyhow!("{msg}\n   Reason: {e:?}"))

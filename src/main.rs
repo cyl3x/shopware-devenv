@@ -38,9 +38,7 @@ fn main() {
                 None
             })
         })
-        .and_then(
-            |v| VERBOSE.set(v).ok(),
-        );
+        .and_then(|v| VERBOSE.set(v).ok());
 
     let cli: Cli = Cli::parse();
     VERBOSE.get_or_init(|| cli.verbose);
