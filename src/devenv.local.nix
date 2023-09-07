@@ -54,6 +54,12 @@ let vars = {
     env.PORT = lib.mkForce "${vars.port.admin_watcher}";
     env.IPV4FIRST = lib.mkForce "true";
 
+    # CYPRESS
+    env.CYPRESS_baseUrl = lib.mkForce "https://${vars.prefix.platform}${vars.base_domain}:${vars.port.platform.https}";
+    env.CYPRESS_dbHost = lib.mkForce "127.0.0.1:${toString vars.port.mysql}";
+    env.CYPRESS_localUsage = lib.mkForce 1;
+    env.CYPRESS_shopwareRoot = config.env.DEVENV_ROOT;
+
     # MySQL
     # services.mysql.package = pkgs.mariadb; # Use MariaDB instead of MySQL
     services.adminer.listen = "localhost:${vars.port.adminer}";
@@ -187,13 +193,13 @@ let vars = {
     '';
 
     scripts.fix-storefront-proxy.exec = ''
-        cd $(git rev-parse --show-toplevel)
+        cd "$DEVENV_ROOT"
         printenv STOREFRONT_PROXY_PATCH | git apply --reject -q -
         rm -f src/Storefront/Resources/app/storefront/build/proxy-server-hot/index.js.rej
     '';
 
     scripts.unfix-storefront-proxy.exec = ''
-        cd $(git rev-parse --show-toplevel)
+        cd "$DEVENV_ROOT"
         printenv STOREFRONT_PROXY_PATCH | git apply -R --reject -q -
         rm -f src/Storefront/Resources/app/storefront/build/proxy-server-hot/index.js.rej
     '';
