@@ -1,15 +1,27 @@
 { pkgs, config, lib, ... }:
 
 let vars = {
-    # increment to avoid port conflicts for parallel instances
-    # e.g. trunk -> 0, 6.4 -> 1 - this will result in ports 2000, 3000
+    # instance number if you want to start multiple projects
     instance = 0;
-    base_url = "dev.localhost";
-    base_port = 2000 + vars.instance * 1000;
+    base_domain = "dev.localhost";
+    base_port = 2000 + vars.instance * 1000; # baseport of the instance
+    # prefixes of different services for base_url
+    prefix = {
+        platform = ""; 
+        admin_watcher = "admin.";
+        store_watcher = "store.";
+        adminer = "adminer.";
+        mailpit = "mail.";
+    };
+
+    # ports of the different services
+    # every service with a web interface is accessable
+    # trough $prefix.$base_url:$base_port instead
+    # of the ports configured here
     port = {
         platform = {
-            http = toString (vars.base_port + 80);
             https = toString (vars.base_port);
+            http = toString (vars.base_port + 80);
         };
         admin_watcher = toString (vars.base_port + 1);
         store_watcher = toString (vars.base_port + 2);
@@ -23,17 +35,16 @@ let vars = {
 }; in {
     # Environment vars
     env.DATABASE_URL = lib.mkForce "mysql://shopware:shopware@127.0.0.1:${toString vars.port.mysql}/shopware?sslmode=disable&charset=utf8mb4";
-    env.APP_URL = lib.mkForce "https://${vars.base_url}:${vars.port.platform.https}";
-    env.CYPRESS_baseUrl = lib.mkForce "https://${vars.base_url}:${vars.port.platform.https}";
+    env.APP_URL = lib.mkForce "https://${vars.prefix.platform}${vars.base_domain}:${vars.port.platform.https}";
     env.MAILER_DSN = lib.mkForce "smtp://127.0.0.1:${vars.port.mailpit_smtp}";
 
     # Storefront
-    env.PROXY_URL = lib.mkForce "https://store.${vars.base_url}:${vars.port.platform.https}";
+    env.PROXY_URL = lib.mkForce "https://${vars.prefix.store_watcher}${vars.base_domain}:${vars.port.platform.https}";
     env.STOREFRONT_PROXY_PORT = lib.mkForce "${vars.port.store_watcher}";
     env.STOREFRONT_ASSETS_PORT = lib.mkForce "${vars.port.store_asset}";
 
     # ADMIN
-    env.HOST = lib.mkForce "${vars.base_url}";
+    env.HOST = lib.mkForce "${vars.base_domain}";
     env.PORT = lib.mkForce "${vars.port.admin_watcher}";
     env.IPV4FIRST = lib.mkForce "true";
 
@@ -60,7 +71,7 @@ let vars = {
 
     # Caddy
     services.caddy.config = ''
-        https://${vars.base_url}:${vars.port.platform.https}, http://${vars.base_url}:${vars.port.platform.http} {
+        https://${vars.base_domain}:${vars.port.platform.https}, http://${vars.base_domain}:${vars.port.platform.http} {
             @default {
               not path /theme/* /media/* /thumbnail/* /bundles/* /css/* /fonts/* /js/* /sitemap/*
             }
@@ -72,19 +83,19 @@ let vars = {
             file_server
         }
 
-        https://store.${vars.base_url}:${vars.port.platform.https}, http://store.${vars.base_url}:${vars.port.platform.http} {
+        https://${vars.prefix.store_watcher}${vars.base_domain}:${vars.port.platform.https}, http://${vars.prefix.store_watcher}${vars.base_domain}:${vars.port.platform.http} {
             reverse_proxy http://localhost:${vars.port.store_watcher}
         }
 
-        https://admin.${vars.base_url}:${vars.port.platform.https}, http://admin.${vars.base_url}:${vars.port.platform.http} {
+        https://${vars.prefix.admin_watcher}${vars.base_domain}:${vars.port.platform.https}, http://${vars.prefix.admin_watcher}${vars.base_domain}:${vars.port.platform.http} {
             reverse_proxy http://localhost:${vars.port.admin_watcher}
         }
 
-        https://adminer.${vars.base_url}:${vars.port.platform.https}, http://adminer.${vars.base_url}:${vars.port.platform.http} {
+        https://${vars.prefix.adminer}${vars.base_domain}:${vars.port.platform.https}, http://${vars.prefix.adminer}${vars.base_domain}:${vars.port.platform.http} {
             reverse_proxy http://localhost:${vars.port.adminer}
         }
 
-        https://mail.${vars.base_url}:${vars.port.platform.https}, http://mail.${vars.base_url}:${vars.port.platform.http} {
+        https://${vars.prefix.mailpit}${vars.base_domain}:${vars.port.platform.https}, http://${vars.prefix.mailpit}${vars.base_domain}:${vars.port.platform.http} {
             reverse_proxy http://localhost:${vars.port.mailpit}
         }
     '';
