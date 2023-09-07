@@ -5,6 +5,8 @@ let vars = {
     instance = 0;
     base_domain = "dev.localhost";
     base_port = 2000 + vars.instance * 1000; # baseport of the instance
+    elasticsearch = false; # enable elasticsearch
+
     # prefixes of different services for base_url
     prefix = {
         platform = ""; 
@@ -30,6 +32,7 @@ let vars = {
         redis = vars.base_port + 5;
         mysql = vars.base_port + 6;
         mailpit = toString (vars.base_port + 7);
+        elasticsearch = vars.base_port + 9;
         mailpit_smtp = toString (1025 + vars.instance);
     };
 }; in {
@@ -37,6 +40,9 @@ let vars = {
     env.DATABASE_URL = lib.mkForce "mysql://shopware:shopware@127.0.0.1:${toString vars.port.mysql}/shopware?sslmode=disable&charset=utf8mb4";
     env.APP_URL = lib.mkForce "https://${vars.prefix.platform}${vars.base_domain}:${vars.port.platform.https}";
     env.MAILER_DSN = lib.mkForce "smtp://127.0.0.1:${vars.port.mailpit_smtp}";
+    env.OPENSEARCH_URL = "localhost:${toString vars.port.elasticsearch}";
+    env.ADMIN_OPENSEARCH_URL = "localhost:${toString vars.port.elasticsearch}";
+    env.SHOPWARE_ES_INDEX_PREFIX = "sw-${toString vars.instance}";
 
     # Storefront
     env.PROXY_URL = lib.mkForce "https://${vars.prefix.store_watcher}${vars.base_domain}:${vars.port.platform.https}";
@@ -47,6 +53,11 @@ let vars = {
     env.HOST = lib.mkForce "${vars.base_domain}";
     env.PORT = lib.mkForce "${vars.port.admin_watcher}";
     env.IPV4FIRST = lib.mkForce "true";
+
+    # MySQL
+    # services.mysql.package = pkgs.mariadb; # Use MariaDB instead of MySQL
+    services.adminer.listen = "localhost:${vars.port.adminer}";
+    services.mysql.settings.mysqld.port = vars.port.mysql;
 
     # Mailhog - legacy, replaced by mailpit
     services.mailhog = {
@@ -61,10 +72,11 @@ let vars = {
         uiListenAddress = "127.0.0.1:${vars.port.mailpit}";
     };
 
-    # MySQL
-    # services.mysql.package = pkgs.mariadb; # Use MariaDB instead of MySQL
-    services.adminer.listen = "localhost:${vars.port.adminer}";
-    services.mysql.settings.mysqld.port = vars.port.mysql;
+    # Elatiscsearch
+    env.SHOPWARE_ES_INDEXING_ENABLED = toString vars.elasticsearch;
+    env.SHOPWARE_ES_ENABLED = toString vars.elasticsearch;
+    services.elasticsearch.enable = vars.elasticsearch;
+    services.elasticsearch.port = vars.port.elasticsearch;
 
     # Redis
     services.redis.port = vars.port.redis;
