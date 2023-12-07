@@ -81,8 +81,8 @@ let vars = {
     # Elatiscsearch
     env.SHOPWARE_ES_INDEXING_ENABLED = toString vars.elasticsearch;
     env.SHOPWARE_ES_ENABLED = toString vars.elasticsearch;
-    services.elasticsearch.enable = vars.elasticsearch;
-    services.elasticsearch.port = vars.port.elasticsearch;
+    services.opensearch.enable = vars.elasticsearch;
+    services.opensearch.port = vars.port.elasticsearch;
 
     # Redis
     services.redis.port = vars.port.redis;
@@ -120,26 +120,13 @@ let vars = {
 
     # PHP
     languages.php.extensions = [ "xdebug" ];
-    languages.php.ini = lib.mkForce ''
-        xdebug.mode = debug
-        xdebug.discover_client_host = 1
-        xdebug.client_host = localhost
-        memory_limit = 2G
-        realpath_cache_ttl = 3600
-        session.gc_probability = 0
-        ${lib.optionalString config.services.redis.enable ''
+    languages.php.ini = (lib.optionalString config.services.redis.enable ''
         session.save_handler = redis
         session.save_path = "tcp://localhost:${toString vars.port.redis}/0"
-        ''}
-        display_errors = On
-        error_reporting = E_ALL
-        assert.active = 0
-        opcache.memory_consumption = 256M
-        opcache.interned_strings_buffer = 20
-        zend.assertions = 0
-        short_open_tag = 0
-        zend.detect_unicode = 0
-        realpath_cache_ttl = 3600
+    '') + ''
+        xdebug.mode = debug
+        xdebug.discover_client_host = 1
+        xdebug.client_host = 127.0.0.1
     '';
 
     scripts.fix-caddy-cap.exec = ''
