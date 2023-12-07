@@ -60,9 +60,15 @@ Options:
 
 ### Storefront proxy
 The current configuration of `devenv.local.nix` favours https over http.  
-Since the storefront proxy can't proxy https and has no override capabilities, a patch was needed.
+Since the storefront proxy can't proxy https and has no override capabilities, a workaround is needed.
 
-The patch is available via `fix-storefront-proxy` and can be reverted with `unfix-storefront-proxy` and must be run once before `composer watch:storefront`.
+To do this, you have to override the `APP_URL` before starting the watcher:
+```sh
+# APP_URL_HTTP contains the http url
+APP_URL=$APP_URL_HTTP composer watch:storefront
+```
+And add a new domain with the output of `printenv APP_URL_HTTP` to your saleschannel.
+Access the https watcher over https://store.dev.localhost:2000.
 
 ## devenv.local.nix
 By simply executing `swde config` a `devenv.local.nix` will be dumped (Your old one will be backed up).

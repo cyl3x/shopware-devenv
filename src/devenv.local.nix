@@ -3,22 +3,20 @@
 let vars = {
     # instance number if you want to start multiple projects
     instance = 0;
-    base_domain = "dev.localhost";
     base_port = 2000 + vars.instance * 1000; # baseport of the instance
-    elasticsearch = false; # enable elasticsearch
 
-    # prefixes of different services for base_url
-    prefix = {
-        platform = ""; 
-        admin_watcher = "admin.";
-        store_watcher = "store.";
-        adminer = "adminer.";
-        mailpit = "mail.";
+    # domains of different services
+    domains = {
+        platform = "dev.localhost";
+        admin_watcher = "admin.dev.localhost";
+        store_watcher = "store.dev.localhost";
+        adminer = "adminer.dev.localhost";
+        mailpit = "mail.dev.localhost";
     };
 
     # ports of the different services
     # every service with a web interface is accessable
-    # trough $prefix.$base_url:$base_port instead
+    # trough $domains.service:$base_port instead
     # of the ports configured here
     port = {
         platform = {
@@ -32,32 +30,29 @@ let vars = {
         redis = vars.base_port + 5;
         mysql = vars.base_port + 6;
         mailpit = toString (vars.base_port + 7);
-        elasticsearch = vars.base_port + 9;
         mailpit_smtp = toString (1025 + vars.instance);
     };
 }; in {
     # Environment vars
-    env.DATABASE_URL = lib.mkForce "mysql://shopware:shopware@127.0.0.1:${toString vars.port.mysql}/shopware?sslmode=disable&charset=utf8mb4";
-    env.APP_URL = lib.mkForce "https://${vars.prefix.platform}${vars.base_domain}:${vars.port.platform.https}";
-    env.MAILER_DSN = lib.mkForce "smtp://127.0.0.1:${vars.port.mailpit_smtp}";
-    env.OPENSEARCH_URL = "localhost:${toString vars.port.elasticsearch}";
-    env.ADMIN_OPENSEARCH_URL = "localhost:${toString vars.port.elasticsearch}";
+    env.DATABASE_URL = "mysql://shopware:shopware@127.0.0.1:${toString vars.port.mysql}/shopware?sslmode=disable&charset=utf8mb4";
+    env.APP_URL = "https://${vars.domains.platform}:${vars.port.platform.https}";
+    env.APP_URL_HTTP = "http://${vars.domains.platform}:${vars.port.platform.http}";
+    env.MAILER_DSN = "smtp://127.0.0.1:${vars.port.mailpit_smtp}";
     env.SHOPWARE_ES_INDEX_PREFIX = "sw-${toString vars.instance}";
 
     # Storefront
-    env.PROXY_URL = lib.mkForce "https://${vars.prefix.store_watcher}${vars.base_domain}:${vars.port.platform.https}";
-    env.STOREFRONT_PROXY_PORT = lib.mkForce "${vars.port.store_watcher}";
-    env.STOREFRONT_ASSETS_PORT = lib.mkForce "${vars.port.store_asset}";
+    env.PROXY_URL = "https://${vars.domains.store_watcher}:${vars.port.platform.https}";
+    env.STOREFRONT_PROXY_PORT = "${vars.port.store_watcher}";
+    env.STOREFRONT_ASSETS_PORT = "${vars.port.store_asset}";
 
     # ADMIN
-    env.HOST = lib.mkForce "${vars.base_domain}";
-    env.PORT = lib.mkForce "${vars.port.admin_watcher}";
-    env.IPV4FIRST = lib.mkForce "true";
+    env.HOST = "${vars.domains.platform}";
+    env.PORT = "${vars.port.admin_watcher}";
 
     # CYPRESS
-    env.CYPRESS_baseUrl = lib.mkForce "https://${vars.prefix.platform}${vars.base_domain}:${vars.port.platform.https}";
-    env.CYPRESS_dbHost = lib.mkForce "127.0.0.1:${toString vars.port.mysql}";
-    env.CYPRESS_localUsage = lib.mkForce 1;
+    env.CYPRESS_baseUrl = config.env.APP_URL;
+    env.CYPRESS_dbHost = "127.0.0.1:${toString vars.port.mysql}";
+    env.CYPRESS_localUsage = 1;
     env.CYPRESS_shopwareRoot = config.env.DEVENV_ROOT;
 
     # MySQL
@@ -78,42 +73,40 @@ let vars = {
         uiListenAddress = "127.0.0.1:${vars.port.mailpit}";
     };
 
-    # Elatiscsearch
-    env.SHOPWARE_ES_INDEXING_ENABLED = toString vars.elasticsearch;
-    env.SHOPWARE_ES_ENABLED = toString vars.elasticsearch;
-    services.opensearch.enable = vars.elasticsearch;
-    services.opensearch.port = vars.port.elasticsearch;
-
     # Redis
     services.redis.port = vars.port.redis;
 
     # Caddy
     services.caddy.config = ''
-        https://${vars.base_domain}:${vars.port.platform.https}, http://${vars.base_domain}:${vars.port.platform.http} {
+        http://${vars.domains.platform}:${vars.port.platform.http}, https://${vars.domains.platform}:${vars.port.platform.https} {
             @default {
-              not path /theme/* /media/* /thumbnail/* /bundles/* /css/* /fonts/* /js/* /sitemap/*
+            not path /theme/* /media/* /thumbnail/* /bundles/* /css/* /fonts/* /js/* /sitemap/*
             }
 
+            encode zstd gzip
             root * public
             php_fastcgi @default unix/${config.languages.php.fpm.pools.web.socket} {
                 trusted_proxies private_ranges
             }
             file_server
+            encode
+
+            encode zstd gzip
         }
 
-        https://${vars.prefix.store_watcher}${vars.base_domain}:${vars.port.platform.https}, http://${vars.prefix.store_watcher}${vars.base_domain}:${vars.port.platform.http} {
+        https://${vars.domains.store_watcher}:${vars.port.platform.https}, http://${vars.domains.store_watcher}:${vars.port.platform.http} {
             reverse_proxy http://localhost:${vars.port.store_watcher}
         }
 
-        https://${vars.prefix.admin_watcher}${vars.base_domain}:${vars.port.platform.https}, http://${vars.prefix.admin_watcher}${vars.base_domain}:${vars.port.platform.http} {
+        https://${vars.domains.admin_watcher}:${vars.port.platform.https}, http://${vars.domains.admin_watcher}:${vars.port.platform.http} {
             reverse_proxy http://localhost:${vars.port.admin_watcher}
         }
 
-        https://${vars.prefix.adminer}${vars.base_domain}:${vars.port.platform.https}, http://${vars.prefix.adminer}${vars.base_domain}:${vars.port.platform.http} {
+        https://${vars.domains.adminer}:${vars.port.platform.https}, http://${vars.domains.adminer}:${vars.port.platform.http} {
             reverse_proxy http://localhost:${vars.port.adminer}
         }
 
-        https://${vars.prefix.mailpit}${vars.base_domain}:${vars.port.platform.https}, http://${vars.prefix.mailpit}${vars.base_domain}:${vars.port.platform.http} {
+        https://${vars.domains.mailpit}:${vars.port.platform.https}, http://${vars.domains.mailpit}:${vars.port.platform.http} {
             reverse_proxy http://localhost:${vars.port.mailpit}
         }
     '';
@@ -130,64 +123,6 @@ let vars = {
     '';
 
     scripts.fix-caddy-cap.exec = ''
-        sudo su -c 'find /nix -type f ! -size 0 -executable -name "caddy" -exec setcap CAP_NET_BIND_SERVICE=+eip "{}" \;'
-    '';
-
-    env.STOREFRONT_PROXY_PATCH = ''
-    diff --git a/src/Storefront/Resources/app/storefront/build/proxy-server-hot/index.js b/src/Storefront/Resources/app/storefront/build/proxy-server-hot/index.js
-    index 5f3182a6c8..977509fdee 100644
-    --- a/src/Storefront/Resources/app/storefront/build/proxy-server-hot/index.js
-    +++ b/src/Storefront/Resources/app/storefront/build/proxy-server-hot/index.js
-    @@ -4,7 +4,10 @@
-    * is activated or not.
-    */
-    
-    -const { createServer, request } = require('http');
-    +// --- THIS CODE IS NOT INDENTED TO BE COMMITTED -- USE unfix-storefront-proxy TO REVERT THIS --- //
-    +const { createServer } = require('http');
-    +const { request, Agent } = require('https');
-    +// --- THIS CODE IS NOT INDENTED TO BE COMMITTED -- USE unfix-storefront-proxy TO REVERT THIS --- //
-    const { spawn } = require('child_process');
-    
-    module.exports = function createProxyServer({ schema, appPort, originalHost, proxyHost, proxyPort, uri }) {
-    @@ -37,6 +40,14 @@ module.exports = function createProxyServer({ schema, appPort, originalHost, pro
-                        'hot-reload-mode': true,
-                        'accept-encoding': 'identity',
-                    },
-    +// --- THIS CODE IS NOT INDENTED TO BE COMMITTED -- USE unfix-storefront-proxy TO REVERT THIS --- //
-    +                agent: new Agent({
-    +                    ciphers: 'TLS_AES_128_GCM_SHA256',
-    +                    minVersion: 'TLSv1.3',
-    +                    maxVersion: 'TLSv1.3',
-    +                }),
-    +                rejectUnauthorized: false,
-    +// --- THIS CODE IS NOT INDENTED TO BE COMMITTED -- USE unfix-storefront-proxy TO REVERT THIS --- //
-                };
-    
-                // Assets
-    @@ -76,7 +87,9 @@ module.exports = function createProxyServer({ schema, appPort, originalHost, pro
-        }).listen(proxyPort);
-    
-        // open the browser with the proxy url
-    -    openBrowserWithUrl(fullProxyUrl);
-    +// --- THIS CODE IS NOT INDENTED TO BE COMMITTED -- USE unfix-storefront-proxy TO REVERT THIS --- //
-    +    openBrowserWithUrl(process.env.PROXY_URL ?? fullProxyUrl);
-    +// --- THIS CODE IS NOT INDENTED TO BE COMMITTED -- USE unfix-storefront-proxy TO REVERT THIS --- //
-    
-        return Promise.resolve({ server, proxyUrl: fullProxyUrl });
-    };
-
-    '';
-
-    scripts.fix-storefront-proxy.exec = ''
-        cd "$DEVENV_ROOT"
-        printenv STOREFRONT_PROXY_PATCH | git apply --reject -q -
-        rm -f src/Storefront/Resources/app/storefront/build/proxy-server-hot/index.js.rej
-    '';
-
-    scripts.unfix-storefront-proxy.exec = ''
-        cd "$DEVENV_ROOT"
-        printenv STOREFRONT_PROXY_PATCH | git apply -R --reject -q -
-        rm -f src/Storefront/Resources/app/storefront/build/proxy-server-hot/index.js.rej
+        sudo find /nix -type f ! -size 0 -name "caddy" -exec sudo setcap CAP_NET_BIND_SERVICE=+eip "{}" \;
     '';
 }
