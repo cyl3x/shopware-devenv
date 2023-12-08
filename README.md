@@ -13,7 +13,7 @@ This will help you to daemonize devenv and allow you to run certain commands fro
 - Shell completions
 - Symfony dump server support
 - Easily install plugins
-- Storefront proxy patch for https
+- ~~Storefront proxy patch for https~~
 
 ## How to install
 ### Archlinux

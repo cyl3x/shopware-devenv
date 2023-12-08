@@ -55,7 +55,8 @@ pub trait OrFail<T> {
 }
 
 impl<T, E> OrFail<T> for Result<T, E>
-where E: std::fmt::Debug
+where
+    E: std::fmt::Debug,
 {
     fn or_error(self, msg: &str) -> anyhow::Result<T> {
         self.map_err(|e| anyhow::anyhow!("{msg}\n   Reason: {e:?}"))

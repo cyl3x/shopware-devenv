@@ -47,10 +47,11 @@ impl CustomContext {
         let Some(mut name) = path
             .file_name()
             .and_then(std::ffi::OsStr::to_str)
-            .map(std::borrow::ToOwned::to_owned) else {
-                warn!("Malformed path: {}", path.display());
-                return None;
-            };
+            .map(std::borrow::ToOwned::to_owned)
+        else {
+            warn!("Malformed path: {}", path.display());
+            return None;
+        };
 
         if custom_type == CustomType::Plugin {
             if let Some(p_class) = composer.extra.and_then(|i| i.plugin_class) {

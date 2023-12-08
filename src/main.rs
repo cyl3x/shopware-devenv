@@ -12,9 +12,10 @@ mod context;
 mod operations;
 mod utils;
 
-use std::{env, io};
+use std::{env, io, str::FromStr};
 
 use clap::{CommandFactory, Parser};
+use clap_complete::Shell;
 
 pub use crate::app::Command;
 use crate::cli::{Cli, Operation, OperationBuild, OperationPlugin, OperationWatch};
@@ -65,9 +66,16 @@ fn main() {
         },
         Operation::Console { arguments } => console::main(&arguments),
         Operation::Log => operations::log::main(),
-        Operation::Completions { shell } => {
+        Operation::Completions { mut shell } => {
+            if shell.is_none() {
+                shell = env::var("SHELL")
+                    .ok()
+                    .and_then(|s| s.split('/').last().map(str::to_string))
+                    .and_then(|s| Shell::from_str(&s).ok());
+            }
+
             clap_complete::generate(
-                shell,
+                shell.or_panic("Could not determine shell".into()),
                 &mut Cli::command(),
                 env!("CARGO_PKG_NAME"),
                 &mut io::stdout(),
