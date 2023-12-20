@@ -5,7 +5,7 @@ use crate::{direnv, topic, Command};
 pub fn install(name: &str, no_activation: bool) -> anyhow::Result<String> {
     topic!("Installing plugin matching {}...", name.green());
 
-    let mut cmd = direnv!["bin/console", "plugin:install", "-rc", name];
+    let mut cmd = direnv!["bin/console", "plugin:install", "-c", name];
 
     if !no_activation {
         cmd.arg("-a");
