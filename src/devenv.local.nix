@@ -120,9 +120,11 @@ let vars = {
         xdebug.mode = debug
         xdebug.discover_client_host = 1
         xdebug.client_host = 127.0.0.1
+        openssl.cafile = ${config.env.DEVENV_STATE + "/caddy/data/caddy/pki/authorities/local/root.crt"}
     '';
 
+    # Allowes caddy to bind privileged ports (e.g. 80, 443)
     scripts.fix-caddy-cap.exec = ''
-        sudo find /nix -type f ! -size 0 -name "caddy" -exec sudo setcap CAP_NET_BIND_SERVICE=+eip "{}" \;
+        sudo setcap CAP_NET_BIND_SERVICE=+eip "${services.caddy.package}/bin/caddy"
     '';
 }
