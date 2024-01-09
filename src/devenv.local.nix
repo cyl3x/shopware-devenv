@@ -125,6 +125,6 @@ let vars = {
 
     # Allowes caddy to bind privileged ports (e.g. 80, 443)
     scripts.fix-caddy-cap.exec = ''
-        sudo setcap CAP_NET_BIND_SERVICE=+eip "${services.caddy.package}/bin/caddy"
+        sudo setcap CAP_NET_BIND_SERVICE=+eip "${config.services.caddy.package}/bin/caddy"
     '';
 }
