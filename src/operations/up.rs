@@ -4,7 +4,7 @@ use std::thread::sleep;
 use std::time::Duration;
 
 use regex::Regex;
-use sysinfo::{Pid, SystemExt};
+use sysinfo::Pid;
 
 use crate::{devenv, topic, Command, Context};
 

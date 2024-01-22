@@ -1,4 +1,4 @@
-use sysinfo::{Pid, ProcessExt, Signal, System, SystemExt};
+use sysinfo::{Pid, Signal, System};
 
 use crate::{topic, Context};
 
