@@ -12,7 +12,7 @@ jobs:
   - !CommandStep
     name: build swde
     runInContainer: true
-    image: joseluisq/rust-linux-darwin-builder:1
+    image: joseluisq/rust-linux-darwin-builder:1.75.0
     interpreter: !DefaultInterpreter
       commands:
       - echo "##################"

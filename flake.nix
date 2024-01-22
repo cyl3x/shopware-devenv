@@ -7,6 +7,12 @@
   };
 
   outputs = { self, nixpkgs, rust-overlay }: {
+    overlays.default = final: prev: let
+      pkgs = import nixpkgs {
+        overlays = [ (import rust-overlay) ];
+        system = prev.pkgs.system;
+      };
+    in { swde = pkgs.callPackage ./. { inherit self; }; };
 
     packages.x86_64-linux.default = let
       pkgs = import nixpkgs {
