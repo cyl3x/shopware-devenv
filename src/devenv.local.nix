@@ -120,8 +120,9 @@ let vars = {
         xdebug.mode = debug
         xdebug.discover_client_host = 1
         xdebug.client_host = 127.0.0.1
-        openssl.cafile = ${config.env.DEVENV_STATE + "/caddy/data/caddy/pki/authorities/local/root.crt"}
     '';
+    # Add above to php ini - Helps with installing an app over https 
+    # openssl.cafile = ${config.env.DEVENV_STATE + "/caddy/data/caddy/pki/authorities/local/root.crt"}
 
     # Allowes caddy to bind privileged ports (e.g. 80, 443)
     scripts.fix-caddy-cap.exec = ''
