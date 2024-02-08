@@ -36,6 +36,7 @@ pub fn test_db() -> anyhow::Result<String> {
 
 pub fn admin() -> anyhow::Result<String> {
     topic!("Building administration...");
+    direnv!["composer", "admin:generate-entity-schema-types"].await_success()?;
     direnv!["composer", "build:js:admin"].await_success()?;
     Ok("Build successfull".into())
 }
