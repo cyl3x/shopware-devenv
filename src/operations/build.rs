@@ -45,9 +45,6 @@ pub fn storefront() -> anyhow::Result<String> {
     topic!("Dumping theme configuration...");
     direnv!["bin/console", "theme:dump", "--quiet"].await_success()?;
 
-    topic!("Compiling theme...");
-    direnv!["bin/console", "theme:compile", "--quiet"].await_success()?;
-
     topic!("Building storefront...");
     direnv!["composer", "build:js:storefront"].await_success()?;
     Ok("Building successfull...".into())
