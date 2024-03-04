@@ -26,7 +26,7 @@ clap = { version = "4.4.18", features = ["derive", "suggestions"] }
 regex = { version = "1.10.3", default-features = false, features = ["std"] }
 serde = { version = "1.0.195", default-features = false, features = ["serde_derive"] }
 once_cell = { version = "1.19.0", default-features = false, features = ["std"] }
-sysinfo = { version = "0.30.5", default-features = false }
+sysinfo = { version = "0.30.6", default-features = false }
 sha2 = { version = "0.10.8", default-features = false }
 libc = { version = "0.2.152", default-features = false }
 colored = "2.1.0"
