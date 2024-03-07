@@ -16,13 +16,11 @@ pub fn main(port: Option<u16>) -> anyhow::Result<String> {
 
     topic!("Generating dumper url...");
     let port = port.unwrap_or_else(|| 9912_u16 + seed_rand(&context.platform.path_hash));
-    envs.insert(
-        "VAR_DUMPER_FORMAT".into(),
-        format!("tcp://127.0.0.1:{port}"),
-    );
+    envs.insert("VAR_DUMPER_FORMAT".into(), format!("tcp://127.0.0.1:{port}"));
+    envs.insert("VAR_DUMPER_SERVER".into(), format!("tcp://127.0.0.1:{port}"));
     println!("Dumper url: 'tcp://127.0.0.1:{port}'");
 
-    topic!("Writing VAR_DUMPER_FORMAT to .env.local...");
+    topic!("Writing VAR_DUMPER_(FORMAT|SERVER) to .env.local...");
     write_env_local(&envs)?;
 
     topic!("Starting VarDumper server...");
@@ -33,7 +31,7 @@ pub fn main(port: Option<u16>) -> anyhow::Result<String> {
     ]
     .await_success()?;
 
-    topic!("Removing VAR_DUMPER_FORMAT from .env.local...");
+    topic!("Removing VAR_DUMPER_(FORMAT|SERVER) from .env.local...");
     write_env_local(&read_env_local().unwrap_or_default())?;
 
     Ok("VarDumper server stopped and envs cleaned up".into())
