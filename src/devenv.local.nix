@@ -78,6 +78,10 @@ let vars = {
 
     # Caddy
     services.caddy.config = ''
+        {
+            auto_https disable_redirects
+        }
+
         http://${vars.domains.platform}:${vars.port.platform.http}, https://${vars.domains.platform}:${vars.port.platform.https} {
             @default {
             not path /theme/* /media/* /thumbnail/* /bundles/* /css/* /fonts/* /js/* /sitemap/*
