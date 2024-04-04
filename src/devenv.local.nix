@@ -1,4 +1,4 @@
-{ pkgs, config, lib, ... }:
+{ config, ... }:
 
 let vars = {
     # instance number if you want to start multiple projects
@@ -44,10 +44,12 @@ let vars = {
     env.PROXY_URL = "https://${vars.domains.store_watcher}:${vars.port.platform.https}";
     env.STOREFRONT_PROXY_PORT = "${vars.port.store_watcher}";
     env.STOREFRONT_ASSETS_PORT = "${vars.port.store_asset}";
+    env.STOREFRONT_PATH = config.env.DEVENV_ROOT + "/src/Storefront/Resources/app/storefront";
 
     # ADMIN
     env.HOST = "${vars.domains.platform}";
     env.PORT = "${vars.port.admin_watcher}";
+    env.ADMIN_PATH = config.env.DEVENV_ROOT + "/src/Administration/Resources/app/administration";
 
     # CYPRESS
     env.CYPRESS_baseUrl = config.env.APP_URL;
@@ -117,18 +119,15 @@ let vars = {
 
     # PHP
     languages.php.extensions = [ "xdebug" ];
-    languages.php.ini = (lib.optionalString config.services.redis.enable ''
-        session.save_handler = redis
-        session.save_path = "tcp://localhost:${toString vars.port.redis}/0"
-    '') + ''
+    languages.php.ini = ''
         xdebug.mode = debug
         xdebug.discover_client_host = 1
         xdebug.client_host = 127.0.0.1
     '';
-    # Add above to php ini - Helps with installing an app over https 
+    # Add above to php ini - Helps with installing an app over https, but php will ignore hosts certificates
     # openssl.cafile = ${config.env.DEVENV_STATE + "/caddy/data/caddy/pki/authorities/local/root.crt"}
 
-    # Allowes caddy to bind privileged ports (e.g. 80, 443)
+    # Allowes caddy to bind privileged ports (all <1024)
     scripts.fix-caddy-cap.exec = ''
         sudo setcap CAP_NET_BIND_SERVICE=+eip "${config.services.caddy.package}/bin/caddy"
     '';
