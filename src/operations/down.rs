@@ -1,29 +1,24 @@
-use sysinfo::{Pid, Signal, System};
+use sysinfo::Pid;
 
-use crate::{topic, Context};
+use crate::{devenv, topic, Command, Context};
 
 pub fn main() -> anyhow::Result<String> {
-    topic!("Stopping...");
+    if !is_devenv_running()? {
+        anyhow::bail!("Devenv service is not running")
+    };
+    
+    devenv!["processes", "down"].await_success()?;
 
-    let mut sys = System::new();
-    sys.refresh_processes();
-
-    Context::get()?
-        .devenv_pid()
-        .map_or_else(|_| anyhow::bail!("Unable to find devenv's process"), |pid| down_by_pid(&sys, pid))?;
-
-    Ok("Devenv service stopped".into())
+    Ok(String::new())
 }
 
-fn down_by_pid(sys: &System, pid: usize) -> anyhow::Result<()> {
-    topic!("Found pid ({pid}) in pidfile, stopping...");
+fn is_devenv_running() -> anyhow::Result<bool> {
+    let Ok(pid) = Context::get()?.devenv_pid() else {
+        return Ok(false);
+    };
 
-    if let Some(process) = sys.process(Pid::from(pid)) {
-        if process.kill_with(Signal::Interrupt).unwrap_or_default() {
-            process.wait();
-            return Ok(());
-        }
-    }
+    let mut sys = sysinfo::System::new();
+    sys.refresh_processes();
 
-    anyhow::bail!("Devenv was not running");
+    Ok(sys.process(Pid::from(pid)).is_some())
 }

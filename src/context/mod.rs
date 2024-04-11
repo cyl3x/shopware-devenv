@@ -81,16 +81,7 @@ impl Context {
     /// Returns the path to the logfile.
     #[must_use]
     pub fn log_file(&self) -> PathBuf {
-        let path = self.platform.path.join(format!(
-            "var/log/devenv-{}.log",
-            &self.platform.path_hash[..8]
-        ));
-
-        let parent = path.parent().or_panic("No parent directory found".into());
-        fs::create_dir_all(parent).or_panic(Some(&format!(
-            "Failed to create log directory: {}",
-            path.display()
-        )));
+        let path = self.platform.path.join(".devenv/processes.log");
 
         path
     }
