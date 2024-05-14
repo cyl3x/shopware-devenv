@@ -65,7 +65,7 @@ impl Context {
     /// Fails if there is no pidfile
     /// Fails if the pid inside file is malformed (not <usize>).
     pub fn devenv_pid(&self) -> anyhow::Result<usize> {
-        let path = self.platform.path.join(".devenv/state/devenv.pid");
+        let path = self.platform.path.join(".devenv/processes.pid");
 
         let pid_string = fs::read_to_string(path).or_error("No pidfile found")?;
 

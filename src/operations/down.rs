@@ -1,6 +1,6 @@
 use sysinfo::Pid;
 
-use crate::{devenv, topic, Command, Context};
+use crate::{devenv, Command, Context};
 
 pub fn main() -> anyhow::Result<String> {
     if !is_devenv_running()? {
