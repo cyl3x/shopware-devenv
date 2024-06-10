@@ -22,17 +22,17 @@ opt-level = 3
 strip = "debuginfo"
 
 [dependencies]
-clap = { version = "4.5.4", features = ["derive", "suggestions"] }
-regex = { version = "1.10.4", default-features = false, features = ["std"] }
-serde = { version = "1.0.199", default-features = false, features = ["serde_derive"] }
+clap = { version = "4.5.6", features = ["derive", "suggestions"] }
+regex = { version = "1.10.5", default-features = false, features = ["std"] }
+serde = { version = "1.0.203", default-features = false, features = ["serde_derive"] }
 once_cell = { version = "1.19.0", default-features = false, features = ["std"] }
-sysinfo = { version = "0.30.11", default-features = false }
+sysinfo = { version = "0.30.12", default-features = false }
 sha2 = { version = "0.10.8", default-features = false }
-libc = { version = "0.2.152", default-features = false }
+libc = { version = "0.2.155", default-features = false }
 colored = "2.1.0"
-serde_json = "1.0.116"
-clap_complete = "4.5.2"
+serde_json = "1.0.117"
+clap_complete = "4.5.5"
 dotenv-parser = "0.1.3"
 rand = "0.8.5"
-anyhow = "1.0.82"
+anyhow = "1.0.86"
 color-eyre = "0.6.3"
