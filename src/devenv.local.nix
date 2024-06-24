@@ -30,7 +30,8 @@ let vars = {
         redis = vars.base_port + 5;
         mysql = vars.base_port + 6;
         mailpit = toString (vars.base_port + 7);
-        mailpit_smtp = toString (1025 + vars.instance);
+        mailpit_smtp = toString (vars.instance + 8);
+        var_dump_server = toString (vars.base_port + 9);
     };
 }; in {
     # Environment vars
@@ -77,6 +78,12 @@ let vars = {
 
     # Redis
     services.redis.port = vars.port.redis;
+
+    # var-dump Server
+    env.VAR_DUMPER_SERVER = "127.0.0.1:${vars.port.var_dump_server}";
+    scripts.dump-server.exec = ''
+      vendor/bin/var-dump-server --host=127.0.0.1:${vars.port.var_dump_server}
+    '';
 
     # Caddy
     services.caddy.config = ''
