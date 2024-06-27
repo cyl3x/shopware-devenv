@@ -1,88 +1,107 @@
-{ config, ... }:
+{ config, lib, pkgs, ... }:
 
-let vars = {
+let
     # instance number if you want to start multiple projects
     instance = 0;
-    base_port = 2000 + vars.instance * 1000; # baseport of the instance
 
     # domains of different services
-    domains = {
+    domains = rec {
         platform = "dev.localhost";
-        admin_watcher = "admin.dev.localhost";
-        store_watcher = "store.dev.localhost";
-        adminer = "adminer.dev.localhost";
-        mailpit = "mail.dev.localhost";
+        admin_watcher = "admin." + platform;
+        store_watcher = "store." + platform;
+        adminer = "adminer." + platform;
+        mailpit = "mail." + platform;
     };
 
+    # baseport calculation of instances
+    base_port = 2000 + instance * 1000;
     # ports of the different services
     # every service with a web interface is accessable
     # trough $domains.service:$base_port instead
     # of the ports configured here
     port = {
         platform = {
-            https = toString (vars.base_port);
-            http = toString (vars.base_port + 80);
+            https = toString (base_port);
+            http = toString (base_port + 80);
         };
-        admin_watcher = toString (vars.base_port + 1);
-        store_watcher = toString (vars.base_port + 2);
-        adminer = toString (vars.base_port + 3);
-        store_asset = toString (vars.base_port + 4);
-        redis = vars.base_port + 5;
-        mysql = vars.base_port + 6;
-        mailpit = toString (vars.base_port + 7);
-        mailpit_smtp = toString (vars.instance + 8);
-        var_dump_server = toString (vars.base_port + 9);
+        admin_watcher = toString (base_port + 1);
+        store_watcher = toString (base_port + 2);
+        adminer = toString (base_port + 3);
+        store_asset = toString (base_port + 4);
+        redis = base_port + 5;
+        mysql = base_port + 6;
+        mailpit = toString (base_port + 7);
+        mailpit_smtp = toString (instance + 8);
+        var_dump_server = toString (base_port + 9);
     };
-}; in {
+
+    # combine system and caddy certificates for php trusted certificates
+    # useful to proxy an app server with https and trust it's certificates during installation
+    certs = {
+        combine = false;
+
+        # paths to the certificates
+        caddy = config.env.DEVENV_STATE + "/caddy/data/caddy/pki/authorities/local/root.crt";
+        system = if pkgs.stdenv.isLinux then "/etc/ssl/certs/ca-certificates.crt" else "/etc/ssl/cert.pem";
+        combined = config.env.DEVENV_STATE + "/ca-certificates.crt";
+    };
+
+    inherit (lib) escapeShellArg optionalString;
+in {
     # Environment vars
-    env.DATABASE_URL = "mysql://shopware:shopware@127.0.0.1:${toString vars.port.mysql}/shopware?sslmode=disable&charset=utf8mb4";
-    env.APP_URL = "https://${vars.domains.platform}:${vars.port.platform.https}";
-    env.APP_URL_HTTP = "http://${vars.domains.platform}:${vars.port.platform.http}";
-    env.MAILER_DSN = "smtp://127.0.0.1:${vars.port.mailpit_smtp}";
-    env.SHOPWARE_ES_INDEX_PREFIX = "sw-${toString vars.instance}";
+    env.DATABASE_URL = "mysql://shopware:shopware@127.0.0.1:${toString port.mysql}/shopware?sslmode=disable&charset=utf8mb4";
+    env.APP_URL = "https://${domains.platform}:${port.platform.https}";
+    env.APP_URL_HTTP = "http://${domains.platform}:${port.platform.http}";
+    env.MAILER_DSN = "smtp://127.0.0.1:${port.mailpit_smtp}";
+    env.SHOPWARE_ES_INDEX_PREFIX = "sw-${toString instance}";
 
     # Storefront
-    env.PROXY_URL = "https://${vars.domains.store_watcher}:${vars.port.platform.https}";
-    env.STOREFRONT_PROXY_PORT = "${vars.port.store_watcher}";
-    env.STOREFRONT_ASSETS_PORT = "${vars.port.store_asset}";
+    env.PROXY_URL = "https://${domains.store_watcher}:${port.platform.https}";
+    env.STOREFRONT_PROXY_PORT = "${port.store_watcher}";
+    env.STOREFRONT_ASSETS_PORT = "${port.store_asset}";
     env.STOREFRONT_PATH = config.env.DEVENV_ROOT + "/src/Storefront/Resources/app/storefront";
 
     # ADMIN
-    env.HOST = "${vars.domains.platform}";
-    env.PORT = "${vars.port.admin_watcher}";
+    env.HOST = "${domains.platform}";
+    env.PORT = "${port.admin_watcher}";
     env.ADMIN_PATH = config.env.DEVENV_ROOT + "/src/Administration/Resources/app/administration";
 
     # CYPRESS
     env.CYPRESS_baseUrl = config.env.APP_URL;
-    env.CYPRESS_dbHost = "127.0.0.1:${toString vars.port.mysql}";
+    env.CYPRESS_dbHost = "127.0.0.1:${toString port.mysql}";
     env.CYPRESS_localUsage = 1;
     env.CYPRESS_shopwareRoot = config.env.DEVENV_ROOT;
 
     # MySQL
     # services.mysql.package = pkgs.mariadb; # Use MariaDB instead of MySQL
-    services.adminer.listen = "localhost:${vars.port.adminer}";
-    services.mysql.settings.mysqld.port = vars.port.mysql;
+    services.adminer.listen = "localhost:${port.adminer}";
+    services.mysql.settings.mysqld.port = port.mysql;
 
     # Mailhog - legacy, replaced by mailpit
     services.mailhog = {
-        smtpListenAddress = "127.0.0.1:${vars.port.mailpit_smtp}";
-        apiListenAddress = "localhost:${vars.port.mailpit}";
-        uiListenAddress = "localhost:${vars.port.mailpit}";
+        smtpListenAddress = "127.0.0.1:${port.mailpit_smtp}";
+        apiListenAddress = "127.0.0.1:${port.mailpit}";
+        uiListenAddress = "127.0.0.1:${port.mailpit}";
     };
 
     # Mailpit
     services.mailpit = {
-        smtpListenAddress = "127.0.0.1:${vars.port.mailpit_smtp}";
-        uiListenAddress = "127.0.0.1:${vars.port.mailpit}";
+        smtpListenAddress = "127.0.0.1:${port.mailpit_smtp}";
+        uiListenAddress = "127.0.0.1:${port.mailpit}";
     };
 
     # Redis
-    services.redis.port = vars.port.redis;
+    services.redis.port = port.redis;
 
     # var-dump Server
-    env.VAR_DUMPER_SERVER = "127.0.0.1:${vars.port.var_dump_server}";
+    env.VAR_DUMPER_SERVER = "127.0.0.1:${port.var_dump_server}";
     scripts.dump-server.exec = ''
-      vendor/bin/var-dump-server --host=127.0.0.1:${vars.port.var_dump_server}
+      vendor/bin/var-dump-server --host=127.0.0.1:${port.var_dump_server}
+    '';
+
+    # Certificates
+    enterShell = optionalString certs.combine ''
+      cat ${escapeShellArg certs.system} ${escapeShellArg certs.caddy} > ${escapeShellArg certs.combined}
     '';
 
     # Caddy
@@ -91,48 +110,46 @@ let vars = {
             auto_https disable_redirects
         }
 
-        http://${vars.domains.platform}:${vars.port.platform.http}, https://${vars.domains.platform}:${vars.port.platform.https} {
+        http://${domains.platform}:${port.platform.http}, https://${domains.platform}:${port.platform.https} {
             @default {
-            not path /theme/* /media/* /thumbnail/* /bundles/* /css/* /fonts/* /js/* /sitemap/*
+                not path /theme/* /media/* /thumbnail/* /bundles/* /css/* /fonts/* /js/* /sitemap/*
             }
 
-            encode zstd gzip
+            file_server
             root * public
             php_fastcgi @default unix/${config.languages.php.fpm.pools.web.socket} {
                 trusted_proxies private_ranges
             }
-            file_server
-            encode
-
-            encode zstd gzip
         }
 
-        https://${vars.domains.store_watcher}:${vars.port.platform.https}, http://${vars.domains.store_watcher}:${vars.port.platform.http} {
-            reverse_proxy http://localhost:${vars.port.store_watcher}
+        https://${domains.store_watcher}:${port.platform.https}, http://${domains.store_watcher}:${port.platform.http} {
+            reverse_proxy http://localhost:${port.store_watcher}
         }
 
-        https://${vars.domains.admin_watcher}:${vars.port.platform.https}, http://${vars.domains.admin_watcher}:${vars.port.platform.http} {
-            reverse_proxy http://localhost:${vars.port.admin_watcher}
+        https://${domains.admin_watcher}:${port.platform.https}, http://${domains.admin_watcher}:${port.platform.http} {
+            reverse_proxy http://localhost:${port.admin_watcher}
         }
 
-        https://${vars.domains.adminer}:${vars.port.platform.https}, http://${vars.domains.adminer}:${vars.port.platform.http} {
-            reverse_proxy http://localhost:${vars.port.adminer}
+        https://${domains.adminer}:${port.platform.https}, http://${domains.adminer}:${port.platform.http} {
+            reverse_proxy http://localhost:${port.adminer}
         }
 
-        https://${vars.domains.mailpit}:${vars.port.platform.https}, http://${vars.domains.mailpit}:${vars.port.platform.http} {
-            reverse_proxy http://localhost:${vars.port.mailpit}
+        https://${domains.mailpit}:${port.platform.https}, http://${domains.mailpit}:${port.platform.http} {
+            reverse_proxy http://localhost:${port.mailpit}
         }
     '';
 
     # PHP
-    languages.php.extensions = [ "xdebug" ];
-    languages.php.ini = ''
-        xdebug.mode = debug
-        xdebug.discover_client_host = 1
-        xdebug.client_host = 127.0.0.1
-    '';
-    # Add above to php ini - Helps with installing an app over https, but php will ignore hosts certificates
-    # openssl.cafile = ${config.env.DEVENV_STATE + "/caddy/data/caddy/pki/authorities/local/root.crt"}
+    languages.php = {
+        extensions = [ "xdebug" ];
+        ini = ''
+            xdebug.mode = debug
+            xdebug.discover_client_host = 1
+            xdebug.client_host = 127.0.0.1
+        '' + optionalString certs.combine ''
+            openssl.cafile = ${certs.combined}
+        '';
+    };
 
     # Allowes caddy to bind privileged ports (all <1024)
     scripts.fix-caddy-cap.exec = ''
