@@ -31,7 +31,7 @@ let
         redis = base_port + 5;
         mysql = base_port + 6;
         mailpit = toString (base_port + 7);
-        mailpit_smtp = toString (instance + 8);
+        mailpit_smtp = toString (base_port + 8);
         var_dump_server = toString (base_port + 9);
     };
 
