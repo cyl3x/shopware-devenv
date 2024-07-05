@@ -10,7 +10,7 @@
   };
 
   outputs = { self, nixpkgs, rust-overlay, crane, flake-utils }:
-    flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" ] (system: let
+    flake-utils.lib.eachDefaultSystem (system: let
       pkgs = import nixpkgs {
         inherit system;
         overlays = [ (import rust-overlay) ];
@@ -53,5 +53,10 @@
         packages = with pkgs; [ rust-analyzer rustToolchain ];
         RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
       };
-    });
+    }) // {
+      overlays = rec {
+        swde = final: prev: { swde = self.packages.${prev.system}.swde; };
+        default = swde;
+      };
+    };
 }
