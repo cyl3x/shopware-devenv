@@ -1,6 +1,6 @@
-use sysinfo::Pid;
+use sysinfo::{Pid, ProcessesToUpdate};
 
-use crate::{devenv, topic, Command, Context};
+use crate::{devenv, Command, Context};
 
 pub fn main() -> anyhow::Result<String> {
     if is_devenv_running()? {
@@ -18,8 +18,10 @@ fn is_devenv_running() -> anyhow::Result<bool> {
         return Ok(false);
     };
 
-    let mut sys = sysinfo::System::new();
-    sys.refresh_processes();
+    let pid = Pid::from(pid);
 
-    Ok(sys.process(Pid::from(pid)).is_some())
+    let mut sys = sysinfo::System::new();
+    sys.refresh_processes(ProcessesToUpdate::Some(&[pid]));
+
+    Ok(sys.process(pid).is_some())
 }
