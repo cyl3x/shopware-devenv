@@ -23,12 +23,12 @@ strip = "debuginfo"
 
 [dependencies]
 clap = { version = "4.5.18", features = ["derive", "suggestions"] }
-regex = { version = "1.10.6", default-features = false, features = ["std"] }
+regex = { version = "1.11.0", default-features = false, features = ["std"] }
 serde = { version = "1.0.210", default-features = false, features = ["serde_derive"] }
-once_cell = { version = "1.19.0", default-features = false, features = ["std"] }
+once_cell = { version = "1.20.1", default-features = false, features = ["std"] }
 sysinfo = { version = "0.31.4", default-features = false, features = ["system"]}
 sha2 = { version = "0.10.8", default-features = false }
-libc = { version = "0.2.158", default-features = false }
+libc = { version = "0.2.159", default-features = false }
 colored = "2.1.0"
 serde_json = "1.0.128"
 clap_complete = "4.5.29"
