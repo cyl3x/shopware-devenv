@@ -20,7 +20,7 @@ fn is_devenv_running() -> anyhow::Result<bool> {
     let pid = Pid::from(pid);
 
     let mut sys = sysinfo::System::new();
-    sys.refresh_processes(ProcessesToUpdate::Some(&[pid]));
+    sys.refresh_processes(ProcessesToUpdate::Some(&[pid]), false);
 
     Ok(sys.process(pid).is_some())
 }
