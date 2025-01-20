@@ -5,6 +5,8 @@ on:
   workflow_dispatch:
   pull_request:
   push:
+    branches:
+      - master
 
 jobs:
   test:
@@ -37,10 +39,10 @@ jobs:
     strategy:
       matrix:
         system:
-          - "aarch64-linux"
-          - "x86_64-linux"
+          - aarch64-linux
+          - x86_64-linux
         package:
-          - "swde"
+          - swde
 
     steps:
       - name: Checkout repository
@@ -69,22 +71,22 @@ jobs:
     strategy:
       matrix:
         system:
-          - "aarch64-linux"
-          - "x86_64-linux"
+          - aarch64-linux
+          - x86_64-linux
         bundler:
-          - name: "debian"
-            path: "github:viperML/bundlers#deb"
-            extension: "deb"
+          - name: debian
+            path: github:viperML/bundlers#deb
+            extension: deb
 
-          - name: "docker"
-            path: "github:viperML/bundlers#zip"
-            extension: "zip"
+          - name: docker
+            path: github:viperML/bundlers#zip
+            extension: zip
 
-          - name: "appimage"
-            path: "github:ralismark/nix-appimage"
-            extension: "AppImage"
+          - name: appimage
+            path: github:ralismark/nix-appimage
+            extension: AppImage
         package:
-          - "swde"
+          - swde
 
     steps:
       - name: Checkout repository
