@@ -7,7 +7,7 @@ pub struct Cli {
     #[clap(subcommand)]
     pub subcommand: Operation,
 
-    /// Set the verbosity. Can also be set with SWDE_VERBOSE=1
+    /// Set the verbosity. Can also be set with `SWDE_VERBOSE=1`
     #[clap(long, short, global(true), action = ArgAction::SetTrue)]
     pub verbose: bool,
 }

@@ -9,18 +9,18 @@ use crate::fail;
 #[macro_export]
 macro_rules! sha256 {
     ($($str:tt)+) => {
-        $crate::utils::_macro_sha256(&format!($($str)+))
+        $crate::utils::macro_sha256(&format!($($str)+))
     }
 }
 
 #[macro_export]
 macro_rules! y_or_n {
     ($($str:tt)+) => {
-        $crate::utils::_macro_y_or_n(&format!($($str)+))
+        $crate::utils::macro_y_or_n(&format!($($str)+))
     }
 }
 
-pub fn _macro_sha256(string: &str) -> String {
+pub fn macro_sha256(string: &str) -> String {
     let mut hasher = Sha256::new();
     hasher.update(string);
     let result = hasher.finalize();
@@ -28,7 +28,8 @@ pub fn _macro_sha256(string: &str) -> String {
     format!("{result:x}")
 }
 
-pub fn _macro_y_or_n(msg: &str) -> bool {
+#[allow(dead_code)]
+pub fn macro_y_or_n(msg: &str) -> bool {
     print!("{msg} [y/N]: ");
     let _ = io::stdout().flush();
 

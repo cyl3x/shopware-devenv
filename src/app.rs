@@ -9,39 +9,39 @@ use crate::{verbose, Context, OrFail, VERBOSE};
 #[macro_export]
 macro_rules! fail {
     ($($arg:tt)+) => {
-        $crate::app::_macro_fail(&format!($($arg)+))
+        $crate::app::macro_fail(&format!($($arg)+))
     };
 }
 
 #[macro_export]
 macro_rules! success {
     ($($arg:tt)+) => {
-        $crate::app::_macro_success(&format!($($arg)+))
+        $crate::app::macro_success(&format!($($arg)+))
     }
 }
 
 #[macro_export]
 macro_rules! topic {
     ($($arg:tt)+) => {
-        $crate::app::_macro_topic(&format!($($arg)+))
+        $crate::app::macro_topic(&format!($($arg)+))
     }
 }
 
 #[macro_export]
 macro_rules! warn {
     ($($arg:tt)+) => {
-        $crate::app::_macro_warn(&format!($($arg)+))
+        $crate::app::macro_warn(&format!($($arg)+))
     }
 }
 
 #[macro_export]
 macro_rules! verbose {
     ($($arg:tt)+) => {
-        $crate::app::_macro_verbose(&format!($($arg)+))
+        $crate::app::macro_verbose(&format!($($arg)+))
     }
 }
 
-pub fn _macro_success(msg: &str) -> ! {
+pub fn macro_success(msg: &str) -> ! {
     if !msg.is_empty() {
         println!("{} {}", "✓".green(), msg.bold());
     }
@@ -49,21 +49,21 @@ pub fn _macro_success(msg: &str) -> ! {
     exit(0);
 }
 
-pub fn _macro_fail(msg: &str) -> ! {
+pub fn macro_fail(msg: &str) -> ! {
     println!("{} {}", "✕".red(), msg.bold());
 
     exit(1);
 }
 
-pub fn _macro_topic(msg: &str) {
+pub fn macro_topic(msg: &str) {
     println!("{} {}", ">".cyan(), msg.bold());
 }
 
-pub fn _macro_warn(msg: &str) {
+pub fn macro_warn(msg: &str) {
     println!("{} {}", "!".yellow(), msg.yellow());
 }
 
-pub fn _macro_verbose(msg: &str) {
+pub fn macro_verbose(msg: &str) {
     if *VERBOSE.get().unwrap_or(&false) {
         println!("[{}] {msg}", "verbose".red());
     }
@@ -124,7 +124,7 @@ impl Command for process::Command {
     fn new_direnv(cmd: Vec<&str>) -> anyhow::Result<Self> {
         let mut command: Self = Self::new("direnv");
         command
-            .envs(&mut vars_os())
+            .envs(vars_os())
             .current_dir(Context::get()?.platform.path.clone())
             .env("DIRENV_LOG_FORMAT", "")
             .args(["exec", &Context::get()?.platform.join_str("")])
@@ -136,7 +136,7 @@ impl Command for process::Command {
     fn new_devenv(cmd: Vec<&str>) -> anyhow::Result<Self> {
         let mut command: Self = Self::new("devenv");
         command
-            .envs(&mut vars_os())
+            .envs(vars_os())
             .current_dir(Context::get()?.platform.path.clone())
             .args(cmd);
 
@@ -219,13 +219,13 @@ macro_rules! devenv {
 #[macro_export]
 macro_rules! direnv_git {
     ($($cmd:expr),+ $(,)?) => {
-        $crate::app::_macro_direnv_git(vec![$($cmd),+])?
+        $crate::app::macro_direnv_git(vec![$($cmd),+])?
     };
 }
 
 /// Creates a new git command inside direnv env.
 /// Use `start`, `await` or `await_success` to execute the command.
-pub fn _macro_direnv_git(cmd: Vec<&str>) -> anyhow::Result<impl Command> {
+pub fn macro_direnv_git(cmd: Vec<&str>) -> anyhow::Result<impl Command> {
     let mut command = direnv!["git"];
     command.args(cmd).env("GIT_TERMINAL_PROMPT", "0");
 

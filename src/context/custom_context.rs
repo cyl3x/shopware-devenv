@@ -35,8 +35,8 @@ impl CustomContext {
     }
 
     pub fn new(path: &Path) -> Option<Self> {
-        let Some(custom_type) = Self::get_type(path) else { return None; };
-        let Some(composer) = Composer::new(path) else { return None; };
+        let custom_type = Self::get_type(path)?;
+        let composer = Composer::new(path)?;
 
         let mut require = composer.require;
 

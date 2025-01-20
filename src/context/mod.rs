@@ -81,8 +81,6 @@ impl Context {
     /// Returns the path to the logfile.
     #[must_use]
     pub fn log_file(&self) -> PathBuf {
-        let path = self.platform.path.join(".devenv/processes.log");
-
-        path
+        self.platform.path.join(".devenv/processes.log")
     }
 }
