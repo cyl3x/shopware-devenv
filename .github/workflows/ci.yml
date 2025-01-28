@@ -16,14 +16,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up QEMU binfmt for cross compiling
-        uses: docker/setup-qemu-action@v3
-
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v12
-        with:
-          extra-conf: |
-            extra-platforms = aarch64-linux x86_64-linux
 
       - name: Cache Nix store
         uses: DeterminateSystems/magic-nix-cache-action@v6
@@ -36,32 +30,18 @@ jobs:
     needs:
       - test
 
-    strategy:
-      matrix:
-        system:
-          - aarch64-linux
-          - x86_64-linux
-        package:
-          - swde
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up QEMU binfmt for building aarch64
-        uses: docker/setup-qemu-action@v3
-
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v12
-        with:
-          extra-conf: |
-            extra-platforms = aarch64-linux x86_64-linux
 
       - name: Cache Nix store
         uses: DeterminateSystems/magic-nix-cache-action@v6
 
       - name: Build package
-        run: nix build --accept-flake-config .#packages.${{ matrix.system }}.${{ matrix.package }}
+        run: nix build --accept-flake-config .#packages.x86_64-linux.swde
 
   bundle:
     runs-on: ubuntu-latest
@@ -70,9 +50,6 @@ jobs:
 
     strategy:
       matrix:
-        system:
-          - aarch64-linux
-          - x86_64-linux
         bundler:
           - name: debian
             path: github:viperML/bundlers#deb
@@ -85,42 +62,34 @@ jobs:
           - name: appimage
             path: github:ralismark/nix-appimage
             extension: AppImage
-        package:
-          - swde
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up QEMU binfmt for cross compiling
-        uses: docker/setup-qemu-action@v3
-
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v11
-        with:
-          extra-conf: |
-            extra-platforms = aarch64-linux x86_64-linux
 
       - name: Cache Nix store
         uses: DeterminateSystems/magic-nix-cache-action@v6
 
-      - name: Build ${{ matrix.bundler.name }} package for ${{ matrix.system }}
+      - name: Build ${{ matrix.bundler.name }} package
         run: >-
           nix bundle
           --bundler ${{ matrix.bundler.path }}
           --accept-flake-config
           --out-link result
-          .#packages.${{ matrix.system }}.${{ matrix.package }}
+          .#packages.x86_64-linux.swde
 
       - name: Prepare Bundle for upload
         run: >-
           cp
           --no-preserve=mode,ownership
           $(find -L result -type f -print -quit)
-          ${{ matrix.package }}-${{ github.ref_name }}-${{ matrix.bundler.name }}-${{ matrix.system }}.${{ matrix.bundler.extension }}
+          swde-${{ github.sha }}-${{ matrix.bundler.name }}.${{ matrix.bundler.extension }}
 
       - name: Upload bundle
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.package }}-${{ github.ref_name }}-${{ matrix.bundler.name }}-${{ matrix.system }}
-          path: ${{ matrix.package }}-${{ github.ref_name }}-${{ matrix.bundler.name }}-${{ matrix.system }}.${{ matrix.bundler.extension }}
+          name: swde-${{ github.sha }}-${{ matrix.bundler.name }}
+          path: swde-${{ github.sha }}-${{ matrix.bundler.name }}.${{ matrix.bundler.extension }}
