@@ -67,5 +67,5 @@ fn seed_rand(seed: &str) -> u16 {
     seed.hash(&mut hasher);
     let seed_hash = hasher.finish();
 
-    rand::rngs::StdRng::seed_from_u64(seed_hash).gen_range(0..=20)
+    rand::rngs::StdRng::seed_from_u64(seed_hash).random_range(0..=20)
 }
