@@ -12,6 +12,9 @@ in with lib; {
       xdebug.mode = debug
       xdebug.discover_client_host = 1
       xdebug.client_host = 127.0.0.1
+      xdebug.log = ${config.env.DEVENV_ROOT}/var/log/xdebug.log
+      xdebug.log_level = 3
+      xdebug.output_dir = ${config.env.DEVENV_ROOT}/var/log/xdebug
     '';
   };
 }
