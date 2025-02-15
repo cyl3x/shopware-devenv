@@ -71,7 +71,10 @@ in with lib; {
     env.APP_ENV = mkDefault "dev";
 
     env.APP_URL = mkDefault "${cfg.protocol}://${cfg.domain}:${toString (if cfg.ssl.proxy.enable then cfg.ssl.proxy.port else cfg.port)}";
-    env.APP_URL_HTTP = optionalEnv cfg.ssl.standalone.enable "http://${cfg.domain}:${toString cfg.ssl.standalone.fallbackPort}";
+    env.APP_URL_HTTP = let
+      enable = cfg.ssl.standalone.enable || cfg.ssl.proxy.enable;
+      port = if cfg.ssl.standalone.enable then cfg.ssl.standalone.fallbackPort else cfg.port;
+    in optionalEnv enable "http://${cfg.domain}:${toString port}";
     
     env.STOREFRONT_PATH = mkDefault "${config.env.DEVENV_ROOT}/src/Storefront/Resources/app/storefront";
     env.ADMIN_PATH = mkDefault "${config.env.DEVENV_ROOT}/src/Administration/Resources/app/administration";
