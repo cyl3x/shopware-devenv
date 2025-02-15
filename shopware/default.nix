@@ -14,6 +14,7 @@ in with lib; {
     ./modules/elasticsearch.nix
     ./modules/mailpit.nix
     ./modules/mysql.nix
+    ./modules/playwright.nix
     ./modules/rabbitmq.nix
     ./modules/redis.nix
     ./modules/store-watcher.nix
