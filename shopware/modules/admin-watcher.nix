@@ -3,13 +3,19 @@
   cfg = config.shopware.modules.admin-watcher;
 in with lib; {
   options.shopware.modules.admin-watcher = {
-    enable = mkOption { type = types.bool; default = true; };
+    enable = mkOption {
+      description = "Enable configuration for the admin-watcher.";
+      type = types.bool;
+      default = true;
+    };
     domain = mkOption {
+      description = "Domain on which the admin-watcher is available.";
       readOnly = true;
       type = types.str;
       default = "admin.${config.shopware.domain}";
     };
     port = mkOption {
+      description = "Port on which the admin-watcher is available.";
       readOnly = true;
       type = types.port;
       default = config.shopware.port + 1;

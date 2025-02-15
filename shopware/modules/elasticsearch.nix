@@ -3,13 +3,19 @@
   cfg = config.shopware.modules.elasticsearch;
 in with lib; {
   options.shopware.modules.elasticsearch = {
-    enable = mkOption { type = types.bool; default = false; };
+    enable = mkOption {
+      description = "Enable elasticsearch and necessary configuration.";
+      type = types.bool;
+      default = false;
+    };
     port = mkOption {
+      description = "Port on which elasticsearch is available.";
       readOnly = true;
       type = types.port;
       default = config.shopware.port + 12;
     };
     tcp-port = mkOption {
+      description = "TCP port on which elasticsearch is available.";
       readOnly = true;
       type = types.port;
       default = config.shopware.port + 13;

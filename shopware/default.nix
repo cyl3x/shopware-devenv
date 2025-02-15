@@ -27,17 +27,30 @@ in with lib; {
   ];
 
   options.shopware = {
-    enable = mkOption { type = types.bool; default = false; };
+    enable = mkOption {
+      description = "Enable and configure all Shopware related services.";
+      type = types.bool;
+      default = false;
+    };
     domain = mkOption {
+      description = ''
+      The domain on which Shopware will be available.
+      A subdomain of `localhost` will be derived based on the directory name.
+      '';
       type = types.str;
       default = let
         basename = strings.removePrefix "platform_" (builtins.baseNameOf config.env.DEVENV_ROOT);
         subdomain = if basename == "platform" then "trunk" else basename;
       in subdomain + ".localhost";
     };
-    port = mkOption { type = types.port; default = 3000; };
+    port = mkOption {
+      description = "The base port on which Shopware will be available. All sub services will be derived from this port.";
+      type = types.port;
+      default = 3000;
+    };
 
     protocol = mkOption {
+      description = "Determines the protocol used to access Shopware.";
       readOnly = true;
       type = types.enum ["http" "https"];
       default = if cfg.ssl.proxy.enable || cfg.ssl.standalone.enable then "https" else "http";

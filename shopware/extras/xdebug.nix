@@ -3,8 +3,16 @@
   cfg = config.shopware.extras.xdebug;
 in with lib; {
   options.shopware.extras.xdebug = {
-    enable = mkOption { type = types.bool; default = true; };
-    logging = mkOption { type = types.either types.int types.bool; default = false; };
+    enable = mkOption {
+      description = "Enable Xdebug for PHP.";
+      type = types.bool;
+      default = true;
+    };
+    logging = mkOption {
+      description = "Enable Xdebug logging. Alternatively, set the log level.";
+      type = types.either types.int types.bool;
+      default = false;
+    };
   };
 
   config = mkIf cfg.enable {

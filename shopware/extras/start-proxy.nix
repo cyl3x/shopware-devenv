@@ -3,7 +3,11 @@
   cfg = config.shopware.extras.start-proxy;
 in with lib; {
   options.shopware.extras.start-proxy = {
-    enable = mkOption { type = types.bool; default = config.shopware.ssl.proxy.enable; };
+    enable = mkOption {
+      description = "Enable to start the ssl proxy server together with devenv.";
+      type = types.bool;
+      default = config.shopware.ssl.proxy.enable;
+    };
   };
 
   config = mkIf cfg.enable {

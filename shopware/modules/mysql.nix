@@ -3,8 +3,13 @@
   cfg = config.shopware.modules.mysql;
 in with lib; {
   options.shopware.modules.mysql = {
-    enable = mkOption { type = types.bool; default = true; };
+    enable = mkOption {
+      description = "Enable mysql and necessary configuration.";
+      type = types.bool;
+      default = true;
+    };
     port = mkOption {
+      description = "Port on which mysql is available.";
       readOnly = true;
       type = types.port;
       default = config.shopware.port + 6;

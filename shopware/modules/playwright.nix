@@ -8,10 +8,29 @@
   };
 in with lib; {
   options.shopware.modules.playwright = {
-    enable = mkOption { type = types.bool; default = false; };
-    chromium = mkOption { type = types.bool; default = true; };
-    firefox = mkOption { type = types.bool; default = false; };
-    webkit = mkOption { type = types.bool; default = false; };
+    enable = mkOption {
+      description = ''
+      Enable configuration for playwright. This will download the browsers and set `PLAYWRIGHT_BROWSERS_PATH`.
+      Properly only enable if nixos support is needed.
+      '';
+      type = types.bool;
+      default = false;
+    };
+    chromium = mkOption {
+      description = "Enable chromium browser for playwright.";
+      type = types.bool;
+      default = true;
+    };
+    firefox = mkOption {
+      description = "Enable firefox browser for playwright.";
+      type = types.bool;
+      default = false;
+    };
+    webkit = mkOption {
+      description = "Enable webkit browser for playwright.";
+      type = types.bool;
+      default = false;
+    };
   };
 
   config = mkIf cfg.enable {

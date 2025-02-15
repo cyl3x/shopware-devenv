@@ -3,18 +3,25 @@
   cfg = config.shopware.modules.rabbitmq;
 in with lib; {
   options.shopware.modules.rabbitmq = {
-    enable = mkOption { type = types.bool; default = false; };
+    enable = mkOption {
+      description = "Enable rabbitmq and necessary configuration.";
+      type = types.bool;
+      default = false;
+    };
     domain = mkOption {
+      description = "Domain on which rabbitmq management is available.";
       readOnly = true;
       type = types.str;
       default = "rabbitmq.${config.shopware.domain}";
     };
     port = mkOption {
+      description = "Port on which rabbitmq is available.";
       readOnly = true;
       type = types.port;
       default = config.shopware.port + 10;
     };
     management-port = mkOption {
+      description = "Port on which rabbitmq management is available.";
       readOnly = true;
       type = types.port;
       default = config.shopware.port + 11;

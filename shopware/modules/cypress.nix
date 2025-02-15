@@ -3,7 +3,11 @@
   cfg = config.shopware.modules.cypress;
 in with lib; {
   options.shopware.modules.cypress = {
-    enable = mkOption { type = types.bool; default = false; };
+    enable = mkOption {
+      description = "Enable cypress and necessary configuration.";
+      type = types.bool;
+      default = false;
+    };
   };
 
   config = mkIf cfg.enable {

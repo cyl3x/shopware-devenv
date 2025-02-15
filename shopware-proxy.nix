@@ -20,22 +20,58 @@
   ];
 in {
   options.shopware-proxy = {
-    enable = mkOption { type = types.bool; default = false; };
-    port = mkOption { type = types.port; default = 2000; };
+    enable = mkOption {
+      description = "Enable the proxy used for shopware and app servers.";
+      type = types.bool;
+      default = false;
+    };
+    port = mkOption {
+      description = "Port on which the proxy listens.";
+      type = types.port;
+      default = 2000;
+    };
     platforms = mkOption {
+      description = "Map of platform projects to proxy.";
+      example = ''
+        {
+          "trunk.localhost" = 3000; # base port of platform, defined by `shopware.port`
+          "66.localhost" = 4000;
+        }
+      '';
       type = types.attrsOf types.port;
       default = {};
     };
     apps = mkOption {
+      description = "Map of app servers to proxy.";
       type = types.attrsOf types.port;
       default = {};
     };
     modules = {
-      admin-watcher = mkOption { type = types.bool; default = true; };
-      store-watcher = mkOption { type = types.bool; default = true; };
-      adminer = mkOption { type = types.bool; default = true; };
-      mailpit = mkOption { type = types.bool; default = true; };
-      rabbitmq = mkOption { type = types.bool; default = false; };
+      admin-watcher = mkOption {
+        description = "Enable reverse proxy for the admin-watcher.";
+        type = types.bool;
+        default = true;
+      };
+      store-watcher = mkOption {
+        description = "Enable reverse proxy for the store-watcher.";
+        type = types.bool;
+        default = true;
+      };
+      adminer = mkOption {
+        description = "Enable reverse proxy for adminer.";
+        type = types.bool;
+        default = true;
+      };
+      mailpit = mkOption {
+        description = "Enable reverse proxy for mailpit.";
+        type = types.bool;
+        default = true;
+      };
+      rabbitmq = mkOption {
+        description = "Enable reverse proxy for rabbitmq management.";
+        type = types.bool;
+        default = false;
+      };
     };
   };
 

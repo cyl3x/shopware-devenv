@@ -3,8 +3,13 @@
   cfg = config.shopware.modules.var-dump-server;
 in with lib; {
   options.shopware.modules.var-dump-server = {
-    enable = mkOption { type = types.bool; default = true; };
+    enable = mkOption {
+      description = "Enable configuration for the var-dump-server. Will also create a shotcut `dump-server`.";
+      type = types.bool;
+      default = true;
+    };
     port = mkOption {
+      description = "Port on which the var dumper is available.";
       readOnly = true;
       type = types.port;
       default = config.shopware.port + 9;

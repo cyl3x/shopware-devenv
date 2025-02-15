@@ -4,18 +4,25 @@
   cfg = config.shopware.modules.store-watcher;
 in with lib; {
   options.shopware.modules.store-watcher = {
-    enable = mkOption { type = types.bool; default = true; };
+    enable = mkOption {
+      description = "Enable configuration for the store-watcher";
+      type = types.bool;
+      default = true;
+    };
     domain = mkOption {
+      description = "Domain on which the store-watcher is available.";
       readOnly = true;
       type = types.str;
       default = "store.${config.shopware.domain}";
     };
     port = mkOption {
+      description = "Port on which the store-watcher is available.";
       readOnly = true;
       type = types.port;
       default = config.shopware.port + 2;
     };
     asset-port = mkOption {
+      description = "Port on which the store-watcher serves assets.";
       readOnly = true;
       type = types.port;
       default = config.shopware.port + 4;
