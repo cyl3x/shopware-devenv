@@ -49,7 +49,8 @@ in
 
   config = {
     scripts."generate-docs".exec = ''
-      cat ${config.docs.package.outPath} > options.md
+      cat ./README.head.md > README.md
+      cat ${config.docs.package.outPath} >> README.md
       cat ${config.docs.package-readonly.outPath} > options-readonly.md
     '';
   };
