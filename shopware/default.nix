@@ -7,6 +7,7 @@ in with lib; {
   # caddyfile needs to be ordered
   imports = [
     ./ssl.nix
+    ./scripts.nix
 
     ./modules/admin-watcher.nix
     ./modules/adminer.nix
