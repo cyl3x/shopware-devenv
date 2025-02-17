@@ -21,6 +21,7 @@ in with lib; {
     ./modules/store-watcher.nix
     ./modules/var-dump-server.nix
 
+    ./extras/mute-deprecations.nix
     ./extras/start-proxy.nix
     ./extras/xdebug.nix
 
