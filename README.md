@@ -70,6 +70,48 @@ string
 
 
 
+## shopware\.extras\.frankenphp\.enable
+
+
+
+Enable FrankenPHP
+
+
+
+*Type:*
+unspecified value
+
+
+
+*Default:*
+` false `
+
+*Declared by:*
+ - [\./shopware/caddy\.nix](./shopware/caddy.nix)
+
+
+
+## shopware\.extras\.mute-deprecations\.enable
+
+
+
+Enable to mute deprecation notices in logs\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+*Declared by:*
+ - [\./shopware/extras/mute-deprecations\.nix](./shopware/extras/mute-deprecations.nix)
+
+
+
 ## shopware\.extras\.start-proxy\.enable
 
 
@@ -446,6 +488,27 @@ The base port on which Shopware will be available\. All sub services will be der
 
 *Declared by:*
  - [\./shopware/default\.nix](./shopware/default.nix)
+
+
+
+## shopware\.scripts\.console
+
+
+
+Wrapper to use ` bin/console ` in any directory\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` true `
+
+*Declared by:*
+ - [\./shopware/scripts\.nix](./shopware/scripts.nix)
 
 
 
