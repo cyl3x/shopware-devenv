@@ -1,8 +1,18 @@
-{ config, lib, ... }: let
+{ config, lib, pkgs, ... }: let
   cfg = config.shopware;
 in with lib; {
+  options.shopware.extras.frankenphp = {
+    enable = mkOption {
+      description = "Enable FrankenPHP";
+      default = false;
+    };
+  };
+
   config = mkIf cfg.enable {
     services.caddy.enable = true;
+    services.caddy.package = mkIf cfg.extras.frankenphp.enable (pkgs.frankenphp.overrideAttrs {
+      php = config.languages.php.package;
+    });
     services.caddy.virtualHosts = lib.mkOverride 60 {};
     services.caddy.config = let
       content = ''
@@ -12,10 +22,16 @@ in with lib; {
 
         file_server
         root * public
+      '' + (if cfg.extras.frankenphp.enable then ''
+        php_server @default {
+          trusted_proxies private_ranges
+          file_server off
+        }
+      '' else ''
         php_fastcgi @default unix/${config.languages.php.fpm.pools.web.socket} {
           trusted_proxies private_ranges
         }
-      '';
+      '');
 
       port = if cfg.ssl.standalone.enable
         then cfg.ssl.standalone.fallbackPort
@@ -24,6 +40,7 @@ in with lib; {
       {
         auto_https disable_redirects
         skip_install_trust
+        ${lib.optionalString cfg.extras.frankenphp.enable "frankenphp"}
       }
 
       http://${cfg.domain}:${toString port} {
