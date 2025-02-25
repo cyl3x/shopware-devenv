@@ -19,7 +19,7 @@ in with lib; {
   config = mkIf cfg.enable {
     env.VAR_DUMPER_SERVER = mkDefault "127.0.0.1:${toString cfg.port}";
 
-    scripts.dump-server.exec = "vendor/bin/var-dump-server --host=127.0.0.1:${toString cfg.port}";
+    scripts.dump-server.exec = "${config.env.DEVENV_ROOT}/vendor/bin/var-dump-server --host=127.0.0.1:${toString cfg.port}";
 
     files."config/packages/_devenv.yaml".yaml = {
       "when@dev" = {
