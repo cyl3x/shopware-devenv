@@ -10,7 +10,7 @@ in with lib; {
 
   config = mkIf cfg.enable {
     services.caddy.enable = true;
-    services.caddy.package = mkIf cfg.extras.frankenphp.enable (pkgs.frankenphp.overrideAttrs {
+    services.caddy.package = mkIf cfg.extras.frankenphp.enable (pkgs.frankenphp.override {
       php = config.languages.php.package;
     });
     services.caddy.virtualHosts = lib.mkOverride 60 {};
