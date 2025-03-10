@@ -44,6 +44,7 @@ in with lib; {
         basename = strings.removePrefix "platform_" (builtins.baseNameOf config.env.DEVENV_ROOT);
         subdomain = if basename == "platform" then "trunk" else basename;
       in subdomain + ".localhost";
+      defaultText = "<part-of-dirname>.localhost";
     };
     port = mkOption {
       description = "The base port on which Shopware will be available. All sub services will be derived from this port.";

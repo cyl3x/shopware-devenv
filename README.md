@@ -7,6 +7,7 @@ Set of modules to quickly configure a Shopware development environment:
 - QoL enhancements and pre-configured tools
 
 ## How to use
+Put this as your `devenv.local.nix`:
 ```nix
 { ... }: let
   modules = builtins.fetchGit {
@@ -20,8 +21,61 @@ in {
   shopware.enable = true;
   shopware.port = 3000;
   shopware.ssl.standalone.enable = true;
+
+  # if not set, the domain is derived from the directory name (`platform_` is stripped)
+  # shopware.domain = "dev.localhost";
 }
 
+```
+
+## How to use (proxy mode)
+`devenv.local.nix` inside a platform project:
+```nix
+{ ... }: let
+  modules = builtins.fetchGit {
+    url = "https://github.com/cyl3x/shopware-devenv";
+    ref = "devenv";
+    rev = "<current-commit-sha>";
+  };
+in {
+  imports = [modules.outPath];
+
+  shopware.enable = true;
+  shopware.port = 3000;
+  # Read more about it below under "Options"
+  shopware.ssl.proxy.enable = true;
+  # Devenv folder of the proxy server. If not set, the parent directory is assumed
+  # shopware.ssl.proxy.devenv = "../.devenv"
+}
+
+```
+
+`devenv.nix` somewhere, e.g. in a parent directory next to all platform projects and app servers:
+```nix
+{ ... }: let
+  modules = builtins.fetchGit {
+    url = "https://github.com/cyl3x/shopware-devenv";
+    ref = "devenv";
+    rev = "<current-commit-sha>";
+  };
+in {
+  imports = [modules.outPath];
+
+  shopware-proxy = {
+    enable = true;
+    platforms = {
+      # base port and domain as set in platform directory
+      "trunk.localhost" = 3000;
+      # some other platform projects
+      "65.localhost" = 3100;
+      "66.localhost" = 3200;
+      "saas.localhost" = 3300;
+    };
+    apps = {
+      "swagbraintree.localhost" = 8080;
+    };
+  };
+}
 ```
 
 # Options
@@ -63,7 +117,7 @@ string
 
 
 *Default:*
-` ".localhost" `
+` "<part-of-dirname>.localhost" `
 
 *Declared by:*
  - [\./shopware/default\.nix](./shopware/default.nix)
@@ -74,7 +128,7 @@ string
 
 
 
-Enable FrankenPHP
+Enable FrankenPHP\. HIGHLY EXPERIMENTAL!
 
 
 

@@ -3,7 +3,7 @@
 in with lib; {
   options.shopware.extras.frankenphp = {
     enable = mkOption {
-      description = "Enable FrankenPHP";
+      description = "Enable FrankenPHP. HIGHLY EXPERIMENTAL!";
       default = false;
     };
   };
