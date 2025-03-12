@@ -71,8 +71,6 @@ in with lib; {
       }
     ];
 
-    env.APP_ENV = mkDefault "dev";
-
     env.APP_URL = mkDefault "${cfg.protocol}://${cfg.domain}:${toString (if cfg.ssl.proxy.enable then cfg.ssl.proxy.port else cfg.port)}";
     env.APP_URL_HTTP = let
       enable = cfg.ssl.standalone.enable || cfg.ssl.proxy.enable;
