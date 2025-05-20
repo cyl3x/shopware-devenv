@@ -23,6 +23,7 @@ in with lib; {
 
     ./extras/mute-deprecations.nix
     ./extras/start-proxy.nix
+    ./extras/vscode-workspace.nix
     ./extras/xdebug.nix
 
     ./caddy.nix

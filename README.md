@@ -187,6 +187,49 @@ boolean
 
 
 
+## shopware\.extras\.vscode-workspace\.enable
+
+
+
+Enable to generate a vscode workspace file\.
+It also includes all plugins, to regenerate the file use ` vscode-ws `
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+*Declared by:*
+ - [\./shopware/extras/vscode-workspace\.nix](./shopware/extras/vscode-workspace.nix)
+
+
+
+## shopware\.extras\.vscode-workspace\.excludedPlugins
+
+
+
+List of plugin folder names exlcuded from the workspace
+
+
+
+*Type:*
+list of string
+
+
+
+*Default:*
+` [ ] `
+
+*Declared by:*
+ - [\./shopware/extras/vscode-workspace\.nix](./shopware/extras/vscode-workspace.nix)
+
+
+
 ## shopware\.extras\.xdebug\.enable
 
 
