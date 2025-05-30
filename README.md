@@ -145,11 +145,11 @@ unspecified value
 
 
 
-## shopware\.extras\.mute-deprecations\.enable
+## shopware\.extras\.monolog\.enable
 
 
 
-Enable to mute deprecation notices in logs\.
+Enable configure monolog, muting or redirecting channels\.
 
 
 
@@ -162,7 +162,64 @@ boolean
 ` false `
 
 *Declared by:*
- - [\./shopware/extras/mute-deprecations\.nix](./shopware/extras/mute-deprecations.nix)
+ - [\./shopware/extras/monolog\.nix](./shopware/extras/monolog.nix)
+
+
+
+## shopware\.extras\.monolog\.extra
+
+
+
+List of channels to be logged in an extra file\.
+
+
+
+*Type:*
+list of string
+
+
+
+*Default:*
+
+```
+[
+  "paypal"
+  "request"
+]
+```
+
+*Declared by:*
+ - [\./shopware/extras/monolog\.nix](./shopware/extras/monolog.nix)
+
+
+
+## shopware\.extras\.monolog\.muted
+
+
+
+List of channels to be muted\.
+
+
+
+*Type:*
+list of string
+
+
+
+*Default:*
+
+```
+[
+  "cache"
+  "deprecation"
+  "event"
+  "paypal"
+  "request"
+]
+```
+
+*Declared by:*
+ - [\./shopware/extras/monolog\.nix](./shopware/extras/monolog.nix)
 
 
 
