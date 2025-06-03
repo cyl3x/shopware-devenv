@@ -466,71 +466,8 @@ boolean
 
 
 
-Enable configuration for playwright\. This will download the browsers and set ` PLAYWRIGHT_BROWSERS_PATH `\.
-Properly only enable if nixos support is needed\.
-
-
-
-*Type:*
-boolean
-
-
-
-*Default:*
-` false `
-
-*Declared by:*
- - [\./shopware/modules/playwright\.nix](./shopware/modules/playwright.nix)
-
-
-
-## shopware\.modules\.playwright\.chromium
-
-
-
-Enable chromium browser for playwright\.
-
-
-
-*Type:*
-boolean
-
-
-
-*Default:*
-` true `
-
-*Declared by:*
- - [\./shopware/modules/playwright\.nix](./shopware/modules/playwright.nix)
-
-
-
-## shopware\.modules\.playwright\.firefox
-
-
-
-Enable firefox browser for playwright\.
-
-
-
-*Type:*
-boolean
-
-
-
-*Default:*
-` false `
-
-*Declared by:*
- - [\./shopware/modules/playwright\.nix](./shopware/modules/playwright.nix)
-
-
-
-## shopware\.modules\.playwright\.webkit
-
-
-
-Enable webkit browser for playwright\.
+Enable configuration for playwright\. A ` playwright ` command will be available\.
+Use for systems like NixOS, where ` npx run playwight install ` not work\.
 
 
 

@@ -1,41 +1,26 @@
-{ config, pkgs, ... }@args: let
+{ config, ... }@args: let
   lib = import ../lib.nix args;
   cfg = config.shopware.modules.playwright;
-  playwright-browsers = pkgs.playwright-driver.passthru.browsers.override {
-    withChromium = cfg.chromium;
-    withFirefox = cfg.firefox;
-    withWebkit = cfg.webkit;
-  };
 in with lib; {
   options.shopware.modules.playwright = {
     enable = mkOption {
       description = ''
-      Enable configuration for playwright. This will download the browsers and set `PLAYWRIGHT_BROWSERS_PATH`.
-      Properly only enable if nixos support is needed.
+      Enable configuration for playwright. A `playwright` command will be available.
+      Use for systems like NixOS, where `npx run playwight install` not work. 
       '';
-      type = types.bool;
-      default = false;
-    };
-    chromium = mkOption {
-      description = "Enable chromium browser for playwright.";
-      type = types.bool;
-      default = true;
-    };
-    firefox = mkOption {
-      description = "Enable firefox browser for playwright.";
-      type = types.bool;
-      default = false;
-    };
-    webkit = mkOption {
-      description = "Enable webkit browser for playwright.";
       type = types.bool;
       default = false;
     };
   };
 
-  config = mkIf cfg.enable {
-    env.PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1";
-    env.PLAYWRIGHT_BROWSERS_PATH = "${playwright-browsers}";
-    env.PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = "1";
+  config.scripts = mkIf cfg.enable {
+    "playwright".exec = ''
+      export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD="1";
+      export PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS="1";
+      export PLAYWRIGHT_SKIP_BROWSER_GC="1"
+      version="$(jq -r '.packages["node_modules/@playwright/test"].version' package-lock.json)"
+      export PLAYWRIGHT_BROWSERS_PATH="$(nix build --print-out-paths --no-link "github:pietdevries94/playwright-web-flake/$version#playwright-driver.browsers")"
+      npx playwright "$@"
+    '';
   };
 }
