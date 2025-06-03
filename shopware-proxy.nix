@@ -87,5 +87,7 @@ in {
 
       ${concatStrings (builtins.attrValues (builtins.mapAttrs genProxy cfg.apps))}
     '';
+
+    scripts."caddy-setcap".exec = ''sudo setcap CAP_NET_BIND_SERVICE=+eip "${config.services.caddy.package}/bin/caddy"'';
   };
 }

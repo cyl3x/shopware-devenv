@@ -63,6 +63,7 @@ in {
 
   shopware-proxy = {
     enable = true;
+    port = 2000; # port to start poxy on
     platforms = {
       # base port and domain as set in platform directory
       "trunk.localhost" = 3000;
@@ -77,6 +78,12 @@ in {
   };
 }
 ```
+
+## Utility scripts
+
+- `console` can be used to execute console command in any directory
+- `caddy-setcap` can be used to bind privileged ports (like 443). Can only be used on non-nixos systems
+- `vscode-ws` can be used to generate a VS Code workspace file. Set `shopware.extras.vscode-workspace.enable = true;`.
 
 # Options
 

@@ -55,5 +55,7 @@ in with lib; {
     files."config/packages/_devenv.yaml".yaml = lib.optionalAttrs cfg.ssl.proxy.enable {
       framework.trusted_proxies = mkDefault "127.0.0.1";
     };
+
+    scripts."caddy-setcap".exec = ''sudo setcap CAP_NET_BIND_SERVICE=+eip "${config.services.caddy.package}/bin/caddy"'';
   };
 }
