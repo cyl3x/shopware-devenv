@@ -27,7 +27,7 @@ in with lib; {
 
     files."config/packages/_devenv.yaml".yaml = {
       "when@dev".monolog = {
-        channels = [ "deprecation" ];
+        channels = [ "deprecation" "paypal" ];
         handlers = {
           main.channels = builtins.map (s: "!${s}") (cfg.muted);
         } // (attrsets.optionalAttrs (lib.lists.any (s: s == "deprecation") cfg.muted) {
