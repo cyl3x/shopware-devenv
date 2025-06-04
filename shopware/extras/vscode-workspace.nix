@@ -37,6 +37,12 @@ in with lib; {
             "**/Resources/app/administration/**/*.html.twig" = "vue-html";
           };
 
+          "files.exclude" = {
+            "**/.tmp/**" = true;
+            "**/.vite/**" = true;
+            "public/**/*[!.php]" = true;
+          };
+
           "search.exclude" = {
             "**/vendor" = true;
             "**/vendor-bin" = true;
@@ -47,6 +53,8 @@ in with lib; {
             "**/var/cache" = true;
             "**.lock" = true;
             "**/package-lock.json" = true;
+            "**/public/administration/**" = true;
+            "**/public/static/**" = true;
           };
 
           "files.eol" = "\n";
