@@ -12,4 +12,8 @@ in with lib; {
   config.scripts."console" = mkIf cfg.console {
     exec = "${config.env.DEVENV_ROOT}/bin/console \"$@\"";
   };
+
+  config.scripts."update-module".exec = (builtins.readFile ../update_modules.bash) + ''
+    update_module ./devenv.local.nix
+  '';
 }

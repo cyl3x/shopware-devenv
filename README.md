@@ -84,6 +84,8 @@ in {
 - `console` can be used to execute console command in any directory
 - `caddy-setcap` can be used to bind privileged ports (like 443). Can only be used on non-nixos systems
 - `vscode-ws` can be used to generate a VS Code workspace file. Set `shopware.extras.vscode-workspace.enable = true;`.
+- `update-module` can be used to update to the newest SHA. Pass a SHA as argument to update to a specific SHA.
+- `update-modules` can be used to update all `devenv.local.nix` to the newest SHA. (Proxy config only) (searches with max-depth = 1)
 
 # Options
 

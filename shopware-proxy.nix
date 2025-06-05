@@ -89,5 +89,15 @@ in {
     '';
 
     scripts."caddy-setcap".exec = ''sudo setcap CAP_NET_BIND_SERVICE=+eip "${config.services.caddy.package}/bin/caddy"'';
+
+    scripts."update-module".exec = (builtins.readFile ./update_modules.bash) + ''
+      update_module ./devenv.nix
+    '';
+
+    scripts."update-modules".exec = config.scripts."update-module".exec + ''
+      for file in ./*/devenv.local.nix; do
+        update_module "$file"
+      done
+    '';
   };
 }
