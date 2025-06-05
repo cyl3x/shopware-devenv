@@ -80,5 +80,9 @@ in with lib; {
     
     env.STOREFRONT_PATH = mkDefault "${config.env.DEVENV_ROOT}/src/Storefront/Resources/app/storefront";
     env.ADMIN_PATH = mkDefault "${config.env.DEVENV_ROOT}/src/Administration/Resources/app/administration";
+
+    scripts."update-module".exec = (builtins.readFile ../update_modules.bash) + ''
+      update_module ./devenv.local.nix
+    '';
   };
 }
