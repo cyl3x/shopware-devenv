@@ -63,6 +63,8 @@ in with lib; {
 
           "git.repositoryScanIgnoredFolders" = [ "node_modules" "vendor" ];
           "todo-tree.tree.scanMode" = "workspace";
+
+          "emmet.includeLanguages".vue-html = "html";
         };
 
         extensions.recommendations = [
@@ -96,7 +98,6 @@ in with lib; {
           "xabikos.JavaScriptSnippets"
 
           # QOL
-          "emeraldwalk.RunOnSave" # Run on save - currently ecs
           "usernamehw.errorlens"
           "RobertOstermann.inline-parameters-extended"
           "Gruntfuggly.todo-tree" # highlights some comments, e.g. @todo, @fixme
