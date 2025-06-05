@@ -115,7 +115,7 @@ in with lib; {
       find ./custom/plugins -maxdepth 1 -type d ! -name 'plugins' -printf '%f\n' | ${pkgs.jq}/bin/jq -Rn \
         --argjson ws '${builtins.toJSON base-config}' \
         --argjson excludedPlugins '${builtins.toJSON cfg.excludedPlugins}' \
-        '$ws | .folders = [inputs | select(. as $i | $excludedPlugins | index($i) | not) | {path: ("custom/plugins/" + .)}] + .folders' > ${filename}
+        '$ws | .folders = [inputs | select(. as $i | $excludedPlugins | index($i) | not) | {path: ("custom/plugins/" + .)}] + .folders' > ${config.env.DEVENV_ROOT}/${filename}
     '';
   };
 }
