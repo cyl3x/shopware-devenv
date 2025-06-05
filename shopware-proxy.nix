@@ -91,10 +91,11 @@ in {
     scripts."caddy-setcap".exec = ''sudo setcap CAP_NET_BIND_SERVICE=+eip "${config.services.caddy.package}/bin/caddy"'';
 
     scripts."update-module".exec = (builtins.readFile ./update_modules.bash) + ''
-      update_module ./devenv.nix
+      update_module '${config.env.DEVENV_ROOT}/devenv.nix'
     '';
 
     scripts."update-modules".exec = config.scripts."update-module".exec + ''
+      cd '${config.env.DEVENV_ROOT}'
       for file in ./*/devenv.local.nix; do
         update_module "$file"
       done

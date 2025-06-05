@@ -112,10 +112,11 @@ in with lib; {
         ];
       };
     in ''
+      cd '${config.env.DEVENV_ROOT}'
       find ./custom/plugins -maxdepth 1 -type d ! -name 'plugins' -printf '%f\n' | ${pkgs.jq}/bin/jq -Rn \
         --argjson ws '${builtins.toJSON base-config}' \
         --argjson excludedPlugins '${builtins.toJSON cfg.excludedPlugins}' \
-        '$ws | .folders = [inputs | select(. as $i | $excludedPlugins | index($i) | not) | {path: ("custom/plugins/" + .)}] + .folders' > ${config.env.DEVENV_ROOT}/${filename}
+        '$ws | .folders = [inputs | select(. as $i | $excludedPlugins | index($i) | not) | {path: ("custom/plugins/" + .)}] + .folders' > ${filename}
     '';
   };
 }
