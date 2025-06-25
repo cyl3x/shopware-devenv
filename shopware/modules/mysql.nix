@@ -18,6 +18,7 @@ in with lib; {
 
   config = mkIf cfg.enable {
     env.DATABASE_URL = mkDefault "mysql://shopware:shopware@127.0.0.1:${toString cfg.port}/shopware?sslmode=disable&charset=utf8mb4";
+    env.DATABASE_URL_TEST = mkDefault "mysql://shopware:shopware@127.0.0.1:${toString cfg.port}/shopware_test?sslmode=disable&charset=utf8mb4";
 
     services.mysql.settings.mysqld.port = mkDefault cfg.port;
   };
