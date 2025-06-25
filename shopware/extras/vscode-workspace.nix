@@ -35,6 +35,9 @@ in with lib; {
 
           "files.associations" = {
             "**/Resources/app/administration/**/*.html.twig" = "vue-html";
+            "*.neon" = "yaml";
+            "*.neon.dist" = "yaml";
+            "*.php.dist" = "php";
           };
 
           "files.exclude" = {
