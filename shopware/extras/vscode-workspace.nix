@@ -50,6 +50,8 @@ in with lib; {
             "**/vendor" = true;
             "**/vendor-bin" = true;
             "**/node_modules" = true;
+            "**/bower_components" = true;
+            "**/*.code-search" = true;
             "**.log" = true;
             "**/.devenv" = true;
             "**/.direnv" = true;
@@ -58,6 +60,9 @@ in with lib; {
             "**/package-lock.json" = true;
             "**/public/administration/**" = true;
             "**/public/static/**" = true;
+            "**/tests/acceptance/test-results/**" = true;
+            "**/.jestcache/**" = true;
+            "**/app/storefront/dist/**" = true;
           };
 
           "files.eol" = "\n";
@@ -68,6 +73,8 @@ in with lib; {
           "todo-tree.tree.scanMode" = "workspace";
 
           "emmet.includeLanguages".vue-html = "html";
+
+          "eslint.validate" = [ "vue-html" ];
         };
 
         extensions.recommendations = [
