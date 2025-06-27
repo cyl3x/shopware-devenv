@@ -44,6 +44,9 @@ in with lib; {
             "**/.tmp/**" = true;
             "**/.vite/**" = true;
             "public/**/*[!.php]" = true;
+            # included via workspace folders. Plugin and app folders will be still visible.
+            "custom/plugins/*/*/**" = true;
+            "custom/apps/*/*/**" = true;
           };
 
           "search.exclude" = {
