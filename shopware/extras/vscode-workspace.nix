@@ -120,6 +120,16 @@ in with lib; {
           "vscode.typescript-language-features" # covered by "Vue.vscode-typescript-vue-plugin"
           "vscode.php-language-features" # covered by "bmewburn.vscode-intelephense-client"
         ];
+
+        launch.version = "0.2.0";
+        launch.configurations = [
+          {
+            name = "Listen for Xdebug";
+            type = "php";
+            request = "launch";
+            port = config.shopware.modules.xdebug.port;
+          }
+        ];
       };
     in ''
       cd '${config.env.DEVENV_ROOT}'

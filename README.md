@@ -300,48 +300,6 @@ list of string
 
 
 
-## shopware\.extras\.xdebug\.enable
-
-
-
-Enable Xdebug for PHP\.
-
-
-
-*Type:*
-boolean
-
-
-
-*Default:*
-` true `
-
-*Declared by:*
- - [\./shopware/extras/xdebug\.nix](./shopware/extras/xdebug.nix)
-
-
-
-## shopware\.extras\.xdebug\.logging
-
-
-
-Enable Xdebug logging\. Alternatively, set the log level\.
-
-
-
-*Type:*
-signed integer or boolean
-
-
-
-*Default:*
-` false `
-
-*Declared by:*
- - [\./shopware/extras/xdebug\.nix](./shopware/extras/xdebug.nix)
-
-
-
 ## shopware\.modules\.admin-watcher\.enable
 
 
@@ -571,6 +529,69 @@ boolean
 
 *Declared by:*
  - [\./shopware/modules/var-dump-server\.nix](./shopware/modules/var-dump-server.nix)
+
+
+
+## shopware\.modules\.xdebug\.enable
+
+
+
+Enable Xdebug for PHP\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` true `
+
+*Declared by:*
+ - [\./shopware/modules/xdebug\.nix](./shopware/modules/xdebug.nix)
+
+
+
+## shopware\.modules\.xdebug\.logging
+
+
+
+Enable Xdebug logging\. Alternatively, set the log level\.
+
+
+
+*Type:*
+signed integer or boolean
+
+
+
+*Default:*
+` false `
+
+*Declared by:*
+ - [\./shopware/modules/xdebug\.nix](./shopware/modules/xdebug.nix)
+
+
+
+## shopware\.modules\.xdebug\.port
+
+
+
+Port for Xdebug to listen on\.
+
+
+
+*Type:*
+16 bit unsigned integer; between 0 and 65535 (both inclusive)
+
+
+
+*Default:*
+` 3010 `
+
+*Declared by:*
+ - [\./shopware/modules/xdebug\.nix](./shopware/modules/xdebug.nix)
 
 
 

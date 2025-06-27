@@ -20,11 +20,11 @@ in with lib; {
     ./modules/redis.nix
     ./modules/store-watcher.nix
     ./modules/var-dump-server.nix
+    ./modules/xdebug.nix
 
     ./extras/monolog.nix
     ./extras/start-proxy.nix
     ./extras/vscode-workspace.nix
-    ./extras/xdebug.nix
 
     ./caddy.nix
   ];
