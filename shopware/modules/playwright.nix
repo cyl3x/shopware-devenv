@@ -9,7 +9,7 @@ in with lib; {
       Use for systems like NixOS, where `npx run playwight install` not work. 
       '';
       type = types.bool;
-      default = false;
+      default = true;
     };
   };
 

@@ -553,7 +553,7 @@ boolean
 
 
 *Default:*
-` false `
+` true `
 
 *Declared by:*
  - [\./shopware/modules/playwright\.nix](./shopware/modules/playwright.nix)
