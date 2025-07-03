@@ -15,6 +15,7 @@ in with lib; {
     ./modules/cypress.nix
     ./modules/elasticsearch.nix
     ./modules/mailpit.nix
+    ./modules/messenger.nix
     ./modules/mysql.nix
     ./modules/playwright.nix
     ./modules/rabbitmq.nix
@@ -72,6 +73,8 @@ in with lib; {
         '';
       }
     ];
+
+    process.manager.implementation = lib.mkDefault "process-compose";
 
     env.APP_URL = mkDefault "${cfg.protocol}://${cfg.domain}:${toString (if cfg.ssl.proxy.enable then cfg.ssl.proxy.port else cfg.port)}";
     env.APP_URL_HTTP = let

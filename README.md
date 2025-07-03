@@ -449,6 +449,74 @@ boolean
 
 
 
+## shopware\.modules\.messenger\.enable
+
+
+
+Enable running a message consumer\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+*Declared by:*
+ - [\./shopware/modules/messenger\.nix](./shopware/modules/messenger.nix)
+
+
+
+## shopware\.modules\.messenger\.args
+
+
+
+Additional arguments to pass to the messenger consumer\.
+
+
+
+*Type:*
+list of string
+
+
+
+*Default:*
+
+```
+[
+  "-vv --all"
+]
+```
+
+*Declared by:*
+ - [\./shopware/modules/messenger\.nix](./shopware/modules/messenger.nix)
+
+
+
+## shopware\.modules\.messenger\.time-limit
+
+
+
+The time limit in seconds the worker can handle new messages\. The messenger will restart after this time\.
+
+
+
+*Type:*
+signed integer
+
+
+
+*Default:*
+` 300 `
+
+*Declared by:*
+ - [\./shopware/modules/messenger\.nix](./shopware/modules/messenger.nix)
+
+
+
 ## shopware\.modules\.mysql\.enable
 
 
