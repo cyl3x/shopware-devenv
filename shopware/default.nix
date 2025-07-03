@@ -75,6 +75,7 @@ in with lib; {
     ];
 
     process.manager.implementation = lib.mkDefault "process-compose";
+    devenv.warnOnNewVersion = false;
 
     env.APP_URL = mkDefault "${cfg.protocol}://${cfg.domain}:${toString (if cfg.ssl.proxy.enable then cfg.ssl.proxy.port else cfg.port)}";
     env.APP_URL_HTTP = let
