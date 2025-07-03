@@ -342,6 +342,50 @@ boolean
 
 
 
+## shopware\.modules\.blackfire\.enable
+
+
+
+Enable blackfire agent and configuration\.
+Credentials have to be set via ` services.blackfire.{client-id,client-token,server-id,server-token} `\.
+These can be found at https://blackfire\.io/my/settings/credentials\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+*Declared by:*
+ - [\./shopware/modules/blackfire\.nix](./shopware/modules/blackfire.nix)
+
+
+
+## shopware\.modules\.blackfire\.port
+
+
+
+Port for blackfire’s socket to listen on\.
+
+
+
+*Type:*
+16 bit unsigned integer; between 0 and 65535 (both inclusive)
+
+
+
+*Default:*
+` 3011 `
+
+*Declared by:*
+ - [\./shopware/modules/blackfire\.nix](./shopware/modules/blackfire.nix)
+
+
+
 ## shopware\.modules\.cypress\.enable
 
 

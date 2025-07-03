@@ -11,6 +11,7 @@ in with lib; {
 
     ./modules/admin-watcher.nix
     ./modules/adminer.nix
+    ./modules/blackfire.nix
     ./modules/cypress.nix
     ./modules/elasticsearch.nix
     ./modules/mailpit.nix
