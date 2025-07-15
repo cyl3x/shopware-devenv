@@ -26,8 +26,7 @@ in with lib; {
     (mkCaddyProxy {
       inherit (cfg) domain port;
       http = false;
-      host = "localhost";
-    }) 
+    })
 
     {
       env.HOST = mkDefault cfg.domain;
