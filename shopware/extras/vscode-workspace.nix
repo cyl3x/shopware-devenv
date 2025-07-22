@@ -22,7 +22,7 @@ in with lib; {
     vscode-ws.exec = let
       filename = "${builtins.baseNameOf config.env.DEVENV_ROOT}.code-workspace";
 
-      base-config = {
+      base-config = rec {
         folders = [{ path = "."; }];
 
         settings = {
@@ -41,31 +41,37 @@ in with lib; {
           };
 
           "files.exclude" = {
+            "**/.jestcache/**" = true;
             "**/.tmp/**" = true;
             "**/.vite/**" = true;
-            "public/**/*[!.php]" = true;
             # included via workspace folders. Plugin and app folders will be still visible.
-            "custom/plugins/*/*/**" = true;
             "custom/apps/*/*/**" = true;
+            "custom/plugins/*/*/**" = true;
+            "public/**/*[!.php]" = true;
+          };
+
+          "files.watcherExclude" = settings."files.exclude" // {
+            "**/Resources/app/storefront/dist/**" = true;
+            "**/Resources/public/**" = true;
+            "public/**/*[!.php]" = true;
           };
 
           "search.exclude" = {
-            "**/vendor" = true;
-            "**/vendor-bin" = true;
-            "**/node_modules" = true;
-            "**/bower_components" = true;
-            "**/*.code-search" = true;
+            "**.lock" = true;
             "**.log" = true;
             "**/.devenv" = true;
             "**/.direnv" = true;
-            "**/var/cache" = true;
-            "**.lock" = true;
-            "**/package-lock.json" = true;
-            "**/public/administration/**" = true;
-            "**/public/static/**" = true;
-            "**/tests/acceptance/test-results/**" = true;
             "**/.jestcache/**" = true;
-            "**/app/storefront/dist/**" = true;
+            "**/*.code-search" = true;
+            "**/bower_components" = true;
+            "**/node_modules" = true;
+            "**/package-lock.json" = true;
+            "**/Resources/app/storefront/dist/**" = true;
+            "**/Resources/public/**" = true;
+            "**/tests/acceptance/test-results/**" = true;
+            "**/var/cache" = true;
+            "**/vendor-bin" = true;
+            "**/vendor" = true;
           };
 
           "files.eol" = "\n";
