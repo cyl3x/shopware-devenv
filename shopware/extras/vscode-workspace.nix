@@ -41,9 +41,9 @@ in with lib; {
           };
 
           "files.exclude" = {
-            "**/.jestcache/**" = true;
-            "**/.tmp/**" = true;
-            "**/.vite/**" = true;
+            "**/.jestcache" = true;
+            "**/.tmp" = true;
+            "**/.vite" = true;
             # included via workspace folders. Plugin and app folders will be still visible.
             "custom/apps/*/*/**" = true;
             "custom/plugins/*/*/**" = true;
@@ -51,24 +51,21 @@ in with lib; {
           };
 
           "files.watcherExclude" = settings."files.exclude" // {
-            "**/Resources/app/storefront/dist/**" = true;
-            "**/Resources/public/**" = true;
-            "public/**/*[!.php]" = true;
+            "**/Resources/app/storefront/dist" = true;
+            "**/Resources/public" = true;
           };
 
-          "search.exclude" = {
+          "search.exclude" = settings."files.watcherExclude" // {
             "**.lock" = true;
             "**.log" = true;
             "**/.devenv" = true;
             "**/.direnv" = true;
-            "**/.jestcache/**" = true;
+            "**/.git" = true;
             "**/*.code-search" = true;
             "**/bower_components" = true;
             "**/node_modules" = true;
             "**/package-lock.json" = true;
-            "**/Resources/app/storefront/dist/**" = true;
-            "**/Resources/public/**" = true;
-            "**/tests/acceptance/test-results/**" = true;
+            "**/tests/acceptance/test-results" = true;
             "**/var/cache" = true;
             "**/vendor-bin" = true;
             "**/vendor" = true;
