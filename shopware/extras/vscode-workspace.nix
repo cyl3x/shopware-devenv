@@ -16,6 +16,11 @@ in with lib; {
       type = types.listOf types.str;
       default = [];
     };
+    wrapper.phpunit = mkOption {
+      description = "Adds a phpunit wrapper for recca0120.vscode-phpunit so it can find phpunit in plugins";
+      type = types.bool;
+      default = true;
+    };
   };
 
   config.scripts = lib.mkIf cfg.enable {
@@ -81,7 +86,42 @@ in with lib; {
           "emmet.includeLanguages".vue-html = "html";
 
           "eslint.validate" = [ "vue-html" ];
-        };
+        } // (lib.attrsets.optionalAttrs cfg.wrapper.phpunit {
+          "phpunit.phpunit" = pkgs.writeScript "phpunit-wrapper" ''
+            #!/usr/bin/env php
+            <?php
+
+            $args = [...$argv];
+            array_shift($args);
+
+            function cmd_exists(string $cmd): bool
+            {
+              $out = "";
+              $code = 1;
+              exec(sprintf('/usr/bin/env bash -c "command -v %s"', $cmd), $out, $code);
+              return $code === 0;
+            }
+
+            function exec_phpunit(string $bin): int {
+              global $args;
+              $code = 1;
+              echo "exec " . $bin;
+              passthru(sprintf('%s %s', $bin, implode(' ', array_map('escapeshellarg', $args))), $code);
+              exit($code);
+            }
+
+            if (is_executable('vendor/bin/phpunit')) {
+              exec_phpunit('vendor/bin/phpunit');
+            } else if (is_executable('../../../vendor/bin/phpunit')) {
+              exec_phpunit('../../../vendor/bin/phpunit');
+            } else if (cmd_exists('phpunit')) {
+              exec_phpunit('phpunit');
+            } else {
+              echo 'no phpunit executable found' . \PHP_EOL;
+              exit(1);
+            }
+          '';
+        });
 
         extensions.recommendations = [
           # https://github.com/QISCT/symfony-vscode

@@ -300,6 +300,27 @@ list of string
 
 
 
+## shopware\.extras\.vscode-workspace\.wrapper\.phpunit
+
+
+
+Adds a phpunit wrapper for recca0120\.vscode-phpunit so it can find phpunit in plugins
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` true `
+
+*Declared by:*
+ - [\./shopware/extras/vscode-workspace\.nix](./shopware/extras/vscode-workspace.nix)
+
+
+
 ## shopware\.modules\.admin-watcher\.enable
 
 
