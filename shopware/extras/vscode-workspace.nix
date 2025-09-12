@@ -23,8 +23,8 @@ in with lib; {
     };
   };
 
-  config.scripts = lib.mkIf cfg.enable {
-    vscode-ws.exec = let
+  config = lib.mkIf cfg.enable {
+    scripts.vscode-ws.exec = let
       filename = "${builtins.baseNameOf config.env.DEVENV_ROOT}.code-workspace";
 
       base-config = rec {
@@ -91,40 +91,7 @@ in with lib; {
 
           "errorLens.excludeBySource" = [ "Harper" ];
         } // (lib.attrsets.optionalAttrs cfg.wrapper.phpunit {
-          "phpunit.phpunit" = pkgs.writeScript "phpunit-wrapper" ''
-            #!/usr/bin/env php
-            <?php
-
-            $args = [...$argv];
-            array_shift($args);
-
-            function cmd_exists(string $cmd): bool
-            {
-              $out = "";
-              $code = 1;
-              exec(sprintf('/usr/bin/env bash -c "command -v %s"', $cmd), $out, $code);
-              return $code === 0;
-            }
-
-            function exec_phpunit(string $bin): int {
-              global $args;
-              $code = 1;
-              echo "exec " . $bin;
-              passthru(sprintf('%s %s', $bin, implode(' ', array_map('escapeshellarg', $args))), $code);
-              exit($code);
-            }
-
-            if (is_executable('vendor/bin/phpunit')) {
-              exec_phpunit('vendor/bin/phpunit');
-            } else if (is_executable('../../../vendor/bin/phpunit')) {
-              exec_phpunit('../../../vendor/bin/phpunit');
-            } else if (cmd_exists('phpunit')) {
-              exec_phpunit('phpunit');
-            } else {
-              echo 'no phpunit executable found' . \PHP_EOL;
-              exit(1);
-            }
-          '';
+          "phpunit.phpunit" = "${config.env.DEVENV_ROOT}/.devenv/profile/bin/vscode-phpunit-wrapper";
         });
 
         extensions.recommendations = [
@@ -189,5 +156,40 @@ in with lib; {
         --argjson excludedPlugins '${builtins.toJSON cfg.excludedPlugins}' \
         '$ws | .folders = .folders + [inputs | select(. as $i | $excludedPlugins | index($i) | not) | {path: ("custom/plugins/" + .)}]' > ${filename}
     '';
+
+    packages = lib.lists.optional cfg.wrapper.phpunit (pkgs.writeScriptBin "vscode-phpunit-wrapper" ''
+      #!/usr/bin/env php
+      <?php
+
+      $args = [...$argv];
+      array_shift($args);
+
+      function cmd_exists(string $cmd): bool
+      {
+        $out = "";
+        $code = 1;
+        exec(sprintf('/usr/bin/env bash -c "command -v %s"', $cmd), $out, $code);
+        return $code === 0;
+      }
+
+      function exec_phpunit(string $bin): int {
+        global $args;
+        $code = 1;
+        echo "wrapper: exec " . $bin . \PHP_EOL;
+        passthru(sprintf('%s %s', $bin, implode(' ', array_map('escapeshellarg', $args))), $code);
+        exit($code);
+      }
+
+      if (is_executable('vendor/bin/phpunit')) {
+        exec_phpunit('vendor/bin/phpunit');
+      } else if (is_executable('../../../vendor/bin/phpunit')) {
+        exec_phpunit('../../../vendor/bin/phpunit');
+      } else if (cmd_exists('phpunit')) {
+        exec_phpunit('phpunit');
+      } else {
+        echo 'wrapper: no phpunit executable found' . \PHP_EOL;
+        exit(1);
+      }
+    '');
   };
 }
