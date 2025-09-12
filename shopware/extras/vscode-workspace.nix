@@ -86,6 +86,10 @@ in with lib; {
           "emmet.includeLanguages".vue-html = "html";
 
           "eslint.validate" = [ "vue-html" ];
+
+          "harper.dialect" = "British";
+
+          "errorLens.excludeBySource" = [ "Harper" ];
         } // (lib.attrsets.optionalAttrs cfg.wrapper.phpunit {
           "phpunit.phpunit" = pkgs.writeScript "phpunit-wrapper" ''
             #!/usr/bin/env php
@@ -160,6 +164,7 @@ in with lib; {
           "DEVSENSE.composer-php-vscode"
           "codezombiech.gitignore"
           "ryanluker.vscode-coverage-gutters"
+          "elijah-potter.harper"
         ];
 
         extensions.unwantedRecommendations = [
