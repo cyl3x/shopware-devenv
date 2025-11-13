@@ -35,8 +35,23 @@ in with lib; {
           "intelephense.rename.namespaceMode" = "all";
           "intelephense.phpdoc.returnVoid" = false;
           "intelephense.compatibility.preferPsalmPhpstanPrefixedAnnotations" = true;
+          "intelephense.codeLens.implementations.enable" = true;
+          "intelephense.codeLens.overrides.enable" = true;
+          "intelephense.codeLens.parent.enable" = true;
+          "intelephense.codeLens.references.enable" = true;
+          "intelephense.codeLens.usages.enable" = true;
+          "intelephense.completion.suggestObjectOperatorStaticMethods" = false;
+          "intelephense.files.exclude" = [ "**/var/cache/**" ];
+          "intelephense.phpdoc.functionTemplate" = {
+            "summary" = "$1";
+            "tags" = [
+              ''@param ''${1:$SYMBOL_TYPE} $SYMBOL_NAME $2''
+              ''@return ''${1:$SYMBOL_TYPE} $2''
+            ];
+          };
 
           "errorLens.enabledInMergeConflict" = false;
+          "errorLens.excludeBySource" = [ "Harper" ];
 
           "files.associations" = {
             "**/Resources/app/administration/**/*.html.twig" = "vue-html";
@@ -89,7 +104,7 @@ in with lib; {
 
           "harper.dialect" = "British";
 
-          "errorLens.excludeBySource" = [ "Harper" ];
+          "phpunit.debuggerConfig" = "Listen for Xdebug"; # name of the launch config
         } // (lib.attrsets.optionalAttrs cfg.wrapper.phpunit {
           "phpunit.phpunit" = "${config.env.DEVENV_ROOT}/.devenv/profile/bin/vscode-phpunit-wrapper";
         });
