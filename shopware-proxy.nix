@@ -73,6 +73,11 @@ in {
         default = false;
       };
     };
+    update-modules-path = mkOption {
+        description = "Path to recursively update modules in";
+        type = types.str;
+        default = ".";
+      };
   };
 
   config = mkIf cfg.enable {
@@ -96,7 +101,7 @@ in {
 
     scripts."update-modules".exec = config.scripts."update-module".exec + ''
       cd '${config.env.DEVENV_ROOT}'
-      for file in ./*/devenv.local.nix; do
+      for file in ${cfg.update-modules-path}/*/devenv.local.nix; do
         update_module "$file"
       done
     '';
