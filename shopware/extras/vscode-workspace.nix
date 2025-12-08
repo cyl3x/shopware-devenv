@@ -72,6 +72,7 @@ in with lib; {
 
           "files.watcherExclude" = settings."files.exclude" // {
             "**/Resources/app/storefront/dist" = true;
+            "**/Resources/app/storefront/vendor" = true;
             "**/Resources/public" = true;
           };
 
