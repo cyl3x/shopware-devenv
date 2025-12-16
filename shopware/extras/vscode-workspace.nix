@@ -31,6 +31,8 @@ in with lib; {
         folders = [{ path = "."; }];
 
         settings = {
+          "intelephense.completion.propertyCase" = "camel";
+          "intelephense.completion.parameterCase" = "camel";
           "intelephense.completion.fullyQualifyGlobalConstantsAndFunctions" = true;
           "intelephense.rename.namespaceMode" = "all";
           "intelephense.phpdoc.returnVoid" = false;
@@ -49,6 +51,9 @@ in with lib; {
               ''@return ''${1:$SYMBOL_TYPE} $2''
             ];
           };
+
+          "namespaceResolver.sortAlphabetically" = true;
+          "namespaceResolver.sortNatural" = false;
 
           "errorLens.enabledInMergeConflict" = false;
           "errorLens.excludeBySource" = [ "Harper" ];
