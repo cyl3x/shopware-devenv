@@ -68,7 +68,7 @@ in with lib; {
       openssl.cafile = ${combined}
     '';
 
-    process.manager.before = ''
+    process.manager.before = lib.mkAfter ''
       cat ${escapeShellArg system} ${escapeShellArg rootCA} > ${escapeShellArg combined}
     '';
   });

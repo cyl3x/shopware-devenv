@@ -1,6 +1,6 @@
 { config, lib, ... }:
 rec {
-  inherit (lib) mkAfter mkMerge mkOption types strings optionalString lists attrsets;
+  inherit (lib) mkAfter mkBefore mkMerge mkOption types strings optionalString lists attrsets;
 
   mkDefault = lib.mkOverride 900;
 
