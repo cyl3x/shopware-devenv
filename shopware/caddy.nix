@@ -43,7 +43,7 @@ in with lib; {
         ${lib.optionalString cfg.extras.frankenphp.enable "frankenphp"}
       }
 
-      http://${cfg.domain}:${toString port} {
+      :${toString port} {
         ${content}
       }
     '' + (lib.optionalString cfg.ssl.standalone.enable ''
