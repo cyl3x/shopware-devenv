@@ -110,6 +110,32 @@ in with lib; {
 
           "harper.dialect" = "British";
 
+
+          "dbcode.connections" = [{
+            "connectionId" = "${builtins.hashString "md5" config.env.DEVENV_ROOT}";
+            "name" = "${builtins.baseNameOf config.env.DEVENV_ROOT}";
+            "driver" = "mysql";
+            "connectionType" = "host";
+            "host" = "localhost";
+            "port" = config.shopware.modules.mysql.port;
+            "ssl" = false;
+            "authMethod" = "password";
+            "username" = "root";
+            "savePassword" = "na";
+            "readOnly" = false;
+            "postConnectionSqlType" = "inline";
+            "connectionTimeout" = 30;
+            "idleTimeout" = 300;
+            "maxConnections" = 10;
+            "pinnedConnectionTimeout" = "0";
+            "driverOptions" = {
+                "retrievePublickey" = true;
+                "disableMultiStatements" = false;
+                "permitLocalInfile" = false;
+            };
+            "introspection"."progressive" = false;
+          }];
+
           "phpunit.debuggerConfig" = "Listen for Xdebug"; # name of the launch config
         } // (lib.attrsets.optionalAttrs cfg.wrapper.phpunit {
           "phpunit.phpunit" = "${config.env.DEVENV_ROOT}/.devenv/profile/bin/vscode-phpunit-wrapper";
@@ -153,6 +179,7 @@ in with lib; {
           "codezombiech.gitignore"
           "ryanluker.vscode-coverage-gutters"
           "elijah-potter.harper"
+          "dbcode.dbcode" # db explorer
         ];
 
         extensions.unwantedRecommendations = [
