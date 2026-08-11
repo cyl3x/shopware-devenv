@@ -43,7 +43,15 @@ in with lib; {
           "intelephense.codeLens.references.enable" = true;
           "intelephense.codeLens.usages.enable" = true;
           "intelephense.completion.suggestObjectOperatorStaticMethods" = false;
-          "intelephense.files.exclude" = [ "**/var/cache/**" ];
+          "intelephense.files.exclude" = [
+            "**/.git/**"
+            "**/node_modules/**"
+            "**/var/cache/**"
+            "**/vendor-bin/**"
+            "**/vendor/**/{Tests,tests}/**"
+            "**/vendor/**/vendor/**"
+            "**/vendor/symfony/intl/Resources/data/**"
+          ];
           "intelephense.phpdoc.functionTemplate" = {
             "summary" = "$1";
             "tags" = [
@@ -69,32 +77,37 @@ in with lib; {
             "**/.jestcache" = true;
             "**/.tmp" = true;
             "**/.vite" = true;
-            # included via workspace folders. Plugin and app folders will be still visible.
-            "custom/apps/*/*/**" = true;
-            "custom/plugins/*/*/**" = true;
-            "public/**/*[!.php]" = true;
+            # included via workspace folders. Plugin and app folders will be ~still visible~ not visible (excluding more fine-grained will cause intelephense to malfunction)
+            "custom/apps" = true; 
+            "custom/plugins" = true;
           };
 
-          "files.watcherExclude" = settings."files.exclude" // {
-            "**/Resources/app/storefront/dist" = true;
-            "**/Resources/app/storefront/vendor" = true;
-            "**/Resources/public" = true;
+          "files.watcherExclude" = {
+            "**/.devenv/*/**" = true;
+            "**/.direnv/**" = true;
+            "**/.jestcache/**" = true;
+            "**/.tmp/**" = true;
+            "**/.vite/**" = true;
+            "**/node_modules/**" = true;
+            "**/Resources/app/storefront/dist/**" = true;
+            "**/Resources/app/storefront/vendor/**" = true;
+            "**/Resources/public/**" = true;
+            "**/var/cache/**" = true;
+            "**/vendor-bin/**" = true;
+            "public/bundles/**" = true;
+            "public/media/**" = true;
+            "public/theme/**" = true;
           };
 
-          "search.exclude" = settings."files.watcherExclude" // {
+          "search.exclude" = settings."files.watcherExclude" // settings."files.exclude" // {
             "**.lock" = true;
             "**.log" = true;
-            "**/.devenv" = true;
-            "**/.direnv" = true;
-            "**/.git" = true;
+            "**/.git/**" = true;
             "**/*.code-search" = true;
-            "**/bower_components" = true;
-            "**/node_modules" = true;
+            "**/bower_components/**" = true;
             "**/package-lock.json" = true;
-            "**/tests/acceptance/test-results" = true;
-            "**/var/cache" = true;
-            "**/vendor-bin" = true;
-            "**/vendor" = true;
+            "**/tests/acceptance/test-results/**" = true;
+            "**/vendor/**" = true;
           };
 
           "files.eol" = "\n";
