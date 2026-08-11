@@ -121,7 +121,7 @@ in with lib; {
           "emmet.includeLanguages".vue-html = "html";
 
           "eslint.run" = "onSave";
-          "eslint.workingDirectories" = [{ mode = "auto" }];
+          "eslint.workingDirectories" = [{ mode = "auto"; }];
           "eslint.validate" = [ "vue-html" ];
 
           "harper.dialect" = "British";
