@@ -50,6 +50,7 @@ in with lib; {
             "**/vendor-bin/**"
             "**/vendor/**/{Tests,tests}/**"
             "**/vendor/**/vendor/**"
+            "**/vendor/fakerphp/faker/src/Faker/Provider/*/Text.php"
             "**/vendor/symfony/intl/Resources/data/**"
           ];
           "intelephense.phpdoc.functionTemplate" = {
@@ -119,10 +120,18 @@ in with lib; {
 
           "emmet.includeLanguages".vue-html = "html";
 
+          "eslint.run" = "onSave";
+          "eslint.workingDirectories" = [{ mode = "auto" }];
           "eslint.validate" = [ "vue-html" ];
 
           "harper.dialect" = "British";
 
+          # a bit hungry in the moment
+          # "phpstan.enabled" = true;
+          # yes scans the whole project, but once the cache is warm, it should be fast.
+          # single file mode will skip and override the cache, not ideal.
+          # "phpstan.singleFileMode" = false;
+          "phpstan.memoryLimit" = "4G";
 
           "dbcode.connections" = [{
             "connectionId" = "${builtins.hashString "md5" config.env.DEVENV_ROOT}";
