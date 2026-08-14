@@ -12,12 +12,10 @@ in with lib; {
       description = "javascript version auto-detected based on the shopware version.";
       readOnly = true;
       type = types.package;
-      default = if config.shopware.version == "6.4" then pkgs.nodejs_20
-        else if config.shopware.version == "6.5" then pkgs.nodejs_20
-        else if config.shopware.version == "6.6" then pkgs.nodejs_22
+      default = if lists.elem config.shopware.version ["6.4" "6.5" "6.6"] then pkgs.nodejs_22
         else if config.shopware.version == "6.7" then pkgs.nodejs_24
         else pkgs.nodejs_26;
-      defaultText = "<nodejs_20 for 6.4 and 6.5, nodejs_22 for 6.6, nodejs_24 for 6.7, nodejs_26 otherwise>";
+      defaultText = "<nodejs_22 for 6.4 to 6.6, nodejs_24 for 6.7, nodejs_26 otherwise>";
     };
   };
 
@@ -26,5 +24,7 @@ in with lib; {
       enable = true;
       package = mkDefault cfg.auto-version;
     };
+
+    env.NODE_OPTIONS = optionalEnv (config.shopware.version == "6.4") "--openssl-legacy-provider";
   };
 }

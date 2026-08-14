@@ -15,13 +15,13 @@ in with lib; {
       default = config.shopware.port + 6;
     };
     auto-version = mkOption {
-      description = "MySQL version & package auto-detected based on the shopware version.";
+      description = "MySQL/MariaDB package auto-detected based on the shopware version.";
       readOnly = true;
       type = types.package;
-      default = if config.shopware.version == "6.4" then pkgs.mysql80
-        else if config.shopware.version == "6.5" then pkgs.mysql80
+      default = if config.shopware.version == "6.4" then pkgs.mariadb_106
+        else if config.shopware.version == "6.5" then pkgs.mariadb_1011
         else pkgs.mysql84;
-      defaultText = "<mysql80 for 6.4 and 6.5, mysql84 otherwise>";
+      defaultText = "<mariadb_106 for 6.4, mariadb_1011 for 6.5, mysql84 otherwise>";
     };
   };
 

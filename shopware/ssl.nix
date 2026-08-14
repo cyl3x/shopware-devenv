@@ -36,13 +36,17 @@ in with lib; {
       devenv = mkOption {
         description = "Path to the devenv instance that serves as proxy.";
         type = types.str;
-        default = "${config.env.DEVENV_ROOT}/../.devenv";
+        default = "${config.env.DEVENV_ROOT}/..";
+        defaultText = "<devenv-root>/.devenv";
+        apply = path: let normalized = strings.removeSuffix "/" path;
+        in if strings.hasSuffix ".devenv" normalized then normalized else "${normalized}/.devenv";
       };
       rootCA = mkOption {
         description = "Path to the root certificate of the proxy.";
         readOnly = true;
         type = types.str;
         default = "${cfg.proxy.devenv}/state/caddy/data/caddy/pki/authorities/local/root.crt";
+        defaultText = "<ssl.proxy.devenv>/state/caddy/data/caddy/pki/authorities/local/root.crt";
       };
     };
 

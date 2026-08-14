@@ -156,7 +156,7 @@ package *(read only)*
 *Default:*
 
 ```nix
-"<nodejs_20 for 6.4 and 6.5, nodejs_22 for 6.6, nodejs_24 for 6.7, nodejs_26 otherwise>"
+"<nodejs_22 for 6.4 to 6.6, nodejs_24 for 6.7, nodejs_26 otherwise>"
 ```
 
 *Declared by:*
@@ -240,7 +240,7 @@ Port on which mailpit listens for SMTP connections\.
 
 
 
-MySQL version \& package auto-detected based on the shopware version\.
+MySQL/MariaDB package auto-detected based on the shopware version\.
 
 
 
@@ -252,7 +252,7 @@ package *(read only)*
 *Default:*
 
 ```nix
-"<mysql80 for 6.4 and 6.5, mysql84 otherwise>"
+"<mariadb_106 for 6.4, mariadb_1011 for 6.5, mysql84 otherwise>"
 ```
 
 *Declared by:*
@@ -540,7 +540,7 @@ string *(read only)*
 *Default:*
 
 ```nix
-"/home/cyl3x/shopware/shopware-devenv/../.devenv/state/caddy/data/caddy/pki/authorities/local/root.crt"
+"<ssl.proxy.devenv>/state/caddy/data/caddy/pki/authorities/local/root.crt"
 ```
 
 *Declared by:*

@@ -103,7 +103,8 @@ in with lib; {
     env.SERVICE_REGISTRY_URL = lib.mkDefault "https://registry.staging-services.shopware.io";
 
     scripts."update-module".exec = (builtins.readFile ../update_modules.bash) + ''
-      update_module '${config.env.DEVENV_ROOT}/devenv.local.nix'
+      [ -f '${config.env.DEVENV_ROOT}/devenv.local.nix' ] && update_module '${config.env.DEVENV_ROOT}/devenv.local.nix'
+      [ -f '${config.env.DEVENV_ROOT}/devenv.nix' ] && update_module '${config.env.DEVENV_ROOT}/devenv.nix'
     '';
   };
 }

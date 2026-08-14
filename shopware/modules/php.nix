@@ -12,6 +12,7 @@ in with lib; {
       description = "PHP version auto-detected based on the shopware version.";
       readOnly = true;
       type = types.str;
+      # for PHP 8.0 `devenv inputs add phps github:fossar/nix-phps --follows nixpkgs` is necessary
       default = if config.shopware.version == "6.4" then "8.0"
         else if config.shopware.version == "6.5" then "8.2"
         else if config.shopware.version == "6.6" then "8.2"

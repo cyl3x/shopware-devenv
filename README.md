@@ -959,6 +959,7 @@ false
 
 
 Path to the devenv instance that serves as proxy\.
+` .devenv ` is appended if the path doesn’t already end with it\.
 
 
 
@@ -970,7 +971,7 @@ string
 *Default:*
 
 ```nix
-"/home/cyl3x/shopware/shopware-devenv/../.devenv"
+"<parent-of-DEVENV_ROOT>/.devenv"
 ```
 
 *Declared by:*

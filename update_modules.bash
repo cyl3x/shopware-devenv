@@ -14,6 +14,6 @@ fi
 echo "Using newest hash $newest_hash"
 
 update_module() {
-    echo "Update '$1'"
+    echo "Try update '$1'"
     sed -Ei "s/(.*rev = \")[a-z0-9]*(\";)/\1$newest_hash\2/" "$1"
 }
