@@ -1,31 +1,41 @@
 { config, devenv, lib, pkgs, ... }@inputs: let
-  filterOptions = import "${devenv.outPath}/../../filterOptions.nix" lib;
+  # Recursively filter module options by a predicate.
+  # Devenvs own `filterOptions` keeps submodule options unconditionally,
+  # which leaks unrelated devenv options (`env`, `git-hooks`, ...) into the docs.
+  filterOptions = predicate: options: lib.concatMapAttrs (name: value:
+    if lib.isOption value
+      then lib.optionalAttrs (predicate value) { ${name} = value; }
+      else lib.optionalAttrs (lib.isAttrs value) { ${name} = filterOptions predicate value; }
+  ) options;
 
   eval = pkgs.lib.evalModules {
     modules = [
       "${devenv.outPath}/top-level.nix"
       ./default.nix
-      { devenv.warnOnNewVersion = false; }
+      {
+        devenv.warnOnNewVersion = false;
+        # `devenv.root` is internal without a default, it is normally supplied by the cli.
+        devenv.root = config.devenv.root;
+      }
     ];
     specialArgs = { inherit pkgs inputs; };
   };
 
   filteredOptions = filterOptions
-    (path: option: lib.any (lib.hasInfix "/shopware") option.declarations)
+    (option: lib.any (lib.hasInfix "/shopware") option.declarations)
     eval.options;
 
   readonlyOptions = filterOptions
-    (path: option: (builtins.hasAttr "readOnly" option) && option.readOnly)
+    (option: (builtins.hasAttr "readOnly" option) && option.readOnly)
     filteredOptions;
 
   writableOptions = filterOptions
-    (path: option: !(builtins.hasAttr "readOnly" option) || !option.readOnly)
+    (option: !(builtins.hasAttr "readOnly" option) || !option.readOnly)
     filteredOptions;
 
   mkDocOptions = optionSet: let
     rewriteSource = decl: let
-      prefix = lib.strings.concatStringsSep "/" (lib.lists.take 4 (lib.strings.splitString "/" decl));
-      path = lib.strings.removePrefix prefix decl;
+      path = lib.strings.removePrefix (toString config.devenv.root) (toString decl);
       url = ".${path}";
     in { name = url; url = url; };
   in pkgs.nixosOptionsDoc {

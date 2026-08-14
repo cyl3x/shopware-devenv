@@ -6,8 +6,10 @@ Set of modules to quickly configure a Shopware development environment:
 - Use an SSL proxy to share trusted certificates with platform projects and application servers simultaneously
 - QoL enhancements and pre-configured tools
 
+Since commit `ad236a96ca85d12497b2ca9223d744e28f963492` this configuration is meant as replacement for `devenv.nix`
+
 ## How to use
-Put this as your `devenv.local.nix`:
+Put/Replace this as your `devenv.nix`:
 ```nix
 { ... }: let
   modules = builtins.fetchGit {

@@ -10,7 +10,10 @@ string *(read only)*
 
 
 *Default:*
-` "admin..localhost" `
+
+```nix
+"admin.shopware-devenv.localhost"
+```
 
 *Declared by:*
  - [\./shopware/modules/admin-watcher\.nix](./shopware/modules/admin-watcher.nix)
@@ -31,7 +34,10 @@ Port on which the admin-watcher is available\.
 
 
 *Default:*
-` 3001 `
+
+```nix
+3001
+```
 
 *Declared by:*
  - [\./shopware/modules/admin-watcher\.nix](./shopware/modules/admin-watcher.nix)
@@ -52,7 +58,10 @@ string *(read only)*
 
 
 *Default:*
-` "adminer..localhost" `
+
+```nix
+"adminer.shopware-devenv.localhost"
+```
 
 *Declared by:*
  - [\./shopware/modules/adminer\.nix](./shopware/modules/adminer.nix)
@@ -73,7 +82,10 @@ Port on which the adminer is available\.
 
 
 *Default:*
-` 3003 `
+
+```nix
+3003
+```
 
 *Declared by:*
  - [\./shopware/modules/adminer\.nix](./shopware/modules/adminer.nix)
@@ -94,7 +106,10 @@ Port on which elasticsearch is available\.
 
 
 *Default:*
-` 3012 `
+
+```nix
+3012
+```
 
 *Declared by:*
  - [\./shopware/modules/elasticsearch\.nix](./shopware/modules/elasticsearch.nix)
@@ -115,10 +130,37 @@ TCP port on which elasticsearch is available\.
 
 
 *Default:*
-` 3013 `
+
+```nix
+3013
+```
 
 *Declared by:*
  - [\./shopware/modules/elasticsearch\.nix](./shopware/modules/elasticsearch.nix)
+
+
+
+## shopware\.modules\.javascript\.auto-version
+
+
+
+javascript version auto-detected based on the shopware version\.
+
+
+
+*Type:*
+package *(read only)*
+
+
+
+*Default:*
+
+```nix
+"<nodejs_20 for 6.4 and 6.5, nodejs_22 for 6.6, nodejs_24 for 6.7, nodejs_26 otherwise>"
+```
+
+*Declared by:*
+ - [\./shopware/modules/javascript\.nix](./shopware/modules/javascript.nix)
 
 
 
@@ -136,7 +178,10 @@ string *(read only)*
 
 
 *Default:*
-` "mailpit..localhost" `
+
+```nix
+"mailpit.shopware-devenv.localhost"
+```
 
 *Declared by:*
  - [\./shopware/modules/mailpit\.nix](./shopware/modules/mailpit.nix)
@@ -157,7 +202,10 @@ Port on which mailpit is available\.
 
 
 *Default:*
-` 3007 `
+
+```nix
+3007
+```
 
 *Declared by:*
  - [\./shopware/modules/mailpit\.nix](./shopware/modules/mailpit.nix)
@@ -178,10 +226,37 @@ Port on which mailpit listens for SMTP connections\.
 
 
 *Default:*
-` 3008 `
+
+```nix
+3008
+```
 
 *Declared by:*
  - [\./shopware/modules/mailpit\.nix](./shopware/modules/mailpit.nix)
+
+
+
+## shopware\.modules\.mysql\.auto-version
+
+
+
+MySQL version \& package auto-detected based on the shopware version\.
+
+
+
+*Type:*
+package *(read only)*
+
+
+
+*Default:*
+
+```nix
+"<mysql80 for 6.4 and 6.5, mysql84 otherwise>"
+```
+
+*Declared by:*
+ - [\./shopware/modules/mysql\.nix](./shopware/modules/mysql.nix)
 
 
 
@@ -199,10 +274,37 @@ Port on which mysql is available\.
 
 
 *Default:*
-` 3006 `
+
+```nix
+3006
+```
 
 *Declared by:*
  - [\./shopware/modules/mysql\.nix](./shopware/modules/mysql.nix)
+
+
+
+## shopware\.modules\.php\.auto-version
+
+
+
+PHP version auto-detected based on the shopware version\.
+
+
+
+*Type:*
+string *(read only)*
+
+
+
+*Default:*
+
+```nix
+"<8.0 for 6.4, 8.2 for 6.5 and 6.6, 8.4 for 6.7, 8.5 otherwise>"
+```
+
+*Declared by:*
+ - [\./shopware/modules/php\.nix](./shopware/modules/php.nix)
 
 
 
@@ -220,7 +322,10 @@ string *(read only)*
 
 
 *Default:*
-` "rabbitmq..localhost" `
+
+```nix
+"rabbitmq.shopware-devenv.localhost"
+```
 
 *Declared by:*
  - [\./shopware/modules/rabbitmq\.nix](./shopware/modules/rabbitmq.nix)
@@ -241,7 +346,10 @@ Port on which rabbitmq management is available\.
 
 
 *Default:*
-` 3011 `
+
+```nix
+3011
+```
 
 *Declared by:*
  - [\./shopware/modules/rabbitmq\.nix](./shopware/modules/rabbitmq.nix)
@@ -262,7 +370,10 @@ Port on which rabbitmq is available\.
 
 
 *Default:*
-` 3010 `
+
+```nix
+3010
+```
 
 *Declared by:*
  - [\./shopware/modules/rabbitmq\.nix](./shopware/modules/rabbitmq.nix)
@@ -283,7 +394,10 @@ Port on which the redis is available\.
 
 
 *Default:*
-` 3005 `
+
+```nix
+3005
+```
 
 *Declared by:*
  - [\./shopware/modules/redis\.nix](./shopware/modules/redis.nix)
@@ -304,7 +418,10 @@ Port on which the store-watcher serves assets\.
 
 
 *Default:*
-` 3004 `
+
+```nix
+3004
+```
 
 *Declared by:*
  - [\./shopware/modules/store-watcher\.nix](./shopware/modules/store-watcher.nix)
@@ -325,7 +442,10 @@ string *(read only)*
 
 
 *Default:*
-` "store..localhost" `
+
+```nix
+"store.shopware-devenv.localhost"
+```
 
 *Declared by:*
  - [\./shopware/modules/store-watcher\.nix](./shopware/modules/store-watcher.nix)
@@ -346,7 +466,10 @@ Port on which the store-watcher is available\.
 
 
 *Default:*
-` 3002 `
+
+```nix
+3002
+```
 
 *Declared by:*
  - [\./shopware/modules/store-watcher\.nix](./shopware/modules/store-watcher.nix)
@@ -367,7 +490,10 @@ Port on which the var dumper is available\.
 
 
 *Default:*
-` 3009 `
+
+```nix
+3009
+```
 
 *Declared by:*
  - [\./shopware/modules/var-dump-server\.nix](./shopware/modules/var-dump-server.nix)
@@ -388,7 +514,10 @@ one of “http”, “https” *(read only)*
 
 
 *Default:*
-` "http" `
+
+```nix
+"http"
+```
 
 *Declared by:*
  - [\./shopware/default\.nix](./shopware/default.nix)
@@ -409,7 +538,10 @@ string *(read only)*
 
 
 *Default:*
-` "/../.devenv/state/caddy/data/caddy/pki/authorities/local/root.crt" `
+
+```nix
+"/home/cyl3x/shopware/shopware-devenv/../.devenv/state/caddy/data/caddy/pki/authorities/local/root.crt"
+```
 
 *Declared by:*
  - [\./shopware/ssl\.nix](./shopware/ssl.nix)

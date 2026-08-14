@@ -6,8 +6,10 @@ Set of modules to quickly configure a Shopware development environment:
 - Use an SSL proxy to share trusted certificates with platform projects and application servers simultaneously
 - QoL enhancements and pre-configured tools
 
+Since commit `ad236a96ca85d12497b2ca9223d744e28f963492` this configuration is meant as replacement for `devenv.nix`
+
 ## How to use
-Put this as your `devenv.local.nix`:
+Put/Replace this as your `devenv.nix`:
 ```nix
 { ... }: let
   modules = builtins.fetchGit {
@@ -107,7 +109,10 @@ boolean
 
 
 *Default:*
-` false `
+
+```nix
+false
+```
 
 *Declared by:*
  - [\./shopware/default\.nix](./shopware/default.nix)
@@ -129,7 +134,10 @@ string
 
 
 *Default:*
-` "<part-of-dirname>.localhost" `
+
+```nix
+"<part-of-dirname>.localhost"
+```
 
 *Declared by:*
  - [\./shopware/default\.nix](./shopware/default.nix)
@@ -150,7 +158,10 @@ unspecified value
 
 
 *Default:*
-` false `
+
+```nix
+false
+```
 
 *Declared by:*
  - [\./shopware/caddy\.nix](./shopware/caddy.nix)
@@ -171,7 +182,10 @@ boolean
 
 
 *Default:*
-` false `
+
+```nix
+false
+```
 
 *Declared by:*
  - [\./shopware/extras/monolog\.nix](./shopware/extras/monolog.nix)
@@ -193,7 +207,7 @@ list of string
 
 *Default:*
 
-```
+```nix
 [
   "paypal"
   "request"
@@ -220,7 +234,7 @@ list of string
 
 *Default:*
 
-```
+```nix
 [
   "cache"
   "deprecation"
@@ -250,7 +264,10 @@ boolean
 
 
 *Default:*
-` false `
+
+```nix
+false
+```
 
 *Declared by:*
  - [\./shopware/extras/start-proxy\.nix](./shopware/extras/start-proxy.nix)
@@ -272,7 +289,10 @@ boolean
 
 
 *Default:*
-` false `
+
+```nix
+false
+```
 
 *Declared by:*
  - [\./shopware/extras/vscode-workspace\.nix](./shopware/extras/vscode-workspace.nix)
@@ -293,7 +313,10 @@ list of string
 
 
 *Default:*
-` [ ] `
+
+```nix
+[ ]
+```
 
 *Declared by:*
  - [\./shopware/extras/vscode-workspace\.nix](./shopware/extras/vscode-workspace.nix)
@@ -314,7 +337,10 @@ boolean
 
 
 *Default:*
-` true `
+
+```nix
+true
+```
 
 *Declared by:*
  - [\./shopware/extras/vscode-workspace\.nix](./shopware/extras/vscode-workspace.nix)
@@ -335,7 +361,10 @@ boolean
 
 
 *Default:*
-` true `
+
+```nix
+true
+```
 
 *Declared by:*
  - [\./shopware/modules/admin-watcher\.nix](./shopware/modules/admin-watcher.nix)
@@ -356,7 +385,10 @@ boolean
 
 
 *Default:*
-` true `
+
+```nix
+true
+```
 
 *Declared by:*
  - [\./shopware/modules/adminer\.nix](./shopware/modules/adminer.nix)
@@ -379,7 +411,10 @@ boolean
 
 
 *Default:*
-` false `
+
+```nix
+false
+```
 
 *Declared by:*
  - [\./shopware/modules/blackfire\.nix](./shopware/modules/blackfire.nix)
@@ -400,7 +435,10 @@ Port for blackfire’s socket to listen on\.
 
 
 *Default:*
-` 3011 `
+
+```nix
+3011
+```
 
 *Declared by:*
  - [\./shopware/modules/blackfire\.nix](./shopware/modules/blackfire.nix)
@@ -421,7 +459,10 @@ boolean
 
 
 *Default:*
-` false `
+
+```nix
+false
+```
 
 *Declared by:*
  - [\./shopware/modules/cypress\.nix](./shopware/modules/cypress.nix)
@@ -442,10 +483,37 @@ boolean
 
 
 *Default:*
-` false `
+
+```nix
+false
+```
 
 *Declared by:*
  - [\./shopware/modules/elasticsearch\.nix](./shopware/modules/elasticsearch.nix)
+
+
+
+## shopware\.modules\.javascript\.enable
+
+
+
+Enable javascript and necessary configuration\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+
+```nix
+true
+```
+
+*Declared by:*
+ - [\./shopware/modules/javascript\.nix](./shopware/modules/javascript.nix)
 
 
 
@@ -463,7 +531,10 @@ boolean
 
 
 *Default:*
-` true `
+
+```nix
+true
+```
 
 *Declared by:*
  - [\./shopware/modules/mailpit\.nix](./shopware/modules/mailpit.nix)
@@ -484,7 +555,10 @@ boolean
 
 
 *Default:*
-` false `
+
+```nix
+false
+```
 
 *Declared by:*
  - [\./shopware/modules/messenger\.nix](./shopware/modules/messenger.nix)
@@ -506,7 +580,7 @@ list of string
 
 *Default:*
 
-```
+```nix
 [
   "-vv --all"
 ]
@@ -531,7 +605,10 @@ signed integer
 
 
 *Default:*
-` 300 `
+
+```nix
+300
+```
 
 *Declared by:*
  - [\./shopware/modules/messenger\.nix](./shopware/modules/messenger.nix)
@@ -552,10 +629,37 @@ boolean
 
 
 *Default:*
-` true `
+
+```nix
+true
+```
 
 *Declared by:*
  - [\./shopware/modules/mysql\.nix](./shopware/modules/mysql.nix)
+
+
+
+## shopware\.modules\.php\.enable
+
+
+
+Enable php and necessary configuration\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+
+```nix
+true
+```
+
+*Declared by:*
+ - [\./shopware/modules/php\.nix](./shopware/modules/php.nix)
 
 
 
@@ -574,7 +678,10 @@ boolean
 
 
 *Default:*
-` true `
+
+```nix
+true
+```
 
 *Declared by:*
  - [\./shopware/modules/playwright\.nix](./shopware/modules/playwright.nix)
@@ -595,7 +702,10 @@ boolean
 
 
 *Default:*
-` false `
+
+```nix
+false
+```
 
 *Declared by:*
  - [\./shopware/modules/rabbitmq\.nix](./shopware/modules/rabbitmq.nix)
@@ -616,7 +726,10 @@ boolean
 
 
 *Default:*
-` true `
+
+```nix
+true
+```
 
 *Declared by:*
  - [\./shopware/modules/redis\.nix](./shopware/modules/redis.nix)
@@ -637,7 +750,10 @@ boolean
 
 
 *Default:*
-` true `
+
+```nix
+true
+```
 
 *Declared by:*
  - [\./shopware/modules/store-watcher\.nix](./shopware/modules/store-watcher.nix)
@@ -658,7 +774,10 @@ boolean
 
 
 *Default:*
-` true `
+
+```nix
+true
+```
 
 *Declared by:*
  - [\./shopware/modules/var-dump-server\.nix](./shopware/modules/var-dump-server.nix)
@@ -679,7 +798,10 @@ boolean
 
 
 *Default:*
-` true `
+
+```nix
+true
+```
 
 *Declared by:*
  - [\./shopware/modules/xdebug\.nix](./shopware/modules/xdebug.nix)
@@ -700,7 +822,10 @@ signed integer or boolean
 
 
 *Default:*
-` false `
+
+```nix
+false
+```
 
 *Declared by:*
  - [\./shopware/modules/xdebug\.nix](./shopware/modules/xdebug.nix)
@@ -721,7 +846,10 @@ Port for Xdebug to listen on\.
 
 
 *Default:*
-` 3010 `
+
+```nix
+3010
+```
 
 *Declared by:*
  - [\./shopware/modules/xdebug\.nix](./shopware/modules/xdebug.nix)
@@ -742,7 +870,10 @@ The base port on which Shopware will be available\. All sub services will be der
 
 
 *Default:*
-` 3000 `
+
+```nix
+3000
+```
 
 *Declared by:*
  - [\./shopware/default\.nix](./shopware/default.nix)
@@ -763,7 +894,10 @@ boolean
 
 
 *Default:*
-` true `
+
+```nix
+true
+```
 
 *Declared by:*
  - [\./shopware/scripts\.nix](./shopware/scripts.nix)
@@ -784,7 +918,10 @@ boolean
 
 
 *Default:*
-` false `
+
+```nix
+false
+```
 
 *Declared by:*
  - [\./shopware/ssl\.nix](./shopware/ssl.nix)
@@ -807,7 +944,10 @@ boolean
 
 
 *Default:*
-` false `
+
+```nix
+false
+```
 
 *Declared by:*
  - [\./shopware/ssl\.nix](./shopware/ssl.nix)
@@ -828,7 +968,10 @@ string
 
 
 *Default:*
-` "/../.devenv" `
+
+```nix
+"/home/cyl3x/shopware/shopware-devenv/../.devenv"
+```
 
 *Declared by:*
  - [\./shopware/ssl\.nix](./shopware/ssl.nix)
@@ -849,7 +992,10 @@ null or 16 bit unsigned integer; between 0 and 65535 (both inclusive)
 
 
 *Default:*
-` 2000 `
+
+```nix
+2000
+```
 
 *Declared by:*
  - [\./shopware/ssl\.nix](./shopware/ssl.nix)
@@ -871,7 +1017,10 @@ boolean
 
 
 *Default:*
-` false `
+
+```nix
+false
+```
 
 *Declared by:*
  - [\./shopware/ssl\.nix](./shopware/ssl.nix)
@@ -892,10 +1041,37 @@ null or 16 bit unsigned integer; between 0 and 65535 (both inclusive)
 
 
 *Default:*
-` 3080 `
+
+```nix
+3080
+```
 
 *Declared by:*
  - [\./shopware/ssl\.nix](./shopware/ssl.nix)
+
+
+
+## shopware\.version
+
+
+
+Shopware version, will be autodetected\.
+
+
+
+*Type:*
+one of “6\.4”, “6\.5”, “6\.6”, “6\.7”, “6\.8”
+
+
+
+*Default:*
+
+```nix
+"<jq '.extra.branch-alias.dev-trunk' composer.json>"
+```
+
+*Declared by:*
+ - [\./shopware/default\.nix](./shopware/default.nix)
 
 
 
@@ -913,7 +1089,10 @@ boolean
 
 
 *Default:*
-` false `
+
+```nix
+false
+```
 
 *Declared by:*
  - [\./shopware-proxy\.nix](./shopware-proxy.nix)
@@ -932,7 +1111,10 @@ attribute set of 16 bit unsigned integer; between 0 and 65535 (both inclusive)
 
 
 *Default:*
-` { } `
+
+```nix
+{ }
+```
 
 *Declared by:*
  - [\./shopware-proxy\.nix](./shopware-proxy.nix)
@@ -953,7 +1135,10 @@ boolean
 
 
 *Default:*
-` true `
+
+```nix
+true
+```
 
 *Declared by:*
  - [\./shopware-proxy\.nix](./shopware-proxy.nix)
@@ -974,7 +1159,10 @@ boolean
 
 
 *Default:*
-` true `
+
+```nix
+true
+```
 
 *Declared by:*
  - [\./shopware-proxy\.nix](./shopware-proxy.nix)
@@ -995,7 +1183,10 @@ boolean
 
 
 *Default:*
-` true `
+
+```nix
+true
+```
 
 *Declared by:*
  - [\./shopware-proxy\.nix](./shopware-proxy.nix)
@@ -1016,7 +1207,10 @@ boolean
 
 
 *Default:*
-` false `
+
+```nix
+false
+```
 
 *Declared by:*
  - [\./shopware-proxy\.nix](./shopware-proxy.nix)
@@ -1037,7 +1231,10 @@ boolean
 
 
 *Default:*
-` true `
+
+```nix
+true
+```
 
 *Declared by:*
  - [\./shopware-proxy\.nix](./shopware-proxy.nix)
@@ -1058,13 +1255,16 @@ attribute set of 16 bit unsigned integer; between 0 and 65535 (both inclusive)
 
 
 *Default:*
-` { } `
+
+```nix
+{ }
+```
 
 
 
 *Example:*
 
-````
+````nix
 ''
   {
     "trunk.localhost" = 3000; # base port of platform, defined by `shopware.port`
@@ -1092,7 +1292,34 @@ Port on which the proxy listens\.
 
 
 *Default:*
-` 2000 `
+
+```nix
+2000
+```
+
+*Declared by:*
+ - [\./shopware-proxy\.nix](./shopware-proxy.nix)
+
+
+
+## shopware-proxy\.update-modules-path
+
+
+
+Path to recursively update modules in
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+
+```nix
+"."
+```
 
 *Declared by:*
  - [\./shopware-proxy\.nix](./shopware-proxy.nix)
