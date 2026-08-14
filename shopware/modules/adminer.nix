@@ -1,6 +1,15 @@
-{ config, ... }@args: let
+{ config, pkgs, ... }@args: let
   lib = import ../lib.nix args;
   cfg = config.shopware.modules.adminer;
+
+  # devenv's adminer service uses `<package>/adminer.php` as the php router script, which adminneo does not ship.
+  adminneo = pkgs.symlinkJoin {
+    name = "adminneo-with-adminer-${pkgs.adminneo.version}";
+    paths = [ pkgs.adminneo ];
+    postBuild = ''
+      echo '<?php require __DIR__ . "/adminneo.php";' > $out/adminer.php
+    '';
+  };
 in with lib; {
   options.shopware.modules.adminer = {
     enable = mkOption {
@@ -29,7 +38,7 @@ in with lib; {
 
     {
       services.adminer.enable = mkDefault true;
-      # services.adminer.package = mkDefault pkgs.adminer-pematon;
+      services.adminer.package = mkDefault adminneo;
       services.adminer.listen = mkDefault "127.0.0.1:${toString cfg.port}";
     }
   ];

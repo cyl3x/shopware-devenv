@@ -1,4 +1,4 @@
-{ config, ... }@args: let
+{ config, pkgs, ... }@args: let
   lib = import ./lib.nix args;
 
   cfg = config.shopware;
@@ -14,9 +14,11 @@ in with lib; {
     ./modules/blackfire.nix
     ./modules/cypress.nix
     ./modules/elasticsearch.nix
+    ./modules/javascript.nix
     ./modules/mailpit.nix
     ./modules/messenger.nix
     ./modules/mysql.nix
+    ./modules/php.nix
     ./modules/playwright.nix
     ./modules/rabbitmq.nix
     ./modules/redis.nix
@@ -61,6 +63,13 @@ in with lib; {
       type = types.enum ["http" "https"];
       default = if cfg.ssl.proxy.enable || cfg.ssl.standalone.enable then "https" else "http";
     };
+
+    version = mkOption {
+      description = "Shopware version, will be autodetected.";
+      type = types.enum ["6.4" "6.5" "6.6" "6.7" "6.8"];
+      default = builtins.substring 0 3 (builtins.fromJSON (builtins.readFile "${config.env.DEVENV_ROOT}/composer.json")).extra.branch-alias.dev-trunk;
+      defaultText = "<jq '.extra.branch-alias.dev-trunk' composer.json>";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -74,17 +83,24 @@ in with lib; {
       }
     ];
 
+    packages = with pkgs; [ gnupatch gnused symfony-cli jq ];
+
     process.manager.implementation = lib.mkDefault "process-compose";
     devenv.warnOnNewVersion = false;
+    dotenv.disableHint = true;
 
     env.APP_URL = mkDefault "${cfg.protocol}://${cfg.domain}:${toString (if cfg.ssl.proxy.enable then cfg.ssl.proxy.port else cfg.port)}";
     env.APP_URL_HTTP = let
       enable = cfg.ssl.standalone.enable || cfg.ssl.proxy.enable;
       port = if cfg.ssl.standalone.enable then cfg.ssl.standalone.fallbackPort else cfg.port;
     in optionalEnv enable "http://${cfg.domain}:${toString port}";
+
+    env.APP_SECRET = lib.mkDefault "def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48";
     
     env.STOREFRONT_PATH = mkDefault "${config.env.DEVENV_ROOT}/src/Storefront/Resources/app/storefront";
     env.ADMIN_PATH = mkDefault "${config.env.DEVENV_ROOT}/src/Administration/Resources/app/administration";
+
+    env.SERVICE_REGISTRY_URL = lib.mkDefault "https://registry.staging-services.shopware.io";
 
     scripts."update-module".exec = (builtins.readFile ../update_modules.bash) + ''
       update_module '${config.env.DEVENV_ROOT}/devenv.local.nix'

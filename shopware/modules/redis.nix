@@ -19,5 +19,11 @@ in with lib; {
   config = mkIf cfg.enable {
     services.redis.enable = mkDefault true;
     services.redis.port = mkDefault cfg.port;
+    services.redis.extraConfig = "locale-collate C";
+
+    languages.php.ini = ''
+      session.save_handler = redis
+      session.save_path = "tcp://127.0.0.1:${toString config.services.redis.port}/0"
+    '';
   };
 }

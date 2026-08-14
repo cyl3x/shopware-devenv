@@ -31,4 +31,6 @@ rec {
   mkIf = c: lib.mkIf (c && config.shopware.enable);
 
   mkMergeIf = con: list: mkIf con (mkMerge list);
+
+  compareSWVersion = version: builtins.compareVersions version config.shopware.version;
 }
