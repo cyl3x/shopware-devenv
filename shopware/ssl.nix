@@ -63,7 +63,7 @@ in with lib; {
       else if cfg.proxy.enable
       then cfg.proxy.rootCA
       else null;
-    system = if pkgs.stdenv.isLinux then "/etc/ssl/certs/ca-certificates.crt" else "/etc/ssl/cert.pem";
+    system = if pkgs.stdenv.hostPlatform.isLinux then "/etc/ssl/certs/ca-certificates.crt" else "/etc/ssl/cert.pem";
     combined = "${config.env.DEVENV_STATE}/ca-certificates.crt";
   in {
     env.NODE_EXTRA_CA_CERTS = mkDefault combined;
