@@ -1,4 +1,5 @@
-{ config, lib, pkgs, ... }: let
+{ config, lib, pkgs, ... }@args: let
+  inherit (import ./lib.nix args) mkBeforeProcesses;
   cfg = config.shopware.ssl;
 in with lib; {
   options.shopware.ssl = {
@@ -65,15 +66,23 @@ in with lib; {
       else null;
     system = if pkgs.stdenv.hostPlatform.isLinux then "/etc/ssl/certs/ca-certificates.crt" else "/etc/ssl/cert.pem";
     combined = "${config.env.DEVENV_STATE}/ca-certificates.crt";
-  in {
-    env.NODE_EXTRA_CA_CERTS = mkDefault combined;
+  in mkMerge [
+    (mkBeforeProcesses {
+      name = "ca-certificates";
+      # the proxy's root certificate is created on its first start
+      after = optional config.shopware.extras.start-proxy.enable "start-proxy";
+      order = mkAfter;
+      exec = ''
+        cat ${escapeShellArg system} ${escapeShellArg rootCA} > ${escapeShellArg combined} || true
+      '';
+    })
 
-    languages.php.ini = ''
-      openssl.cafile = ${combined}
-    '';
+    {
+      env.NODE_EXTRA_CA_CERTS = mkDefault combined;
 
-    process.manager.before = lib.mkAfter ''
-      cat ${escapeShellArg system} ${escapeShellArg rootCA} > ${escapeShellArg combined}
-    '';
-  });
+      languages.php.ini = ''
+        openssl.cafile = ${combined}
+      '';
+    }
+  ]);
 }

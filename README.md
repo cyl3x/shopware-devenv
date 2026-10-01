@@ -425,7 +425,7 @@ false
 
 
 
-Port for blackfire’s socket to listen on\.
+Base port for blackfire’s socket to listen on\. devenv allocates the next free port starting from this one\.
 
 
 

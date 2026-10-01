@@ -22,7 +22,12 @@ in with lib; {
 
   config = mkIf cfg.enable {
     processes.messenger = {
-      exec = "sleep 2 && ${config.env.DEVENV_ROOT}/bin/console messenger:consume --time-limit=${toString cfg.time-limit} ${lib.strings.concatStringsSep " " cfg.args}";
+      exec = "${config.env.DEVENV_ROOT}/bin/console messenger:consume --time-limit=${toString cfg.time-limit} ${lib.strings.concatStringsSep " " cfg.args}";
+      after = lists.optional config.shopware.modules.mysql.enable "devenv:processes:mysql";
+      restart = {
+        on = "always";
+        max = null;
+      };
       process-compose = {
         availability = {
           restart = "always";

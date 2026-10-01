@@ -9,16 +9,18 @@ in with lib; {
       default = false;
     };
     port = mkOption {
-      description = "Port on which elasticsearch is available.";
+      description = "Port on which elasticsearch is available. Allocated by devenv, starting from `shopware.port + 12`.";
       readOnly = true;
       type = types.port;
-      default = config.shopware.port + 12;
+      default = config.processes.opensearch.ports.http.value;
+      defaultText = "<allocated, starting from shopware.port + 12>";
     };
     tcp-port = mkOption {
-      description = "TCP port on which elasticsearch is available.";
+      description = "TCP port on which elasticsearch is available. Allocated by devenv, starting from `shopware.port + 13`.";
       readOnly = true;
       type = types.port;
-      default = config.shopware.port + 13;
+      default = config.processes.opensearch.ports.transport.value;
+      defaultText = "<allocated, starting from shopware.port + 13>";
     };
   };
 
@@ -29,8 +31,8 @@ in with lib; {
 
     services.opensearch = {
       enable = mkDefault true;
-      settings."http.port" = mkDefault cfg.port;
-      settings."transport.port" = mkDefault cfg.tcp-port;
+      settings."http.port" = mkDefault (config.shopware.port + 12);
+      settings."transport.port" = mkDefault (config.shopware.port + 13);
     };
   };
 }

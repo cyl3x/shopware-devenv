@@ -10,15 +10,12 @@ in with lib; {
     };
   };
 
-  config = mkIf cfg.enable {
-    process.manager.before = lib.mkBefore ''
-      if [ ! -f "${config.shopware.ssl.proxy.devenv}/processes.pid" ] || ! ps -p "$(cat "${config.shopware.ssl.proxy.devenv}/processes.pid")" > /dev/null; then
-        oldPwd="$PWD"
-        cd "${config.shopware.ssl.proxy.devenv}/.."
-        devenv up -d || true
-        sleep 1
-        cd "$oldPwd"
-      fi
+  # `devenv up -d` exits early if the proxy's processes are already running
+  config = mkIf cfg.enable (mkBeforeProcesses {
+    name = "start-proxy";
+    order = mkBefore;
+    exec = ''
+      (cd "${config.shopware.ssl.proxy.devenv}/.." && { devenv up -d; devenv processes wait; }) || true
     '';
-  };
+  });
 }

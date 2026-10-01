@@ -15,16 +15,18 @@ in with lib; {
       default = "rabbitmq.${config.shopware.domain}";
     };
     port = mkOption {
-      description = "Port on which rabbitmq is available.";
+      description = "Port on which rabbitmq is available. Allocated by devenv, starting from `shopware.port + 10`.";
       readOnly = true;
       type = types.port;
-      default = config.shopware.port + 10;
+      default = config.processes.rabbitmq.ports.main.value;
+      defaultText = "<allocated, starting from shopware.port + 10>";
     };
     management-port = mkOption {
-      description = "Port on which rabbitmq management is available.";
+      description = "Port on which rabbitmq management is available. Allocated by devenv, starting from `shopware.port + 11`.";
       readOnly = true;
       type = types.port;
-      default = config.shopware.port + 11;
+      default = config.processes.rabbitmq.ports.management.value;
+      defaultText = "<allocated, starting from shopware.port + 11>";
     };
   };
 
@@ -41,9 +43,9 @@ in with lib; {
 
       services.rabbitmq = {
         enable = mkDefault true;
-        port = mkDefault cfg.port;
+        port = mkDefault (config.shopware.port + 10);
         managementPlugin.enable = mkDefault true;
-        managementPlugin.port = mkDefault cfg.management-port;
+        managementPlugin.port = mkDefault (config.shopware.port + 11);
         nodeName = mkDefault "rabbitmq@${config.shopware.domain}";
       };
     }

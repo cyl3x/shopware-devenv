@@ -72,7 +72,7 @@ string *(read only)*
 
 
 
-Port on which the adminer is available\.
+Port on which the adminer is available\. Allocated by devenv, starting from ` shopware.port + 3 `\.
 
 
 
@@ -84,7 +84,7 @@ Port on which the adminer is available\.
 *Default:*
 
 ```nix
-3003
+"<allocated, starting from shopware.port + 3>"
 ```
 
 *Declared by:*
@@ -96,7 +96,7 @@ Port on which the adminer is available\.
 
 
 
-Port on which elasticsearch is available\.
+Port on which elasticsearch is available\. Allocated by devenv, starting from ` shopware.port + 12 `\.
 
 
 
@@ -108,7 +108,7 @@ Port on which elasticsearch is available\.
 *Default:*
 
 ```nix
-3012
+"<allocated, starting from shopware.port + 12>"
 ```
 
 *Declared by:*
@@ -120,7 +120,7 @@ Port on which elasticsearch is available\.
 
 
 
-TCP port on which elasticsearch is available\.
+TCP port on which elasticsearch is available\. Allocated by devenv, starting from ` shopware.port + 13 `\.
 
 
 
@@ -132,7 +132,7 @@ TCP port on which elasticsearch is available\.
 *Default:*
 
 ```nix
-3013
+"<allocated, starting from shopware.port + 13>"
 ```
 
 *Declared by:*
@@ -192,7 +192,7 @@ string *(read only)*
 
 
 
-Port on which mailpit is available\.
+Port on which mailpit is available\. Allocated by devenv, starting from ` shopware.port + 7 `\.
 
 
 
@@ -204,7 +204,7 @@ Port on which mailpit is available\.
 *Default:*
 
 ```nix
-3007
+"<allocated, starting from shopware.port + 7>"
 ```
 
 *Declared by:*
@@ -216,7 +216,7 @@ Port on which mailpit is available\.
 
 
 
-Port on which mailpit listens for SMTP connections\.
+Port on which mailpit listens for SMTP connections\. Allocated by devenv, starting from ` shopware.port + 8 `\.
 
 
 
@@ -228,7 +228,7 @@ Port on which mailpit listens for SMTP connections\.
 *Default:*
 
 ```nix
-3008
+"<allocated, starting from shopware.port + 8>"
 ```
 
 *Declared by:*
@@ -264,7 +264,7 @@ package *(read only)*
 
 
 
-Port on which mysql is available\.
+Port on which mysql is available\. Allocated by devenv, starting from ` shopware.port + 6 `\.
 
 
 
@@ -276,7 +276,7 @@ Port on which mysql is available\.
 *Default:*
 
 ```nix
-3006
+"<allocated, starting from shopware.port + 6>"
 ```
 
 *Declared by:*
@@ -336,7 +336,7 @@ string *(read only)*
 
 
 
-Port on which rabbitmq management is available\.
+Port on which rabbitmq management is available\. Allocated by devenv, starting from ` shopware.port + 11 `\.
 
 
 
@@ -348,7 +348,7 @@ Port on which rabbitmq management is available\.
 *Default:*
 
 ```nix
-3011
+"<allocated, starting from shopware.port + 11>"
 ```
 
 *Declared by:*
@@ -360,7 +360,7 @@ Port on which rabbitmq management is available\.
 
 
 
-Port on which rabbitmq is available\.
+Port on which rabbitmq is available\. Allocated by devenv, starting from ` shopware.port + 10 `\.
 
 
 
@@ -372,7 +372,7 @@ Port on which rabbitmq is available\.
 *Default:*
 
 ```nix
-3010
+"<allocated, starting from shopware.port + 10>"
 ```
 
 *Declared by:*
@@ -384,7 +384,7 @@ Port on which rabbitmq is available\.
 
 
 
-Port on which the redis is available\.
+Port on which the redis is available\. Allocated by devenv, starting from ` shopware.port + 5 `\.
 
 
 
@@ -396,7 +396,7 @@ Port on which the redis is available\.
 *Default:*
 
 ```nix
-3005
+"<allocated, starting from shopware.port + 5>"
 ```
 
 *Declared by:*

@@ -13,7 +13,7 @@ in with lib; {
       default = false;
     };
     port = mkOption {
-      description = "Port for blackfire's socket to listen on.";
+      description = "Base port for blackfire's socket to listen on. devenv allocates the next free port starting from this one.";
       type = types.port;
       default = config.shopware.port + 11;
     };

@@ -85,7 +85,7 @@ in with lib; {
 
     packages = with pkgs; [ gnupatch gnused symfony-cli jq ];
 
-    process.manager.implementation = lib.mkDefault "process-compose";
+    process.manager.implementation = lib.mkDefault "native";
     devenv.warnOnNewVersion = false;
     dotenv.disableHint = true;
 

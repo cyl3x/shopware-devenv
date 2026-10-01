@@ -9,10 +9,11 @@ in with lib; {
       default = true;
     };
     port = mkOption {
-      description = "Port on which mysql is available.";
+      description = "Port on which mysql is available. Allocated by devenv, starting from `shopware.port + 6`.";
       readOnly = true;
       type = types.port;
-      default = config.shopware.port + 6;
+      default = config.processes.mysql.ports.main.value;
+      defaultText = "<allocated, starting from shopware.port + 6>";
     };
     auto-version = mkOption {
       description = "MySQL/MariaDB package auto-detected based on the shopware version.";
@@ -45,7 +46,7 @@ in with lib; {
       ];
       settings = {
         mysqld = {
-          port = mkDefault cfg.port;
+          port = mkDefault (config.shopware.port + 6);
           group_concat_max_len = 320000;
           log_bin_trust_function_creators = 1;
           sql_mode = "STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION";

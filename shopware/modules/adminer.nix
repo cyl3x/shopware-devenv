@@ -24,10 +24,11 @@ in with lib; {
       default = "adminer.${config.shopware.domain}";
     };
     port = mkOption {
-      description = "Port on which the adminer is available.";
+      description = "Port on which the adminer is available. Allocated by devenv, starting from `shopware.port + 3`.";
       readOnly = true;
       type = types.port;
-      default = config.shopware.port + 3;
+      default = config.processes.adminer.ports.main.value;
+      defaultText = "<allocated, starting from shopware.port + 3>";
     };
   };
 
@@ -39,7 +40,7 @@ in with lib; {
     {
       services.adminer.enable = mkDefault true;
       services.adminer.package = mkDefault adminneo;
-      services.adminer.listen = mkDefault "127.0.0.1:${toString cfg.port}";
+      services.adminer.listen = mkDefault "127.0.0.1:${toString (config.shopware.port + 3)}";
     }
   ];
 }
