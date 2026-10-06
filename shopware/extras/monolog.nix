@@ -16,7 +16,7 @@ in with lib; {
     extra = mkOption {
       description = "List of channels to be logged in an extra file.";
       type = types.listOf types.str;
-      default = [ "paypal" "request" ];
+      default = [ "paypal" "request" "mcp" ];
     };
   };
 
