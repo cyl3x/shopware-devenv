@@ -11,7 +11,7 @@ in with lib; {
     muted = mkOption {
       description = "List of channels to be muted.";
       type = types.listOf types.str;
-      default = [ "cache" "deprecation" "event" "paypal" "request" "lock" ];
+      default = [ "cache" "deprecation" "event" "paypal" "request" "lock" "mcp" ];
     };
     extra = mkOption {
       description = "List of channels to be logged in an extra file.";
